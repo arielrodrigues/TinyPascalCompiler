@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="de.jflex:jflex:1.6.1" type="repository">
+    <properties maven-id="de.jflex:jflex:1.6.1" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/jflex/jflex/1.6.1/jflex-1.6.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/ant/ant/1.7.0/ant-1.7.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/ant/ant-launcher/1.7.0/ant-launcher-1.7.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
