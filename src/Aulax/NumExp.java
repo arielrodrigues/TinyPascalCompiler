@@ -7,6 +7,10 @@ public class NumExp extends Exp{
         this.number = number;
     }
 
+    public int evaluate() {
+        return this.number;
+    }
+
     public String toString() {
         return Integer.toString(this.number);
     }

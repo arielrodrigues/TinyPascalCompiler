@@ -1,5 +1,5 @@
 package Aulax;
 
 public abstract class Exp {
-    //public abstract int evaluate();
+    public abstract int evaluate();
 }
