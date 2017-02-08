@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/br.ufs.dcomp.pascalcompiler.iml" filepath="$PROJECT_DIR$/.idea/br.ufs.dcomp.pascalcompiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tinypascalcompiler.iml" filepath="$PROJECT_DIR$/tinypascalcompiler.iml" />
     </modules>
   </component>
 </project>
