@@ -1,45 +1,45 @@
 package	LexicalAnalyzer;
 %%
 
+%public
+%class LexicalAnalyzer
+
+
 %{
 
-private void imprimir(String descricao, String lexema) {
-    System.out.print(lexema + " - " + descricao);
+private String symbol(String lexema) {
+    System.out.print('<' + lexema + '>');
+    return('<' + lexema + '>');
 }
 
-private void printTeste00(String lexema) {
-    System.out.print('<'+lexema+'>');
+private String symbol(String token, String lexema) {
+    System.out.print('<' + token + ", " + lexema + '>');
+    return('<' + token + ", " + lexema + '>');
 }
 
-private void printTeste01(String token, String lexema) {
-    System.out.print('<'+token+", "+lexema+'>');
-}
-
-private void printTeste02(String token, String lexema) {
-    System.out.print('<'+token+", "+lexema+", "+Integer.parseInt(lexema)+'>');
+private String symbol(String token, String lexema, Object value) {
+    System.out.print('<' + token + ", " + lexema + ", " + value + '>');
+    return('<' + token + ", " + lexema + ", " + value + '>');
 }
 
 %}
 
 
-%class LexicalAnalyzer
-%type void
-
-
-BRANCO = [\n| |\t|\r]
+LineTerminator = [\n|\r|\r\n]
+WhiteSpace = {LineTerminator}|[\t|\f| ]
 ID = [_|a-z|A-Z][a-z|A-Z|0-9|_]*
-SOMA = "+"
-ATRIBUICAO = ":="
-INTEIRO = 0|[1-9][0-9]*
+Plus = "+"
+Assign = ":="
+NumInt = 0|[1-9][0-9]*
 
 %%
 
-"if"                         { printTeste01("ID", yytext()); }
-"then"                       { printTeste01("ID", yytext()); }
-{BRANCO}                     { }
-{ID}                         { printTeste01(yytext(), yytext()); }
-{SOMA}                       { printTeste00("PLUS"); }
-{ATRIBUICAO}                 { printTeste00("ASSIGN"); }
-{INTEIRO}                    { printTeste02("NUMINT", yytext()); }
+"if"                         { symbol("ID", yytext()); }
+"then"                       { symbol("ID", yytext()); }
+{WhiteSpace}                 { }
+{ID}                         { symbol(yytext(), yytext()); }
+{Plus}                       { symbol("PLUS"); }
+{Assign}                     { symbol("ASSIGN"); }
+{NumInt}                     { symbol("NUMINT", yytext(), Integer.parseInt(yytext())); }
 
 . { throw new RuntimeException("Caractere inválido " + yytext()); }
