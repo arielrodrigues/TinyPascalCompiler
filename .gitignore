@@ -11,9 +11,6 @@ br.ufs.dcomp.pascalcompiler.iml
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-#Compiled output
-out/
-
 # Package Files #
 *.jar
 *.war
