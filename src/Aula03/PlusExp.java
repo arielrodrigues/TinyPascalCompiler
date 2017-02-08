@@ -1,27 +1,27 @@
-package Aulax;
+package Aula03;
 
-public class TimesExp extends Exp {
+public class PlusExp extends Exp {
     private Exp left, right;
 
-    public TimesExp(Exp left, Exp right) {
+    PlusExp (Exp left, Exp right) {
         this.left = left;
         this.right = right;
     }
 
     public int evaluate() {
-        return left.evaluate() * right.evaluate();
+        return (left.evaluate() + right.evaluate());
     }
 
     public String toString() {
-        return (!(left instanceof NumExp)?'(' + left.toString() + ')':left.toString()) + " * " +
+        return (!(left instanceof NumExp)?'(' + left.toString() + ')':left.toString()) + " + " +
                 (!(right instanceof NumExp)?'(' + right.toString() + ')':right.toString());
     }
 
-    public Exp getLeft() {
+    public Exp getExpLeft() {
         return this.left;
     }
 
-    public Exp getRight() {
+    public Exp getExpRight() {
         return this.right;
     }
 

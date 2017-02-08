@@ -1,4 +1,4 @@
-package Aulax;
+package Aula03;
 
 public class Test {
 
