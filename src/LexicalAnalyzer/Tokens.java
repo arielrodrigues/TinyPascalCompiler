@@ -1,4 +1,4 @@
-package lexicalanalyzer;
+package LexicalAnalyzer;
 
 public enum Tokens {
 
