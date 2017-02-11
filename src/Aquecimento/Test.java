@@ -1,7 +1,7 @@
-package Aula03;
+package Aquecimento;
 
-import Aula03.Exp.*;
-import Aula03.Operations.*;
+import Aquecimento.Exp.*;
+import Aquecimento.Operations.*;
 
 public class Test {
 

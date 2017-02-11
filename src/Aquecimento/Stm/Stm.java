@@ -1,3 +1,3 @@
-package Aula03.Stm;
+package Aquecimento.Stm;
 
 public abstract class Stm {}

@@ -1,6 +1,6 @@
-package Aula03.Operations;
+package Aquecimento.Operations;
 
-import Aula03.Exp.Exp;
+import Aquecimento.Exp.Exp;
 
 public class NumExp extends Exp {
     private int number;

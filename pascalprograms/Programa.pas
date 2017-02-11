@@ -8,5 +8,5 @@ Program CalcularSalario;
             ValorSalario := ValorSalario * 2; 
     End;
 
-    Imprimir("Processamento feito com sucesso")
+    Imprimir("Processamento feito com sucesso");
 End.

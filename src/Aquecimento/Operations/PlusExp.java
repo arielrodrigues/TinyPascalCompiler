@@ -1,7 +1,7 @@
-package Aula03.Operations;
+package Aquecimento.Operations;
 
-import Aula03.Exp.Exp;
-import Aula03.Exp.VarExp;
+import Aquecimento.Exp.Exp;
+import Aquecimento.Exp.VarExp;
 
 public class PlusExp extends Exp {
     private Exp left, right;

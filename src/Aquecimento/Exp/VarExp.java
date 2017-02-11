@@ -1,5 +1,5 @@
-package Aula03.Exp;
-import Aula03.Memory;
+package Aquecimento.Exp;
+import Aquecimento.Memory;
 
 public class VarExp extends Exp {
     String var;
