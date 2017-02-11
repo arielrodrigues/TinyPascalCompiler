@@ -1,9 +1,11 @@
-package Aula03;
+package Aula03.Operations;
 
-public class NumExp extends Exp{
+import Aula03.Exp.Exp;
+
+public class NumExp extends Exp {
     private int number;
 
-    NumExp(int number) {
+    public NumExp(int number) {
         this.number = number;
     }
 
