@@ -10,7 +10,7 @@ public class Main {
 
         String rootPath = Paths.get("").toAbsolutePath().toString();
         String subPath = "/pascalprograms/";
-        String filename = rootPath + subPath + "Programa.pas";
+        String filename = rootPath + subPath + "OutroProgramaMaroto.pas";
 
         Symbol token;
         LexicalAnalyzer scanner = new LexicalAnalyzer(new FileReader(filename));

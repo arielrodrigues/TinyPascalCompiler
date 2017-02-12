@@ -23,3 +23,5 @@ hs_err_pid*
 .idea/vcs.xml
 .idea/workspace.xml
 .idea/uiDesigner.xml
+src/LexicalAnalyzer/LexicalAnalyzer.java~
+out/production/tinypascalcompiler/LexicalAnalyzer/pascal.lex
