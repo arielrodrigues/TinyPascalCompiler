@@ -1,0 +1,20 @@
+<STRING>
+<EQUAL>
+<STRING, 'oi "string" show!!!'>
+<SEMICOLON>
+<INTEGER>
+<EQUAL>
+<STRING, 'This is a pascal string'>
+<AND>
+<CHAR, ''>
+<OR>
+<CHAR, 'a'>
+<XOR>
+<STRING, 'A tabulator character: '#9' is easy to embed'>
+<SEMICOLON>
+<STRING, 'the string starts here'#13#10'   and continues here'>
+<COMMENT, (*comentário aqui*)>
+<COMMENT, (*asdadadada}
+(*oioioioi*)>
+<COMMENT, {asdasdasdasd*)>
+<COMMENT, {asdasdasdasdasdasdasd}>

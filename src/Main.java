@@ -1,4 +1,5 @@
 import LexicalAnalyzer.*;
+import utils.FileManager;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,13 +9,15 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String rootPath = Paths.get("").toAbsolutePath().toString();
-        String subPath = "/pascalprograms/";
-        String filename = rootPath + subPath + "OutroProgramaMaroto.pas";
-
         Symbol token;
-        LexicalAnalyzer scanner = new LexicalAnalyzer(new FileReader(filename));
+        FileManager fileManager = new FileManager();
+        StringBuilder stringBuilder = new StringBuilder();
+        String inFile = Paths.get("").toAbsolutePath().toString()+"/pascalprograms/"+"OutroProgramaMaroto.pas";
 
-        while ((token = scanner.yylex()) != null) System.out.println(token.toString());
+        LexicalAnalyzer scanner = new LexicalAnalyzer(new FileReader(inFile));
+
+        while ((token = scanner.yylex()) != null) stringBuilder.append(token.toString()).append("\n");
+
+        fileManager.writeToFile("file.out", stringBuilder.toString());
     }
 }
