@@ -1,0 +1,1312 @@
+<UNIT>
+<ID, common>
+<SEMICOLON>
+<INTERFACE>
+<USES>
+<ID, SysUtils>
+<COMMA>
+<ID, Windows>
+<SEMICOLON>
+<CONST>
+<ID, dictfile>
+<EQUAL>
+<STRING, 'dict.txt'>
+<SEMICOLON>
+<ID, tempFile>
+<EQUAL>
+<STRING, 'temp.txt'>
+<SEMICOLON>
+<ID, backupFile>
+<EQUAL>
+<STRING, 'dict.bak'>
+<SEMICOLON>
+<ID, showTemplateFile>
+<EQUAL>
+<STRING, 'show.txt'>
+<SEMICOLON>
+<ID, addTemplateFile>
+<EQUAL>
+<STRING, 'add.txt'>
+<SEMICOLON>
+<ID, indexTemplateFile>
+<EQUAL>
+<STRING, 'index.txt'>
+<SEMICOLON>
+<ID, maintTemplateFile>
+<EQUAL>
+<STRING, 'maint.txt'>
+<SEMICOLON>
+<ID, userFile>
+<EQUAL>
+<STRING, 'user.txt'>
+<SEMICOLON>
+<ID, CGIPost>
+<COLON>
+<BOOLEAN>
+<EQUAL>
+<FALSE>
+<SEMICOLON>
+<ID, QueryString>
+<COLON>
+<STRING>
+<EQUAL>
+<CHAR, ''>
+<SEMICOLON>
+<FUNCTION>
+<ID, getenv>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<FUNCTION>
+<ID, Replace>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, src>
+<COMMA>
+<ID, dst>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<FUNCTION>
+<ID, HexToInt>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<VAR>
+<ID, value>
+<COLON>
+<INTEGER>
+<RPAR>
+<COLON>
+<BOOLEAN>
+<SEMICOLON>
+<FUNCTION>
+<ID, GetParse>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<ID, parsechar>
+<COLON>
+<CHAR>
+<SEMICOLON>
+<ID, index>
+<COLON>
+<INTEGER>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<FUNCTION>
+<ID, GetParseCount>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<ID, parsechar>
+<COLON>
+<CHAR>
+<RPAR>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<FUNCTION>
+<ID, Translate>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, src>
+<COMMA>
+<ID, dst>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<FUNCTION>
+<ID, getValue>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<FUNCTION>
+<ID, isValue>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<BOOLEAN>
+<SEMICOLON>
+<FUNCTION>
+<ID, GetUserPass>
+<LPAR>
+<ID, username>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<PROCEDURE>
+<ID, debug>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<PROCEDURE>
+<ID, normalizeQueryString>
+<LPAR>
+<VAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<PROCEDURE>
+<ID, normalizeword>
+<LPAR>
+<VAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<PROCEDURE>
+<ID, outFile>
+<LPAR>
+<ID, afile>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<IMPLEMENTATION>
+<PROCEDURE>
+<ID, outFile>
+<SEMICOLON>
+<VAR>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<ID, F>
+<COLON>
+<ID, Textfile>
+<SEMICOLON>
+<BEGIN>
+<ID, Assign>
+<LPAR>
+<ID, F>
+<COMMA>
+<ID, afile>
+<RPAR>
+<SEMICOLON>
+<ID, Reset>
+<LPAR>
+<ID, F>
+<RPAR>
+<SEMICOLON>
+<WHILE>
+<NOT>
+<ID, Eof>
+<LPAR>
+<ID, F>
+<RPAR>
+<DO>
+<BEGIN>
+<ID, readlN>
+<LPAR>
+<ID, f>
+<COMMA>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<ID, writeln>
+<LPAR>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, CloseFile>
+<LPAR>
+<ID, F>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<PROCEDURE>
+<ID, Init>
+<SEMICOLON>
+<VAR>
+<ID, si>
+<COLON>
+<ID, TStartupInfo>
+<SEMICOLON>
+<ID, len>
+<COLON>
+<ID, longword>
+<SEMICOLON>
+<BEGIN>
+<ID, QueryString>
+<ASSIGN>
+<ID, getenv>
+<LPAR>
+<STRING, 'QUERY_STRING'>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, QueryString>
+<EQUAL>
+<CHAR, ''>
+<THEN>
+<BEGIN>
+<ID, len>
+<ASSIGN>
+<ID, StrToIntDef>
+<LPAR>
+<ID, getenv>
+<LPAR>
+<STRING, 'CONTENT_LENGTH'>
+<RPAR>
+<COMMA>
+<NUMINT, 0, 0>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, len>
+<GT>
+<NUMINT, 0, 0>
+<THEN>
+<BEGIN>
+<ID, GetStartupInfo>
+<LPAR>
+<ID, si>
+<RPAR>
+<SEMICOLON>
+<ID, setlength>
+<LPAR>
+<ID, QueryString>
+<COMMA>
+<ID, len>
+<RPAR>
+<SEMICOLON>
+<ID, CGIPost>
+<ASSIGN>
+<ID, ReadFile>
+<LPAR>
+<ID, si>
+<DOT>
+<ID, hStdInput>
+<COMMA>
+<ID, QueryString>
+<LBRA>
+<NUMINT, 1, 1>
+<RBRA>
+<COMMA>
+<ID, len>
+<COMMA>
+<ID, len>
+<COMMA>
+<NIL>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, normalizeQueryString>
+<LPAR>
+<ID, QueryString>
+<RPAR>
+<SEMICOLON>
+<ID, writeln>
+<LPAR>
+<STRING, 'Content-type: text/html'#13#10>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, getValue>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<ID, sub>
+<COLON>
+<STRING>
+<SEMICOLON>
+<BEGIN>
+<ID, s>
+<ASSIGN>
+<ID, LowerCase>
+<LPAR>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<CHAR, ''>
+<SEMICOLON>
+<FOR>
+<ID, n>
+<ASSIGN>
+<NUMINT, 1, 1>
+<TO>
+<ID, GetParseCount>
+<LPAR>
+<ID, QueryString>
+<COMMA>
+<CHAR, '&'>
+<RPAR>
+<DO>
+<BEGIN>
+<ID, sub>
+<ASSIGN>
+<ID, getParse>
+<LPAR>
+<ID, QueryString>
+<COMMA>
+<CHAR, '&'>
+<COMMA>
+<ID, n>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, LowerCase>
+<LPAR>
+<ID, GetParse>
+<LPAR>
+<ID, sub>
+<COMMA>
+<CHAR, '='>
+<COMMA>
+<NUMINT, 1, 1>
+<RPAR>
+<RPAR>
+<EQUAL>
+<ID, s>
+<THEN>
+<BEGIN>
+<ID, Result>
+<ASSIGN>
+<ID, GetParse>
+<LPAR>
+<ID, sub>
+<COMMA>
+<CHAR, '='>
+<COMMA>
+<NUMINT, 2, 2>
+<RPAR>
+<SEMICOLON>
+<ID, exit>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, isValue>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<ID, sub>
+<COLON>
+<STRING>
+<SEMICOLON>
+<BEGIN>
+<ID, s>
+<ASSIGN>
+<ID, LowerCase>
+<LPAR>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<FALSE>
+<SEMICOLON>
+<FOR>
+<ID, n>
+<ASSIGN>
+<NUMINT, 1, 1>
+<TO>
+<ID, GetParseCount>
+<LPAR>
+<ID, QueryString>
+<COMMA>
+<CHAR, '&'>
+<RPAR>
+<DO>
+<BEGIN>
+<ID, sub>
+<ASSIGN>
+<ID, getParse>
+<LPAR>
+<ID, QueryString>
+<COMMA>
+<CHAR, '&'>
+<COMMA>
+<ID, n>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, LowerCase>
+<LPAR>
+<ID, GetParse>
+<LPAR>
+<ID, sub>
+<COMMA>
+<CHAR, '&'>
+<COMMA>
+<NUMINT, 1, 1>
+<RPAR>
+<RPAR>
+<EQUAL>
+<ID, s>
+<THEN>
+<BEGIN>
+<ID, Result>
+<ASSIGN>
+<TRUE>
+<SEMICOLON>
+<ID, exit>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, GetUserPass>
+<SEMICOLON>
+<VAR>
+<ID, F>
+<COLON>
+<ID, TextFile>
+<SEMICOLON>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<BEGIN>
+<ID, AssignFile>
+<LPAR>
+<ID, F>
+<COMMA>
+<ID, userFile>
+<RPAR>
+<SEMICOLON>
+<ID, Reset>
+<LPAR>
+<ID, F>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, IOResult>
+<EQUAL>
+<NUMINT, 0, 0>
+<THEN>
+<WHILE>
+<NOT>
+<ID, Eof>
+<LPAR>
+<ID, F>
+<RPAR>
+<DO>
+<BEGIN>
+<ID, Readln>
+<LPAR>
+<ID, F>
+<COMMA>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, s>
+<DIFF>
+<STRING, '' then if s[1] = '~'>
+<THEN>
+<BEGIN>
+<IF>
+<ID, Trim>
+<LPAR>
+<ID, copy>
+<LPAR>
+<ID, s>
+<COMMA>
+<NUMINT, 2, 2>
+<COMMA>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<RPAR>
+<RPAR>
+<EQUAL>
+<ID, username>
+<THEN>
+<BEGIN>
+<ID, Readln>
+<LPAR>
+<ID, F>
+<COMMA>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<ID, Trim>
+<LPAR>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<ID, CloseFile>
+<LPAR>
+<ID, F>
+<RPAR>
+<SEMICOLON>
+<ID, exit>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, CloseFile>
+<LPAR>
+<ID, F>
+<RPAR>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<CHAR, ''>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<PROCEDURE>
+<ID, normalizeword>
+<LPAR>
+<VAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<BEGIN>
+<ID, s>
+<ASSIGN>
+<ID, Translate>
+<LPAR>
+<ID, s>
+<COMMA>
+<STRING, 'string01','string02'>
+<RPAR>
+<SEMICOLON>
+<FOR>
+<ID, n>
+<ASSIGN>
+<NUMINT, 1, 1>
+<TO>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<DO>
+<IF>
+<NOT>
+<LPAR>
+<ID, s>
+<LBRA>
+<ID, n>
+<RBRA>
+<IN>
+<LBRA>
+<STRING, '0'..'9','A'..'Z','a'..'z']) then s[n] := ' '>
+<SEMICOLON>
+<ID, s>
+<ASSIGN>
+<ID, Lowercase>
+<LPAR>
+<ID, Trim>
+<LPAR>
+<ID, s>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<PROCEDURE>
+<ID, normalizeQueryString>
+<LPAR>
+<VAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<ID, b>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<BEGIN>
+<REPEAT>
+<ID, n>
+<ASSIGN>
+<ID, pos>
+<LPAR>
+<CHAR, '%'>
+<COMMA>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, n>
+<EQUAL>
+<NUMINT, 0, 0>
+<THEN>
+<ID, break>
+<SEMICOLON>
+<IF>
+<ID, HexToInt>
+<LPAR>
+<ID, copy>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, n>
+<PLUS>
+<NUMINT, 1, 1>
+<COMMA>
+<NUMINT, 2, 2>
+<RPAR>
+<COMMA>
+<ID, b>
+<RPAR>
+<THEN>
+<BEGIN>
+<ID, Delete>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, n>
+<COMMA>
+<NUMINT, 3, 3>
+<RPAR>
+<SEMICOLON>
+<ID, Insert>
+<LPAR>
+<CHAR>
+<LPAR>
+<ID, b>
+<RPAR>
+<COMMA>
+<ID, s>
+<COMMA>
+<ID, n>
+<RPAR>
+<SEMICOLON>
+<END>
+<ELSE>
+<ID, s>
+<LBRA>
+<ID, n>
+<RBRA>
+<ASSIGN>
+<NUMINT, 255, 255>
+<SEMICOLON>
+<UNTIL>
+<FALSE>
+<SEMICOLON>
+<ID, s>
+<ASSIGN>
+<ID, Replace>
+<LPAR>
+<ID, s>
+<COMMA>
+<STRING, '<','&lt;'>
+<RPAR>
+<SEMICOLON>
+<ID, s>
+<ASSIGN>
+<ID, Replace>
+<LPAR>
+<ID, s>
+<COMMA>
+<STRING, '>','&gt;'>
+<RPAR>
+<SEMICOLON>
+<ID, s>
+<ASSIGN>
+<ID, Translate>
+<LPAR>
+<ID, LowerCase>
+<LPAR>
+<ID, Trim>
+<LPAR>
+<ID, s>
+<RPAR>
+<RPAR>
+<COMMA>
+<STRING, '+'#255,' %'>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, Translate>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COMMA>
+<ID, b>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<BEGIN>
+<FOR>
+<ID, n>
+<ASSIGN>
+<NUMINT, 1, 1>
+<TO>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<DO>
+<BEGIN>
+<ID, b>
+<ASSIGN>
+<ID, pos>
+<LPAR>
+<ID, s>
+<LBRA>
+<ID, n>
+<RBRA>
+<COMMA>
+<ID, src>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, b>
+<GT>
+<NUMINT, 0, 0>
+<THEN>
+<ID, s>
+<LBRA>
+<ID, n>
+<RBRA>
+<ASSIGN>
+<ID, dst>
+<LBRA>
+<ID, b>
+<RBRA>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<ID, s>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, GetParseCount>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<ID, parsechar>
+<COLON>
+<CHAR>
+<RPAR>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<BEGIN>
+<ID, Result>
+<ASSIGN>
+<NUMINT, 1, 1>
+<SEMICOLON>
+<FOR>
+<ID, n>
+<ASSIGN>
+<NUMINT, 1, 1>
+<TO>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<DO>
+<IF>
+<ID, s>
+<LBRA>
+<ID, n>
+<RBRA>
+<EQUAL>
+<ID, parsechar>
+<THEN>
+<ID, inc>
+<LPAR>
+<ID, Result>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, GetParse>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<SEMICOLON>
+<ID, parsechar>
+<COLON>
+<CHAR>
+<SEMICOLON>
+<ID, index>
+<COLON>
+<INTEGER>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COMMA>
+<ID, count>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<BEGIN>
+<ID, count>
+<ASSIGN>
+<NUMINT, 0, 0>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<CHAR, ''>
+<SEMICOLON>
+<REPEAT>
+<ID, n>
+<ASSIGN>
+<ID, pos>
+<LPAR>
+<ID, parsechar>
+<COMMA>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, n>
+<GT>
+<NUMINT, 0, 0>
+<THEN>
+<BEGIN>
+<ID, inc>
+<LPAR>
+<ID, count>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, count>
+<EQUAL>
+<ID, index>
+<THEN>
+<BEGIN>
+<ID, Result>
+<ASSIGN>
+<ID, Trim>
+<LPAR>
+<ID, copy>
+<LPAR>
+<ID, s>
+<COMMA>
+<NUMINT, 1, 1>
+<COMMA>
+<ID, n>
+<MINUS>
+<NUMINT, 1, 1>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<ID, exit>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, s>
+<ASSIGN>
+<ID, copy>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, n>
+<PLUS>
+<NUMINT, 1, 1>
+<COMMA>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, s>
+<EQUAL>
+<CHAR, ''>
+<THEN>
+<ID, exit>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<UNTIL>
+<ID, n>
+<EQUAL>
+<NUMINT, 0, 0>
+<SEMICOLON>
+<IF>
+<ID, count>
+<PLUS>
+<NUMINT, 1, 1>
+<EQUAL>
+<ID, index>
+<THEN>
+<ID, Result>
+<ASSIGN>
+<ID, Trim>
+<LPAR>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, HexToInt>
+<SEMICOLON>
+<VAR>
+<ID, n>
+<COMMA>
+<ID, t>
+<COLON>
+<INTEGER>
+<SEMICOLON>
+<ID, c>
+<COLON>
+<CHAR>
+<SEMICOLON>
+<BEGIN>
+<ID, value>
+<ASSIGN>
+<NUMINT, 0, 0>
+<SEMICOLON>
+<ID, t>
+<ASSIGN>
+<NUMINT, 0, 0>
+<SEMICOLON>
+<FOR>
+<ID, n>
+<ASSIGN>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<DOWNTO>
+<NUMINT, 1, 1>
+<DO>
+<BEGIN>
+<ID, c>
+<ASSIGN>
+<ID, upcase>
+<LPAR>
+<ID, s>
+<LBRA>
+<ID, n>
+<RBRA>
+<RPAR>
+<SEMICOLON>
+<CASE>
+<ID, c>
+<OF>
+<STRING, '0'..'9'>
+<COLON>
+<ID, t>
+<ASSIGN>
+<ID, byte>
+<LPAR>
+<ID, c>
+<RPAR>
+<MINUS>
+<NUMINT, 48, 48>
+<SEMICOLON>
+<STRING, 'A'..'F'>
+<COLON>
+<ID, t>
+<ASSIGN>
+<LPAR>
+<ID, byte>
+<LPAR>
+<ID, c>
+<RPAR>
+<MINUS>
+<NUMINT, 65, 65>
+<RPAR>
+<PLUS>
+<NUMINT, 10, 10>
+<SEMICOLON>
+<ELSE>
+<BEGIN>
+<ID, Result>
+<ASSIGN>
+<FALSE>
+<SEMICOLON>
+<ID, exit>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<COMMENT, {case}>
+<ID, value>
+<ASSIGN>
+<ID, value>
+<OR>
+<LPAR>
+<ID, t>
+<SHL>
+<LPAR>
+<LPAR>
+<ID, length>
+<LPAR>
+<ID, s>
+<RPAR>
+<MINUS>
+<ID, n>
+<RPAR>
+<MULTIPLY>
+<NUMINT, 4, 4>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<TRUE>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<PROCEDURE>
+<ID, debug>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<SEMICOLON>
+<BEGIN>
+<ID, writeln>
+<LPAR>
+<ID, s>
+<PLUS>
+<STRING, '<br>'>
+<RPAR>
+<SEMICOLON>
+<ID, flush>
+<LPAR>
+<ID, output>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, Replace>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, src>
+<COMMA>
+<ID, dst>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<VAR>
+<ID, b>
+<COLON>
+<ID, byte>
+<SEMICOLON>
+<BEGIN>
+<REPEAT>
+<ID, b>
+<ASSIGN>
+<ID, pos>
+<LPAR>
+<ID, src>
+<COMMA>
+<ID, s>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, b>
+<GT>
+<NUMINT, 0, 0>
+<THEN>
+<BEGIN>
+<ID, Delete>
+<LPAR>
+<ID, s>
+<COMMA>
+<ID, b>
+<COMMA>
+<ID, length>
+<LPAR>
+<ID, src>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<IF>
+<ID, dst>
+<DIFF>
+<CHAR, ''>
+<THEN>
+<ID, Insert>
+<LPAR>
+<ID, dst>
+<COMMA>
+<ID, s>
+<COMMA>
+<ID, b>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<UNTIL>
+<ID, b>
+<EQUAL>
+<NUMINT, 0, 0>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<ID, s>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<FUNCTION>
+<ID, getenv>
+<LPAR>
+<ID, s>
+<COLON>
+<STRING>
+<RPAR>
+<COLON>
+<STRING>
+<SEMICOLON>
+<VAR>
+<ID, ar>
+<COLON>
+<Array>
+<LBRA>
+<NUMINT, 1, 1>
+<DOUBLEDOT>
+<NUMINT, 32768, 32768>
+<RBRA>
+<OF>
+<CHAR>
+<SEMICOLON>
+<BEGIN>
+<ID, FillChar>
+<LPAR>
+<ID, ar>
+<COMMA>
+<ID, SizeOf>
+<LPAR>
+<ID, ar>
+<RPAR>
+<COMMA>
+<NUMINT, 0, 0>
+<RPAR>
+<SEMICOLON>
+<ID, GetEnvironmentVariable>
+<LPAR>
+<ID, PChar>
+<LPAR>
+<ID, s>
+<RPAR>
+<COMMA>
+<ID, ar>
+<COMMA>
+<ID, SizeOf>
+<LPAR>
+<ID, ar>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<ID, Result>
+<ASSIGN>
+<ID, Trim>
+<LPAR>
+<ID, StrPas>
+<LPAR>
+<ID, ar>
+<RPAR>
+<RPAR>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<ID, initialization>
+<BEGIN>
+<ID, Init>
+<SEMICOLON>
+<END>
+<SEMICOLON>
+<END>
+<DOT>

@@ -1,13 +1,23 @@
-import lexicalanalyzer.*;
+import LexicalAnalyzer.*;
+import utils.FileManager;
 
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
+import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        String expressao = "begin Begin BEGin if 2+3 := 5 then 5";
-        LexicalAnalyzer lex = new LexicalAnalyzer(new StringReader(expressao));
-        lex.yylex();
+
+        Symbol token;
+        FileManager fileManager = new FileManager();
+        StringBuilder stringBuilder = new StringBuilder();
+        String inFile = Paths.get("").toAbsolutePath().toString()+"/pascalprograms/"+"OutroProgramaMaroto.pas";
+
+        LexicalAnalyzer scanner = new LexicalAnalyzer(new FileReader(inFile));
+
+        while ((token = scanner.yylex()) != null) stringBuilder.append(token.toString()).append("\n");
+
+        fileManager.writeToFile("file.out", stringBuilder.toString());
     }
 }
