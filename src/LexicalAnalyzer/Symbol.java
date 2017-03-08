@@ -1,46 +1,34 @@
 package LexicalAnalyzer;
 
-import java.util.HashMap;
-
 public class Symbol {
-    HashMap<String, Long> tokens;
-    String token, lexema;
+    String nome, lexema;
     Integer line, column;
     Object value;
 
-    Symbol (String token, Integer line, Integer column) {
-        this.token = token;
-        this.line = line;
-        this.column = column;
+    Symbol(String nome, int yyline, int yycolumn) {
+        this.nome = nome;
+        this.line = yyline;
+        this.column = yycolumn;
     }
 
-    Symbol (String token, String lexema, Integer line, Integer column) {
-        this.token = token;
+    Symbol(String nome, String lexema, int yyline, int yycolumn) {
+        this.nome = nome;
         this.lexema = lexema;
-        this.line = line;
-        this.column = column;
+        this.line = yyline;
+        this.column = yycolumn;
     }
 
-    Symbol (String token, String lexema, Object value, Integer line, Integer column) {
-        this.token = token;
+    Symbol(String nome, String lexema, Object value, int yyline, int yycolumn) {
+        this.nome = nome;
         this.lexema = lexema;
         this.value = value;
-        this.line = line;
-        this.column = column;
-    }
-
-    public void printTokens() {
-        System.out.println("*****************************************");
-        System.out.println("Tokens:");
-        tokens.forEach((token, num) -> {
-            System.out.print(token + ": " + num + ", ");
-        });
-        System.out.println("*****************************************");
+        this.line = yyline;
+        this.column = yycolumn;
     }
 
     public String toString() {
-        if (value != null && lexema != null) return ('<' + token + ", " + lexema + ", " + value + '>');
-        else if (lexema != null) return ('<' + token + ", " + lexema + '>');
-        else return ('<' + token + '>');
+        if (value != null && lexema != null) return ('<' + nome + ", " + lexema + ", " + value + '>');
+        else if (lexema != null) return ('<' + nome + ", " + lexema + '>');
+        else return ('<' + nome + '>');
     }
 }

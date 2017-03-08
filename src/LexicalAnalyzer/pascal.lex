@@ -11,15 +11,15 @@ package	LexicalAnalyzer;
 %{
 
 private Symbol newSymbol(String nome) {
-    return new Symbol(nome, yyline, yycolumn);
+    return new Symbol(nome, yyline+1, yycolumn);
 }
 
 private Symbol newSymbol(String nome, String lexema) {
-    return new Symbol(nome, lexema, yyline, yycolumn);
+    return new Symbol(nome, lexema, yyline+1, yycolumn);
 }
 
 private Symbol newSymbol(String nome, String lexema, Object value) {
-    return new Symbol(nome, lexema, value, yyline, yycolumn);
+    return new Symbol(nome, lexema, value, yyline+1, yycolumn);
 }
 
 %}
@@ -57,16 +57,18 @@ Diff = "<>"
 Id = {Letter}({Letter}|{Digit})*
 NumInt = 0|[1-9][0-9]*
 NumReal = {Digit}+(\.{Digit}+)?([E|e](\+|-)?{Digit}+)?
-Char = \'[ -ÿ]\'|\'\'
-Str = \'[ -ÿ][ -ÿ]+\'
-Comment = (\(\*|\{)([^\*]|\*+[^\)])*(\*+\)|\}) //CORRIGIR FECHAR NO PRIMEIRO } !!!
+Chr = \'[ -ÿ]\'|\'\'
+Str = (\'[ -ÿ][ -ÿ]+\')(#{NumInt})*
+Comment =  (\(\*|\{)([^\*\}]|\*+[^\)\}])*(\*+\)|\})
 
 // Reserved words
 And = [Aa][Nn][Dd]
 Array = [Aa][Rr][Rr][Aa][Yy]
 Asm = [Aa][Ss][Mm]
 Begin = [Bb][Ee][Gg][Ii][Nn]
+Boolean = [Bb][Oo][Oo][Ll][Ee][Aa][Nn]
 Case = [Cc][Aa][Ss][Ee]
+Char = [Cc][Hh][Aa][Rr]
 Const = [Cc][Oo][Nn][Ss][Tt]
 Constructor = [Cc][Oo][Nn][Ss][Tt][Rr][Uu][Cc][Tt][Oo][Rr]
 Destructor = [Dd][Ee][Ss][Tt][Rr][Uu][Cc][Tt][Oo][Rr]
@@ -75,6 +77,7 @@ Do = [Dd][Oo]
 Downto = [Dd][Oo][Ww][Nn][Tt][Oo]
 Else = [Ee][Ll][Ss][Ee]
 End = [Ee][Nn][Dd]
+False = [Ff][Aa][Ll][Ss][Ee]
 File = [Ff][Ii][Ll][Ee]
 For = [Ff][Oo][Rr]
 Foward = [Ff][Oo][Ww][Aa][Rr][Dd]
@@ -104,6 +107,7 @@ Shr = [Ss][Hh][Rr]
 String = [Ss][Tt][Rr][Ii][Nn][Gg]
 Then = [Tt][Hh][Ee][Nn]
 To = [Tt][Oo]
+True = [Tt][Rr][Uu][Ee]
 Type = [Tt][Yy][Pp][Ee]
 Unit = [Uu][Nn][Ii][Tt]
 Until = [Uu][Nn][Tt][Ii][Ll]
@@ -143,7 +147,9 @@ Xor = [Xx][Oo][Rr]
 {Array}						 { return newSymbol("Array"); }
 {Asm}						 { return newSymbol("ASM"); }
 {Begin}						 { return newSymbol("BEGIN"); }
+{Boolean}                    { return newSymbol("BOOLEAN"); }
 {Case}						 { return newSymbol("CASE"); }
+{Char}                       { return newSymbol("CHAR"); }
 {Const}						 { return newSymbol("CONST"); }
 {Constructor}				 { return newSymbol("CONSTRUCTOR"); }
 {Destructor}				 { return newSymbol("DESTRUCTOR"); }
@@ -152,6 +158,7 @@ Xor = [Xx][Oo][Rr]
 {Downto}					 { return newSymbol("DOWNTO"); }
 {Else}						 { return newSymbol("ELSE"); }
 {End}						 { return newSymbol("END"); }
+{False}                      { return newSymbol("FALSE"); }
 {File}						 { return newSymbol("FILE"); }
 {For}						 { return newSymbol("FOR"); }
 {Foward}					 { return newSymbol("FOWARD"); }
@@ -181,6 +188,7 @@ Xor = [Xx][Oo][Rr]
 {String}					 { return newSymbol("STRING"); }
 {Then}                       { return newSymbol("THEN"); }
 {To}						 { return newSymbol("TO"); }
+{True}                       { return newSymbol("TRUE"); }
 {Type}						 { return newSymbol("TYPE"); }
 {Unit}						 { return newSymbol("UNIT"); }
 {Until}						 { return newSymbol("UNTIL"); }
@@ -193,10 +201,10 @@ Xor = [Xx][Oo][Rr]
 {Id}                         { return newSymbol("ID", yytext()); }
 {NumInt}                     { return newSymbol("NUMINT", yytext(), Integer.parseInt(yytext())); }
 {NumReal}					 { return newSymbol("NUMREAL", yytext(), Double.parseDouble(yytext())); }
-{Char}						 { return newSymbol("CHAR", yytext()); }
+{Chr}						 { return newSymbol("CHAR", yytext()); }
 {Str}   					 { return newSymbol("STRING", yytext()); }
 {Comment}					 { return newSymbol("COMMENT", yytext()); }
 
 
 . { throw new RuntimeException("Caracter não reconhecido " + yytext() +
- ". Linha: " + yyline + ", Coluna: " + yycolumn); }
+ ". Linha: " + yyline+1 + ", Coluna: " + yycolumn); }

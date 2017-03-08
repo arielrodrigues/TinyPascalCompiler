@@ -12,7 +12,7 @@ public class Main {
         Symbol token;
         FileManager fileManager = new FileManager();
         StringBuilder stringBuilder = new StringBuilder();
-        String inFile = Paths.get("").toAbsolutePath().toString()+"/pascalprograms/"+"OutroProgramaMaroto.pas";
+        String inFile = Paths.get("").toAbsolutePath().toString()+"/pascalprograms/"+"common.pas";
 
         LexicalAnalyzer scanner = new LexicalAnalyzer(new FileReader(inFile));
 
