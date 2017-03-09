@@ -29,10 +29,9 @@ init with {:
   lexer = new Lexer(f,fis);
 :};
 scan with {: return lexer.next_token(); :};
-
 /* Terminals (tokens returned by the scanner). */
 terminal            Plus,Minus,Multiply,Divide; // operadores aritmeticos
-terminal			Dot,DoubleDot,Comma,Colon,semiColon,Caret,Assign; 
+terminal			Dot,DoubleDot,Comma,Colon,SemiColon,Caret,Assign; 
 terminal 			Lpar,Rpar,LBra,RBra;
 terminal 			LT,LE,Gt,GE,Equal,Diff;
 terminal			Id,Chr,Str,Comment;
@@ -41,14 +40,31 @@ terminal Integer    NumInt;        // our scanner provides numbers as integers
 terminal float  	NumReal;
 
 /* Non terminals */
-non terminal            expr_list;
+non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part,Type_Definition_Part;
+non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Compound_Statement;
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /* Precedences */
 precedence left Plus,Minus;
 precedence left Multiply,Divide;
 
+
+
+/* Precedences */
+precedence left Plus,Minus;
+precedence left Multiply,Divide;
+
 /* The grammar rules */
+Prog ::= Program_Heading SemiColon Block Dot;
+
+Program_Heading ::= Program Id | Lpar Id_List Rpar;
+
+Id_List ::= Id | Comma Id_List;
+
+Block ::= Label_Declaration_Part | Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
+
+Label_Declaration_Part ::= Label Id Comma Label_Declaration_Part SemiColon; // optional
+
 expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
             | expr:e SEMI                   {: System.out.println(e); :}
             ;
