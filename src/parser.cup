@@ -43,7 +43,7 @@ terminal float  	NumReal;
 non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part,Type_Definition_Part;
 non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Compound_Statement;
 non terminal			Label_Declaration_aux,Type_Definition_aux,Type_Definition,Type_Denoter,New_Type,New_Ordinary_Type,Array_Type,Ordinal_Type,Ordinal_Type_aux;
-non terminal 			New_Ordinal_Type,Enumerated_Type,SubRange_Type,Constant; 			
+non terminal 			New_Ordinal_Type,Enumerated_Type,SubRange_Type,Constant,Character_String,String_Element,String_Element_aux,String_Character,Variable_Declaration,Variable_Declaration_aux; 			
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /* Precedences */
@@ -75,7 +75,15 @@ Ordinal_Type ::= New_Ordinal_Type | Id;
 New_Ordinal_Type ::= Enumerated_Type | SubRange_Type;
 Enumerated_Type ::= LPar Id_List RPar;
 SubRange_Type ::= Constant DoubleDot Constant;
-Constant ::= NumInt;
+Constant ::= Sign NumInt | Character_String;
+Character_String ::= String_Element String_Element_aux; // string element ? 
+String_Element_aux::= String_Character | String_Element_aux | /*vazio*/;
+String_Character::= Char;
+Variable_Declaration_Part ::= Var Variable_Declaration SemiColon Variable_Declaration_aux | /*vazio*/;
+Variable_Declaration_aux ::= Variable_Declaration SemiColon| Variable_Declaration_aux | /*vazio*/;
+Variable_Declaration ::= Id_List Colon Type_Denoter;
+
+
 expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
             | expr:e SEMI                   {: System.out.println(e); :}
             ;
