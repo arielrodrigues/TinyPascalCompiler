@@ -44,13 +44,7 @@ non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Decla
 non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Compound_Statement;
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
-/* Precedences */
-precedence left Plus,Minus;
-precedence left Multiply,Divide;
-
-
-
-/* Precedences */
+precedence nonassoc SemiColon;	// Inserted by Eclipse plugin
 precedence left Plus,Minus;
 precedence left Multiply,Divide;
 
@@ -59,11 +53,12 @@ Prog ::= Program_Heading SemiColon Block Dot;
 
 Program_Heading ::= Program Id | Lpar Id_List Rpar;
 
-Id_List ::= Id | Comma Id_List;
+Id_List ::= Id | Comma Id_List |;
 
 Block ::= Label_Declaration_Part | Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
 
-Label_Declaration_Part ::= Label Id Comma Label_Declaration_Part SemiColon; // optional
+Label_Declaration_Part ::= Label Id Label_Declaration_aux SemiColon; // optional
+Label_Declaration_aux ::= Comma Id | Label_Declaration_aux;
 
 expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
             | expr:e SEMI                   {: System.out.println(e); :}
