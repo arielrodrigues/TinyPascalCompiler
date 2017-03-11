@@ -42,8 +42,12 @@ terminal float  	NumReal;
 /* Non terminals */
 non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part,Type_Definition_Part;
 non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Compound_Statement;
+non terminal			Label_Declaration_aux,Type_Definition_aux,Type_Definition,Type_Denoter,New_Type,New_Ordinary_Type,Array_Type,Ordinal_Type,Ordinal_Type_aux;
+non terminal 			New_Ordinal_Type,Enumerated_Type,SubRange_Type,Constant; 			
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
+/* Precedences */
+precedence nonassoc RBra;	// Inserted by Eclipse plugin
 precedence nonassoc SemiColon;	// Inserted by Eclipse plugin
 precedence left Plus,Minus;
 precedence left Multiply,Divide;
@@ -51,15 +55,27 @@ precedence left Multiply,Divide;
 /* The grammar rules */
 Prog ::= Program_Heading SemiColon Block Dot;
 
-Program_Heading ::= Program Id | Lpar Id_List Rpar;
+Program_Heading ::= Program Id | LPar Id_List RPar;
 
 Id_List ::= Id | Comma Id_List |;
 
 Block ::= Label_Declaration_Part | Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
 
 Label_Declaration_Part ::= Label Id Label_Declaration_aux SemiColon; // optional
-Label_Declaration_aux ::= Comma Id | Label_Declaration_aux;
+Label_Declaration_aux ::= Comma Id | Label_Declaration_aux|/*vazio*/ ;
 
+Type_Definition_Part ::= Type Type_Definition SemiColon Type_Definition_aux SemiColon;
+Type_Definition_aux ::= Type_Definition | Type_Definition_aux|/*vazio*/ ;
+Type_Definition ::= Id Equal Type_Denoter;
+Type_Denoter ::= Id | New_Type;
+New_Type ::= New_Ordinary_Type | Array_Type;
+Array_Type ::= Array LBra Ordinal_Type Ordinal_Type_aux RBra Of Type_Denoter;
+Ordinal_Type_aux ::= Comma Ordinal_Type | Ordinal_Type_aux | /*vazio*/;
+Ordinal_Type ::= New_Ordinal_Type | Id;
+New_Ordinal_Type ::= Enumerated_Type | SubRange_Type;
+Enumerated_Type ::= LPar Id_List RPar;
+SubRange_Type ::= Constant DoubleDot Constant;
+Constant ::= NumInt;
 expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
             | expr:e SEMI                   {: System.out.println(e); :}
             ;
