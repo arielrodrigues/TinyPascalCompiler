@@ -98,6 +98,21 @@ Procedure_and_Function_Declaration_aux ::= Procedure_Declaration Procedure_and_F
 Procedure_Declaration ::= Procedure_Heading SEMICOLON Block;
 Function_Declaration ::= Function_Heading SEMICOLON Block;
 
+Procedure_Heading ::= Procedure Id | Formal_Parameter_List;
+Function_Heading ::= Function Id | Formal_Parameter_List Colon Result_Type;
+
+Formal_Parameter_List ::= LPar Formal_Parameter_Section Formal_Parameter_Section_aux RPar;
+Formal_Parameter_Section_aux ::= SemiColon Formal_Parameter_Section | Formal_Parameter_Section_aux |/*vazio*/ ;
+Formal_Parameter_Section ::= Value_Parameter_Specification | Variable_Parameter_Specification | Conformant_Array_Parameter_Specification;
+
+Value_Parameter_Specification::= Id_List Colon Id;
+Variable_Parameter_Specification ::= Var Id_List Colon Id;
+Conformant_Array_Parameter_Specification ::= Value_Conformant_Array_Specification | Variable_Conformant_Array_Specification;
+Value_Conformant_Array_Specification::= Id_List Colon Conformant_Array_Schema; 
+Variable_Conformant_Array_Specification ::= Var Id_List Colon Conformant_Array_Schema;
+Conformant_Array_Schema ::= Array Index_Type_Specification_aux Of Identifier_or_Conformant_Array_Schema;
+Index_Type_Specification_aux1 ::= SemiColon Index_Type_Specification | Index_Type_Specification_aux | /*vazio*/;
+Index_Type_Specification_aux ::= Index_Type_Specification Index_Type_Specification_aux1 | /*vazio*/;
 
 
 expr_list ::= expr_list expr:e SEMICOLON         {: System.out.println(e); :}
