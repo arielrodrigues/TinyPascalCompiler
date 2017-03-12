@@ -1,36 +1,61 @@
-package	LexicalAnalyzer;
+package SintaxAnalizer;
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.Location;
+import java_cup.runtime.Symbol;
+import java.lang.*;
+import java.io.InputStreamReader;
 %%
 
-%public
 %class LexicalAnalyzer
-%type Symbol
+%implements sym
+%public
+%unicode
 %line
 %column
-
-
+%cup
+%char
 %{
+    public Lexer (ComplexSymbolFactory sf, java.io.InputStream is) {
+        this(is);
+        symbolFactory = sf;
+    }
 
-private Symbol newSymbol(String nome) {
-    return new Symbol(nome, yyline+1, yycolumn);
-}
+    public Lexer (ComplexSymbolFactory sf, java.io.Reader reader) {
+        this(reader);
+        symbolFactory = sf;
+    }
 
-private Symbol newSymbol(String nome, String lexema) {
-    return new Symbol(nome, lexema, yyline+1, yycolumn);
-}
+    private ComplexSymbolFactory symbolFactory;
+    private int csline,cscolumn;
 
-private Symbol newSymbol(String nome, String lexema, Object value) {
-    return new Symbol(nome, lexema, value, yyline+1, yycolumn);
-}
+    private Symbol symbol(String nome, int code) {
+        return symbolFactory.symbol(nome, code,
+                            new Location(yyline+1, yycolumn+1, yychar),
+                            new Location(yyline+1, yycolumn+yylength(), yychar+yylength()));
+    }
+    public Symbol symbol(String name, int code, String lexem){
+        return symbolFactory.symbol(name, code,
+						new Location(yyline+1, yycolumn +1, yychar),
+						new Location(yyline+1,yycolumn+yylength(), yychar+yylength()), lexem);
+    }
 
+    protected void emit_warning(String message){
+        System.out.println("scanner warning: " + message + " at : 2 "+
+    			(yyline+1) + " " + (yycolumn+1) + " " + yychar);
+    }
+    protected void emit_error(String message){
+    	System.out.println("scanner error: " + message + " at : 2" +
+    			(yyline+1) + " " + (yycolumn+1) + " " + yychar);
+    }
 %}
 
-// Basic
+/* Basic */
 LineTerminator = [\n|\r|\r\n]
 WhiteSpace = {LineTerminator}|[\t|\f| ]
 Letter = [a-z|A-Z]
 Digit = [0-9]
 
-// Symbols
+/* Symbols */
 Dot = "."
 DoubleDot = ".."
 Comma = ","
@@ -53,15 +78,15 @@ GE = ">="
 Equal = "="
 Diff = "<>"
 
-// Types
+/* Types */
 Id = {Letter}({Letter}|{Digit})*
 NumInt = 0|[1-9][0-9]*
 NumReal = {Digit}+(\.{Digit}+)?([E|e](\+|-)?{Digit}+)?
-Chr = \'[ -ÿ]\'|\'\'
-Str = (\'[ -ÿ][ -ÿ]+\')(#{NumInt})*
+Chr = "'"[ -ÿ]"'"|"'""'"
+Str = ("'"[ -ÿ][ -ÿ]+"'")(#{NumInt})*
 Comment =  (\(\*|\{)([^\*\}]|\*+[^\)\}])*(\*+\)|\})
 
-// Reserved words
+/* Reserved words */
 And = [Aa][Nn][Dd]
 Array = [Aa][Rr][Rr][Aa][Yy]
 Asm = [Aa][Ss][Mm]
@@ -117,94 +142,99 @@ While = [Ww][Hh][Ii][Ll][Ee]
 With = [Ww][Ii][Tt][Hh]
 Xor = [Xx][Oo][Rr]
 
-
+%eofval{
+    return symbolFactory.symbol("EOF", sym.EOF);
+%eofval}
+%state CODESEG
 %%
 
+/* Symbols */
 {WhiteSpace}                 { }
-{Dot}			             { return newSymbol("DOT"); }
-{DoubleDot}					 { return newSymbol("DOUBLEDOT"); }
-{Comma}		        	     { return newSymbol("COMMA"); }
-{Colon}			             { return newSymbol("COLON"); }
-{Semicolon}		             { return newSymbol("SEMICOLON"); }
-{Caret}						 { return newSymbol("CARET"); }
-{Assign}                     { return newSymbol("ASSIGN"); }
-{Plus}                       { return newSymbol("PLUS"); }
-{Minus}			             { return newSymbol("MINUS"); }
-{Multiply}      		     { return newSymbol("MULTIPLY"); }
-{Divide}        		     { return newSymbol("DIVIDE"); }
-{LPar}	        		     { return newSymbol("LPAR"); }
-{RPar}	        		     { return newSymbol("RPAR"); }
-{LBra}		        	     { return newSymbol("LBRA"); }
-{RBra}      			     { return newSymbol("RBRA"); }
-{LT}        			     { return newSymbol("LT"); }
-{LE}	        		     { return newSymbol("LE"); }
-{GT}        			     { return newSymbol("GT"); }
-{GE}        			     { return newSymbol("GE"); }
-{Equal}		        	     { return newSymbol("EQUAL"); }
-{Diff}			             { return newSymbol("DIFF"); }
+{Dot}			             { return symbol("DOT", DOT); }
+{DoubleDot}					 { return symbol("DOUBLEDOT", DOUBLEDOT); }
+{Comma}		        	     { return symbol("COMMA", COMMA); }
+{Colon}			             { return symbol("COLON", COLON); }
+{Semicolon}		             { return symbol("SEMICOLON", SEMICOLON); }
+{Caret}						 { return symbol("CARET", CARET); }
+{Assign}                     { return symbol("ASSIGN", ASSIGN); }
+{Plus}                       { return symbol("PLUS", PLUS); }
+{Minus}			             { return symbol("MINUS", MINUS); }
+{Multiply}      		     { return symbol("MULTIPLY", MULTIPLY); }
+{Divide}        		     { return symbol("DIVIDE", DIVIDE); }
+{LPar}	        		     { return symbol("LPAR", LPAR); }
+{RPar}	        		     { return symbol("RPAR", RPAR); }
+{LBra}		        	     { return symbol("LBRA", LBRA); }
+{RBra}      			     { return symbol("RBRA", RBRA); }
+{LT}        			     { return symbol("LT", LT); }
+{LE}	        		     { return symbol("LE", LE); }
+{GT}        			     { return symbol("GT", GT); }
+{GE}        			     { return symbol("GE", GE); }
+{Equal}		        	     { return symbol("EQUAL", EQUAL); }
+{Diff}			             { return symbol("DIFF", DIFF); }
 
-{And}						 { return newSymbol("AND"); }
-{Array}						 { return newSymbol("Array"); }
-{Asm}						 { return newSymbol("ASM"); }
-{Begin}						 { return newSymbol("BEGIN"); }
-{Boolean}                    { return newSymbol("BOOLEAN"); }
-{Case}						 { return newSymbol("CASE"); }
-{Char}                       { return newSymbol("CHAR"); }
-{Const}						 { return newSymbol("CONST"); }
-{Constructor}				 { return newSymbol("CONSTRUCTOR"); }
-{Destructor}				 { return newSymbol("DESTRUCTOR"); }
-{Div}						 { return newSymbol("DIV"); }
-{Do}						 { return newSymbol("DO"); }
-{Downto}					 { return newSymbol("DOWNTO"); }
-{Else}						 { return newSymbol("ELSE"); }
-{End}						 { return newSymbol("END"); }
-{False}                      { return newSymbol("FALSE"); }
-{File}						 { return newSymbol("FILE"); }
-{For}						 { return newSymbol("FOR"); }
-{Foward}					 { return newSymbol("FOWARD"); }
-{Function}					 { return newSymbol("FUNCTION"); }
-{Goto}						 { return newSymbol("GOTO"); }
-{If}                         { return newSymbol("IF"); }
-{Implementation}			 { return newSymbol("IMPLEMENTATION"); }
-{In}						 { return newSymbol("IN"); }
-{Inline}					 { return newSymbol("INLINE"); }
-{Interface}					 { return newSymbol("INTERFACE"); }
-{Integer}                    { return newSymbol("INTEGER"); }
-{Label}						 { return newSymbol("LABEL"); }
-{Mod}						 { return newSymbol("MOD"); }
-{Nil}						 { return newSymbol("NIL"); }
-{Not}						 { return newSymbol("NOT"); }
-{Object}					 { return newSymbol("OBJECT"); }
-{Of}						 { return newSymbol("OF"); }
-{Or}                         { return newSymbol("OR"); }
-{Packed}					 { return newSymbol("PACKED"); }
-{Procedure}					 { return newSymbol("PROCEDURE"); }
-{Program}					 { return newSymbol("PROGRAM"); }
-{Record}					 { return newSymbol("RECORD"); }
-{Repeat}					 { return newSymbol("REPEAT"); }
-{Set}						 { return newSymbol("SET"); }
-{Shl}						 { return newSymbol("SHL"); }
-{Shr}						 { return newSymbol("SHR"); }
-{String}					 { return newSymbol("STRING"); }
-{Then}                       { return newSymbol("THEN"); }
-{To}						 { return newSymbol("TO"); }
-{True}                       { return newSymbol("TRUE"); }
-{Type}						 { return newSymbol("TYPE"); }
-{Unit}						 { return newSymbol("UNIT"); }
-{Until}						 { return newSymbol("UNTIL"); }
-{Uses}						 { return newSymbol("USES"); }
-{Var}						 { return newSymbol("VAR"); }
-{While}						 { return newSymbol("WHILE"); }
-{With}						 { return newSymbol("WITH"); }
-{Xor}						 { return newSymbol("XOR"); }
+/* Types */
+{Id}                         { return symbol("ID", ID); }
+{NumInt}                     { return symbol("NUMINT", NUMINT, Integer.parseInt(yytext())); }
+{NumReal}					 { return symbol("NUMREAL", NUMREAL, Double.parseDouble(yytext())); }
+{Chr}						 { return symbol("CHR", CHR); }
+{Str}   					 { return symbol("STR", STR); }
+{Comment}					 { return symbol("COMMENT", COMMENT); }
 
-{Id}                         { return newSymbol("ID", yytext()); }
-{NumInt}                     { return newSymbol("NUMINT", yytext(), Integer.parseInt(yytext())); }
-{NumReal}					 { return newSymbol("NUMREAL", yytext(), Double.parseDouble(yytext())); }
-{Chr}						 { return newSymbol("CHR", yytext()); }
-{Str}   					 { return newSymbol("STR", yytext()); }
-{Comment}					 { return newSymbol("COMMENT", yytext()); }
+/* Reserved words */
+{And}						 { return symbol("AND", AND); }
+{Array}						 { return symbol("Array", ARRAY); }
+{Asm}						 { return symbol("ASM", ASM); }
+{Begin}						 { return symbol("BEGIN", BEGIN); }
+{Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
+{Case}						 { return symbol("CASE", CASE); }
+{Char}                       { return symbol("CHAR", CHAR); }
+{Const}						 { return symbol("CONST", CONST); }
+{Constructor}				 { return symbol("CONSTRUCTOR", CONSTRUCTOR); }
+{Destructor}				 { return symbol("DESTRUCTOR", DESTRUCTOR); }
+{Div}						 { return symbol("DIV", DIV); }
+{Do}						 { return symbol("DO", DO); }
+{Downto}					 { return symbol("DOWNTO", DOWNTO); }
+{Else}						 { return symbol("ELSE", ELSE); }
+{End}						 { return symbol("END", END); }
+{False}                      { return symbol("FALSE", FALSE); }
+{File}						 { return symbol("FILE", FILE); }
+{For}						 { return symbol("FOR", FOR); }
+{Foward}					 { return symbol("FOWARD", FOWARD); }
+{Function}					 { return symbol("FUNCTION", FUNCTION); }
+{Goto}						 { return symbol("GOTO", GOTO); }
+{If}                         { return symbol("IF", IF); }
+{Implementation}			 { return symbol("IMPLEMENTATION", IMPLEMENTATION); }
+{In}						 { return symbol("IN", IN); }
+{Inline}					 { return symbol("INLINE", INLINE); }
+{Interface}					 { return symbol("INTERFACE", INTERFACE); }
+{Integer}                    { return symbol("INTEGER", INTEGER); }
+{Label}						 { return symbol("LABEL", LABEL); }
+{Mod}						 { return symbol("MOD", MOD); }
+{Nil}						 { return symbol("NIL", NIL); }
+{Not}						 { return symbol("NOT", NOT); }
+{Object}					 { return symbol("OBJECT", OBJECT); }
+{Of}						 { return symbol("OF", OF); }
+{Or}                         { return symbol("OR", OR); }
+{Packed}					 { return symbol("PACKED", PACKED); }
+{Procedure}					 { return symbol("PROCEDURE", PROCEDURE); }
+{Program}					 { return symbol("PROGRAM", PROGRAM); }
+{Record}					 { return symbol("RECORD", RECORD); }
+{Repeat}					 { return symbol("REPEAT", REPEAT); }
+{Set}						 { return symbol("SET", SET); }
+{Shl}						 { return symbol("SHL", SHL); }
+{Shr}						 { return symbol("SHR", SHR); }
+{String}					 { return symbol("STRING", STRING); }
+{Then}                       { return symbol("THEN", THEN); }
+{To}						 { return symbol("TO", TO); }
+{True}                       { return symbol("TRUE", TRUE); }
+{Type}						 { return symbol("TYPE", TYPE); }
+{Unit}						 { return symbol("UNIT", UNIT); }
+{Until}						 { return symbol("UNTIL", UNTIL); }
+{Uses}						 { return symbol("USES", USES); }
+{Var}						 { return symbol("VAR", VAR); }
+{While}						 { return symbol("WHILE", WHILE); }
+{With}						 { return symbol("WITH", WITH); }
+{Xor}						 { return symbol("XOR", XOR); }
 
-
-. { throw new RuntimeException("Caracter não reconhecido " + yytext() +
- ". Linha: " + yyline+1 + ", Coluna: " + yycolumn); }
+// error warning
+. { emit_warning("Caracter não reconhecido " + yytext() + " -- ignorado"); }

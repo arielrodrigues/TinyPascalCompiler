@@ -1,3 +1,4 @@
+/*
 import LexicalAnalyzer.*;
 import utils.FileManager;
 
@@ -21,3 +22,4 @@ public class Main {
         fileManager.writeToFile("file.out", stringBuilder.toString());
     }
 }
+*/

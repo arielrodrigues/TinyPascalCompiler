@@ -1,8 +1,3 @@
-/*
-   Simple +/-/* expression language; 
-   parser evaluates constant expressions on the fly
-*/
-
 package SintaxAnalizer;
 
 import java_cup.runtime.*;
@@ -17,49 +12,71 @@ parser code {:
 
 /* define how to connect to the scanner! */
 init with {:
-  ComplexSymbolFactory f = new ComplexSymbolFactory();
-  symbolFactory = f;
-  File file = new File("input.txt");
-  FileInputStream fis = null;
-  try {
-    fis = new FileInputStream(file);
-  } catch (IOException e) {
-    e.printStackTrace();
-  } 
-  lexer = new Lexer(f,fis);
+    ComplexSymbolfactory f = new ComplexSymbolfactory();
+    symbolfactory = f;
+    File file = new File("input.txt");
+    FileInputStream fis = null;
+    try {
+        fis = new FileInputStream(file);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    lexer = new Lexer(f,fis);
 :};
-scan with {: return lexer.next_token(); :};
-/* Terminals (tokens returned by the scanner). */
-terminal            PLUS, MINUS, MULTIPLY, DIVIDE; // operadores aritmeticos
-terminal			DOT, DOUBLEDOT, COMMA, COLON, SEMICOLON, CARET, ASSIGN; 
+scan with {:
+    return lexer.next_token();
+:};
+
+/* terminals (tokens returned by the scanner). */
+
+/* operadores aritmeticos */
+terminal            PLUS, MINUS, MULTIPLY, DIVIDE;
+/* symbols */
+terminal			DOT, DOUBLEDOT, COMMA, COLON, SEMICOLON, CARET, ASSIGN;
 terminal 			LPAR, RPAR, LBRA, RBRA, SINGLEQUOTES;
 terminal 			LT,LE,GT,GE,EQUAL,DIFF;
+/* reserved words */
 terminal			ID,CHR,STR,COMMENT;
-terminal			AND, ARRAY, ASM, BEGIN, BOOLEAN, CASE, CHAR, CONST, CONSTRUCTOR, DESTRUCTOR, 
+terminal			AND, ARRAY, ASM, BEGIN, BOOLEAN, CASE, CHAR, CONST, CONSTRUCTOR, DESTRUCTOR,
 					DIV, DO, DOWNTO, ELSE, END, FALSE, FILE, FOR, FOWARD, FUNCTION, GOTO,
-					IF, IMPLEMENTATION, IN, INLINE, INTEGER, INTERFACE, LABEL, MOD, NIL, NOT, 
-					OBJECT, OF, OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET, SHL, SHR, 
+					IF, IMPLEMENTATION, IN, INLINE, INTEGER, INTERFACE, LABEL, MOD, NIL, NOT,
+					OBJECT, OF, OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET, SHL, SHR,
 					STRING, THEN, TO, TRUE, TYPE, UNIT, UNTIL, USES, VAR, WHILE, WITH, XOR;
-terminal Integer    NUMINT;        // our scanner provides numbers as integers
-terminal float  	NumReal;
+/* types */
+terminal Integer    NUMINT;
+terminal double 	NUMREAL;
 
 /* Non terminals */
-non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part, Label, Type_Definition_Part;
-non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Procedure_and_Function_Declaration_Part,Procedure_and_Function_Declaration_aux,Procedure_or_Function_Declaration;
-non terminal			Label_Declaration_aux,Type_Definition_aux,Type_Definition,Type_Denoter,New_Type,New_Ordinary_Type,Array_Type,Ordinal_Type,Ordinal_Type_aux;
-non terminal 			New_Ordinal_Type,Enumerated_Type,SubRange_Type,Constant,Character_String,String_Element,String_Element_aux,String_Character,Variable_Declaration,Variable_Declaration_aux; 			
-non terminal 			Procedure_Declaration, Function_Declaration, Procedure_Heading, Function_Heading, Procedure, Function;
-non terminal 			Formal_Parameter_List, Result_Type, Formal_Parameter_Section, Formal_Parameter_Section_aux;
-non terminal 			Value_Parameter_Specification, Variable_Parameter_Specification, Conformant_Array_Parameter_Specification;
-non terminal 			Value_Conformant_Array_Specification, Variable_Conformant_Array_Specification, Conformant_Array_Schema;
-non terminal 			Index_Type_Specification, Index_Type_Specification_aux, Identifier_or_Conformant_Array_Schema;
-non terminal 			Compound_Statement, Statement_Sequence, Statement_aux, Statement, Simple_or_Structured_Statement;
-non terminal 			Simple_Statement, Empty_Statement, Assignment_Statement, Variable_Access, Indexed_Variable, Expression_aux;
-non terminal 			Procedure_Statement, Actual_Parameter_List, Actual_Parameter_aux, Actual_Parameter, Goto_Statement;
-non terminal 			Structured_Statement, If_Statement, Else_Part, While_Statement;
-non terminal 			Expression, Relational_Operator , Simple_Expression, Term_aux, Term, Factor_aux, Factor;
-non terminal 			Multiplying_Operator, Adding_Operator, Unsigned_Constant, Function_Designator;
-non terminal			Sign_aux, Sign, Id_List_aux;
+
+/* Program heading */
+non terminal            program_heading,prog,block,id_list,label_declaration_part,label,type_definition_part;
+/* Variables decalration */
+non terminal 			variable_declaration_part,procedure_and_function_part,procedure_and_function_declaration_part,
+                        procedure_and_function_declaration_aux,procedure_or_function_declaration;
+/* Labels and Types */
+non terminal			label_declaration_aux,type_definition_aux,type_definition,type_denoter,new_type,new_ordinary_type,array_type,
+                        ordinal_type,ordinal_type_aux;
+non terminal 			new_ordinal_type,enumerated_type,subRange_type,constant,character_string,string_element,string_element_aux,
+                        string_character,variable_declaration,variable_declaration_aux;
+/* procedure and Funciton Declaration */
+non terminal 			procedure_declaration,function_declaration,procedure_heading,function_heading,procedure,function;
+/* Parameter lists */
+non terminal 			formal_parameter_list,result_type,formal_parameter_section,formal_parameter_section_aux;
+/* Parameter Specification */
+non terminal 			value_parameter_specification,variable_parameter_specification,conformant_Array_Parameter_Specification,
+ 			            value_conformant_array_specification,variable_conformant_array_specification,conformant_array_schema,
+                        index_type_specification,index_type_specification_aux,identifier_or_conformant_array_schema;
+/* Statements */
+non terminal 			compound_statement,statement_sequence,statement_aux,statement,simple_or_structured_statement,
+		                simple_statement,empty_statement,assignment_statement,variable_access,indexed_variable,expression_aux,
+ 			            procedure_statement,actual_parameter_list,actual_parameter_aux,actual_parameter,goto_statement,
+                        structured_statement,if_statement,else_part,while_statement;
+/* Expressions and Operations */
+non terminal 			expression,relational_operator,expr_list,simple_expression,term_aux,term,factor_aux,factor,
+			            multiplying_operator,adding_operator,unsigned_constant,function_Designator;
+/* Sign and id list */
+non terminal			Sign, id_list_aux;
+/*** @CORRIGIR ***/
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /* Precedences */
@@ -68,114 +85,113 @@ precedence nonassoc SEMICOLON;	// Inserted by Eclipse plugin
 precedence left PLUS,MINUS;
 precedence left MULTIPLY,DIVIDE;
 
-/* The grammar rules */
-Prog ::= Program_Heading SEMICOLON Block DOT;
-Program_Heading ::= PROGRAM ID | PROGRAM ID LPAR Id_List RPAR;
+/* Grammar rules and sintatic evaluation */
 
-Id_List ::= ID Id_List_aux;
-Id_List_aux ::= COMMA ID Id_List_aux | /*vazio*/ ;
+/* program */
+prog ::= program_heading SEMICOLON block DOT;
+program_heading ::= PROGRAM ID | PROGRAM ID LPAR id_list RPAR;
 
-Block ::= Label_Declaration_Part Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
+/* identifier list */
+id_list ::= ID id_list_aux;
+id_list_aux ::= COMMA ID id_list_aux | /*vazio*/ ;
 
-Label_Declaration_Part ::= LABEL Label Label_Declaration_aux SEMICOLON | /*vazio*/; // optional
-Label_Declaration_aux ::= COMMA Label Label_Declaration_aux | /*vazio*/ ;
-Label ::= Digit_Sequence ;
+/* block */
+block ::= label_declaration_part type_definition_part variable_declaration_part procedure_and_function_part compound_statement;
 
-Type_Definition_Part ::= TYPE Type_Definition SEMICOLON Type_Definition_aux | /*vazio*/ ;
-Type_Definition_aux ::= Type_Definition SEMICOLON Type_Definition_aux | /*vazio*/ ;
-Type_Definition ::= ID EQUAL Type_Denoter;
-Type_Denoter ::= ID | New_Type;
-New_Type ::= New_Ordinary_Type | Array_Type;
-Array_Type ::= ARRAY LBRA Ordinal_Type Ordinal_Type_aux RBRA OF Type_Denoter;
-Ordinal_Type_aux ::= COMMA Ordinal_Type Ordinal_Type_aux | /*vazio*/;
-Ordinal_Type ::= New_Ordinal_Type | ID;
-New_Ordinal_Type ::= Enumerated_Type | SubRange_Type;
-Enumerated_Type ::= LPAR Id_List RPAR;
-SubRange_Type ::= Constant DOUBLEDOT Constant;
-Constant ::= Sign_aux NUMINT | Character_String; // NUMINT -> UnsignedNumber
-Sign_aux::= Sign | /*vazio*/ ;
-Sign ::= PLUS | MINUS ;
-Character_String ::= SINGLEQUOTES String_Element String_Element_aux SINGLEQUOTES; // string element ? 
-String_Element_aux::= String_Character String_Element_aux | /*vazio*/;
-String_Character::= CHAR;
+/* label */
+label_declaration_part ::= LABEL label label_declaration_aux SEMICOLON | /*vazio*/; // optional
+label_declaration_aux ::= COMMA label label_declaration_aux | /*vazio*/ ;
+label ::= NUMINT ;
 
-Variable_Declaration_Part ::= VAR Variable_Declaration SEMICOLON Variable_Declaration_aux | /*vazio*/;
-Variable_Declaration_aux ::= Variable_Declaration SEMICOLON Variable_Declaration_aux | /*vazio*/;
-Variable_Declaration ::= Id_List COLON Type_Denoter;
+/* Type Definition */
+type_definition_part ::= TYPE type_definition SEMICOLON type_definition_aux | /*vazio*/ ;
+type_definition_aux ::= type_definition SEMICOLON type_definition_aux | /*vazio*/ ;
+type_definition ::= ID EQUAL type_denoter;
+type_denoter ::= ID | new_type;
+new_type ::= new_ordinary_type | array_type;
+array_type ::= ARRAY LBRA ordinal_type ordinal_type_aux RBRA OF type_denoter;
+ordinal_type_aux ::= COMMA ordinal_type ordinal_type_aux | /*vazio*/;
+ordinal_type ::= new_ordinal_type | ID;
+new_ordinal_type ::= enumerated_type | subRange_type;
+enumerated_type ::= LPAR id_list RPAR;
+subRange_type ::= constant DOUBLEDOT constant;
+Sign::= PLUS | MINUS | /*vazio*/ ;
+constant ::= Sign NUMINT | character_string; // NUMINT -> UnsignedNumber
+character_string ::= SINGLEQUOTES string_element string_element_aux SINGLEQUOTES; // string element ?
+string_element_aux::= string_character string_element_aux | /*vazio*/;
+string_character::= CHAR;
 
-Procedure_and_Function_Declaration_Part ::= Procedure_and_Function_Declaration_aux ;
-Procedure_and_Function_Declaration_aux ::= Procedure_or_Function_Declaration SEMICOLON Procedure_and_Function_Declaration_aux | /*vazio*/ ;
-Procedure_or_Function_Declaration ::= Procedure_Declaration | Function_Declaration ;
-Procedure_Declaration ::= Procedure_Heading SEMICOLON Block;
-Function_Declaration ::= Function_Heading SEMICOLON Block;
+/* Variable Declaration */
+variable_declaration_part ::= VAR variable_declaration SEMICOLON variable_declaration_aux | /*vazio*/;
+variable_declaration_aux ::= variable_declaration SEMICOLON variable_declaration_aux | /*vazio*/;
+variable_declaration ::= id_list COLON type_denoter;
 
-Procedure_Heading ::= PROCEDURE ID | PROCEDURE ID Formal_Parameter_List;
-Function_Heading ::= FUNCTION ID COLON Result_Type | FUNCTION ID Formal_Parameter_List COLON Result_Type;
+/* procedure and function Declaration*/
+procedure_and_function_declaration_part ::= procedure_and_function_declaration_aux ;
+procedure_and_function_declaration_aux ::= procedure_or_function_declaration SEMICOLON procedure_and_function_declaration_aux | /*vazio*/ ;
+procedure_or_function_declaration ::= procedure_declaration | function_declaration ;
+procedure_declaration ::= procedure_heading SEMICOLON block;
+function_declaration ::= function_heading SEMICOLON block;
+procedure_heading ::= PROCEDURE ID | PROCEDURE ID formal_parameter_list;
+function_heading ::= FUNCTION ID COLON result_type | FUNCTION ID formal_parameter_list COLON result_type;
+function_Designator ::= /*function_identifier*/ ID | ID /*function_identifier*/ actual_parameter_list ;
 
-Formal_Parameter_List ::= LPAR Formal_Parameter_Section Formal_Parameter_Section_aux RPAR;
-Formal_Parameter_Section_aux ::= SEMICOLON Formal_Parameter_Section Formal_Parameter_Section_aux | /*vazio*/ ;
-Formal_Parameter_Section ::= Value_Parameter_Specification | Variable_Parameter_Specification | Conformant_Array_Parameter_Specification;
+/* Parameter List and Section */
+formal_parameter_list ::= LPAR formal_parameter_section formal_parameter_section_aux RPAR;
+formal_parameter_section_aux ::= SEMICOLON formal_parameter_section formal_parameter_section_aux | /*vazio*/ ;
+formal_parameter_section ::= value_parameter_specification | variable_parameter_specification | conformant_Array_Parameter_Specification;
 
-Value_Parameter_Specification::= Id_List COLON ID;
-Variable_Parameter_Specification ::= VAR Id_List COLON ID;
-Conformant_Array_Parameter_Specification ::= Value_Conformant_Array_Specification | Variable_Conformant_Array_Specification;
-Value_Conformant_Array_Specification::= Id_List COLON Conformant_Array_Schema; 
-Variable_Conformant_Array_Specification ::= VAR Id_List COLON Conformant_Array_Schema;
-Conformant_Array_Schema ::= ARRAY LBRA Index_Type_Specification Index_Type_Specification_aux RBRA OF Identifier_or_Conformant_Array_Schema;
-Identifier_or_Conformant_Array_Schema ::= ID | Conformant_Array_Schema ;
-Index_Type_Specification_aux ::= SEMICOLON Index_Type_Specification Index_Type_Specification_aux | /*vazio*/;
-Index_Type_Specification ::= ID DOUBLEDOT ID COLON Ordinal_Type_Identifier ;
+/* Parameter and identifier Specification */
+value_parameter_specification::= id_list COLON ID;
+variable_parameter_specification ::= VAR id_list COLON ID;
+conformant_Array_Parameter_Specification ::= value_conformant_array_specification | variable_conformant_array_specification;
+value_conformant_array_specification::= id_list COLON conformant_array_schema;
+variable_conformant_array_specification ::= VAR id_list COLON conformant_array_schema;
+conformant_array_schema ::= ARRAY LBRA index_type_specification index_type_specification_aux RBRA OF identifier_or_conformant_array_schema;
+identifier_or_conformant_array_schema ::= ID | conformant_array_schema ;
+index_type_specification_aux ::= SEMICOLON index_type_specification index_type_specification_aux | /*vazio*/;
+index_type_specification ::= ID DOUBLEDOT ID COLON ID /*ordinal_type_identifier*/ ;
 
-Compound_Statement ::= BEGIN Statement_Sequence END ;
-Statement_Sequence ::= Statement Statement_aux ;
-Statement_aux ::= SEMICOLON Statement Statement_aux | /*vazio*/ ;
-Statement ::= Label COLON Simple_or_Structured_Statement
-        | Simple_or_Structured_Statement ;
-Simple_or_Structured_Statement ::= Simple_Statement | Structured_Statement ;
+/* Compound statement */
+compound_statement ::= BEGIN statement_sequence END ;
+statement_sequence ::= statement statement_aux ;
+statement_aux ::= SEMICOLON statement statement_aux | /*vazio*/ ;
+statement ::= label COLON simple_or_structured_statement
+        | simple_or_structured_statement ;
+simple_or_structured_statement ::= simple_statement | structured_statement ;
 
-Simple_Statement ::= Empty_Statement | Assignment_Statement
-        | Procedure_Statement | Goto_Statement ;
-Empty_Statement ::= /*vazio*/ ;
-Assignment_Statement ::= Variable_Access ASSIGN Expression ;
-Variable_Access ::= ID | Indexed_Variable ;
-Indexed_Variable ::= Variable_Access LBRA Expression Expression_aux RBRA ;
-Expression_aux ::= COMMA Expression Expression_aux | /*vazio*/ ;
-Procedure_Statement ::= Procedure_Identifier | Procedure_Identifier Actual_Parameter_List ;
-Actual_Parameter_List ::= LPAR Actual_Parameter Actual_Parameter_aux RPAR ;
-Actual_Parameter_aux ::= COMMA Actual_Parameter Actual_Parameter_aux | /*vazio*/ ;
-Actual_Parameter ::= Expression | Variable_Access ;
-Goto_Statement ::= GOTO Label ;
+/* Simple statement */
+simple_statement ::= empty_statement | assignment_statement
+        | procedure_statement | goto_statement ;
+empty_statement ::= /*vazio*/ ;
+assignment_statement ::= variable_access ASSIGN expression ;
+variable_access ::= ID | indexed_variable ;
+indexed_variable ::= variable_access LBRA expression expression_aux RBRA ;
+expression_aux ::= COMMA expression expression_aux | /*vazio*/ ;
+procedure_statement ::= /*procedure_identifier*/ ID | /*procedure_identifier*/ ID actual_parameter_list ;
+actual_parameter_list ::= LPAR actual_parameter actual_parameter_aux RPAR ;
+actual_parameter_aux ::= COMMA actual_parameter actual_parameter_aux | /*vazio*/ ;
+actual_parameter ::= expression | variable_access ;
+goto_statement ::= GOTO label ;
 
-Structured_Statement ::= Compound_Statement | If_Statement | While_Statement ;
-If_Statement ::= IF Expression THEN Statement
-        | IF Expression THEN Statement Else_Part ;
-Else_Part ::= ELSE Statement ;
-While_Statement ::= WHILE Expression DO Statement ;
+/* Structured statement */
+structured_statement ::= compound_statement | if_statement | while_statement ;
+if_statement ::= IF expression THEN statement
+        | IF expression THEN statement else_part ;
+else_part ::= ELSE statement ;
+while_statement ::= WHILE expression DO statement ;
 
-Expression ::= Simple_Expression | Simple_Expression Relational_Operator Simple_Expression ;
-Simple_Expression ::= Sign Term Term_aux ;
-Term_aux ::= Adding_Operator Term Term_aux | /*vazio*/ ;
-Term ::= Factor Factor_aux ;
-Factor_aux ::= Multiplying_Operator Factor Factor_aux | /*vazio*/ ;
-Factor ::= Variable_Access | Unsigned_Constant | Function_Designator
-        | LPAR Expression RPAR | NOT Factor ;
-Multiplying_Operator ::= MULTIPLY | DIVIDE | MOD | AND ;
-Adding_Operator ::= PLUS | MINUS | OR ;
-Relational_Operator ::= LT | LE | GT | GE | EQUAL | DIFF ;
-Unsigned_Constant ::= Unsigned_Number | Character_String ;
-Function_Designator ::= Function_Identifier | Function_Identifier Actual_Parameter_List ;
+/* expression */
+expression ::= simple_expression | simple_expression relational_operator simple_expression ;
+simple_expression ::= Sign term term_aux ;
+term_aux ::= adding_operator term term_aux | /*vazio*/ ;
+term ::= factor factor_aux ;
+factor_aux ::= multiplying_operator factor factor_aux | /*vazio*/ ;
+factor ::= variable_access | unsigned_constant | function_Designator
+        | LPAR expression RPAR | NOT factor ;
 
-
-expr_list ::= expr_list expr:e SEMICOLON         {: System.out.println(e); :}
-            | expr:e SEMICOLON                   {: System.out.println(e); :}
-            ;
-            
-expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;        :}
-             | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;        :}
-             | expr:e1 MULTIPLY expr:e2        {: RESULT = e1*e2;        :}
-             | MINUS expr:e                 {: RESULT = -e;           :}
-             %prec UMINUS
-             | LPAR expr:e RPAR	         {: RESULT = e;           :}
-             | NUMBER:n	                     {: RESULT = n;           :}
-             ;
-       
+/* Operations */
+multiplying_operator ::= MULTIPLY | DIVIDE | MOD | AND ;
+adding_operator ::= PLUS | MINUS | OR ;
+relational_operator ::= LT | LE | GT | GE | EQUAL | DIFF ;
+unsigned_constant ::= NUMINT | character_string ;
