@@ -52,6 +52,8 @@ GT = ">"
 GE = ">="
 Equal = "="
 Diff = "<>"
+Sign = [+|-]
+
 
 // Types
 Id = {Letter}({Letter}|{Digit})*
@@ -201,9 +203,10 @@ Xor = [Xx][Oo][Rr]
 {Id}                         { return newSymbol("ID", yytext()); }
 {NumInt}                     { return newSymbol("NUMINT", yytext(), Integer.parseInt(yytext())); }
 {NumReal}					 { return newSymbol("NUMREAL", yytext(), Double.parseDouble(yytext())); }
-{Chr}						 { return newSymbol("CHAR", yytext()); }
-{Str}   					 { return newSymbol("STRING", yytext()); }
+{Chr}						 { return newSymbol("CHR", yytext()); }
+{Str}   					 { return newSymbol("STR", yytext()); }
 {Comment}					 { return newSymbol("COMMENT", yytext()); }
+{Sign}						 { return newSymbol("SIGN"); }
 
 
 . { throw new RuntimeException("Caracter não reconhecido " + yytext() +

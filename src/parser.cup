@@ -30,70 +30,86 @@ init with {:
 :};
 scan with {: return lexer.next_token(); :};
 /* Terminals (tokens returned by the scanner). */
-terminal            Plus,Minus,Multiply,Divide; // operadores aritmeticos
-terminal			Dot,DoubleDot,Comma,Colon,SemiColon,Caret,Assign; 
-terminal 			Lpar,Rpar,LBra,RBra;
-terminal 			LT,LE,Gt,GE,Equal,Diff;
-terminal			Id,Chr,Str,Comment;
-terminal			And,Array,Asm,Begin,Boolean,Case,Char,Const,Constructor,Destructor,Div,Do,Downto,Else,End,False,File,For,Foward,Function,Goto,If,Implementation,In,Inline,Integer,Interface,Label,Mod,Nil,Not,object,Of,Or,Packed,Procedure,Program,Record,Repeat,Set,Shl,Shr,String,Then,To,True,Type,Unit,Until,Uses,Var,While,With,Xor;
-terminal Integer    NumInt;        // our scanner provides numbers as integers
+terminal            PLUS, MINUS, MULTIPLY, DIVIDE, SIGN; // operadores aritmeticos
+terminal			DOT, DOUBLEDOT, COMMA, COLON, SEMICOLON, CARET, ASSIGN; 
+terminal 			LPAR, RPAR, LBRA, RBRA, SINGLEQUOTES;
+terminal 			LT,LE,GT,GE,EQUAL,DIFF;
+terminal			ID,CHR,STR,COMMENT;
+terminal			AND, ARRAY, ASM, BEGIN, BOOLEAN, CASE, CHAR, CONST, CONSTRUCTOR, DESTRUCTOR, 
+					DIV, DO, DOWNTO, ELSE, END, FALSE, FILE, FOR, FOWARD, FUNCTION, GOTO,
+					IF, IMPLEMENTATION, IN, INLINE, INTEGER, INTERFACE, LABEL, MOD, NIL, NOT, 
+					OBJECT, OF, OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET, SHL, SHR, 
+					STRING, THEN, TO, TRUE, TYPE, UNIT, UNTIL, USES, VAR, WHILE, WITH, XOR;
+terminal Integer    NUMINT;        // our scanner provides numbers as integers
 terminal float  	NumReal;
 
 /* Non terminals */
 non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part,Type_Definition_Part;
-non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Compound_Statement;
+non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Procedure_and_Function_Declaration_Part,Procedure_and_Function_Declaration_aux,Compound_Statement;
 non terminal			Label_Declaration_aux,Type_Definition_aux,Type_Definition,Type_Denoter,New_Type,New_Ordinary_Type,Array_Type,Ordinal_Type,Ordinal_Type_aux;
 non terminal 			New_Ordinal_Type,Enumerated_Type,SubRange_Type,Constant,Character_String,String_Element,String_Element_aux,String_Character,Variable_Declaration,Variable_Declaration_aux; 			
+non terminal			Sign_aux, Id_List_aux;
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /* Precedences */
-precedence nonassoc RBra;	// Inserted by Eclipse plugin
-precedence nonassoc SemiColon;	// Inserted by Eclipse plugin
-precedence left Plus,Minus;
-precedence left Multiply,Divide;
+precedence nonassoc RBRA;	// Inserted by Eclipse plugin
+precedence nonassoc SEMICOLON;	// Inserted by Eclipse plugin
+precedence left PLUS,MINUS;
+precedence left MULTIPLY,DIVIDE;
 
 /* The grammar rules */
-Prog ::= Program_Heading SemiColon Block Dot;
+Prog ::= Program_Heading SEMICOLON Block DOT;
 
-Program_Heading ::= Program Id | LPar Id_List RPar;
+Program_Heading ::= PROGRAM ID | LPAR Id_List RPAR;
 
-Id_List ::= Id | Comma Id_List |;
+Id_List ::= ID Id_List_aux;
+Id_List_aux ::= COMMA ID Id_List_aux | /*vazio*/ ;
 
-Block ::= Label_Declaration_Part | Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
+Block ::= Label_Declaration_Part 
+		| Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
 
-Label_Declaration_Part ::= Label Id Label_Declaration_aux SemiColon; // optional
-Label_Declaration_aux ::= Comma Id | Label_Declaration_aux|/*vazio*/ ;
+Label_Declaration_Part ::= LABEL ID Label_Declaration_aux SEMICOLON | /*vazio*/; // optional
+Label_Declaration_aux ::= COMMA ID Label_Declaration_aux | /*vazio*/ ;
 
-Type_Definition_Part ::= Type Type_Definition SemiColon Type_Definition_aux SemiColon;
-Type_Definition_aux ::= Type_Definition | Type_Definition_aux|/*vazio*/ ;
-Type_Definition ::= Id Equal Type_Denoter;
-Type_Denoter ::= Id | New_Type;
+Type_Definition_Part ::= TYPE Type_Definition SEMICOLON Type_Definition_aux | /*vazio*/ ;
+Type_Definition_aux ::= Type_Definition SEMICOLON Type_Definition_aux | /*vazio*/ ;
+Type_Definition ::= ID EQUAL Type_Denoter;
+Type_Denoter ::= ID | New_Type;
 New_Type ::= New_Ordinary_Type | Array_Type;
-Array_Type ::= Array LBra Ordinal_Type Ordinal_Type_aux RBra Of Type_Denoter;
-Ordinal_Type_aux ::= Comma Ordinal_Type | Ordinal_Type_aux | /*vazio*/;
-Ordinal_Type ::= New_Ordinal_Type | Id;
+Array_Type ::= ARRAY LBRA Ordinal_Type Ordinal_Type_aux RBRA OF Type_Denoter;
+Ordinal_Type_aux ::= COMMA Ordinal_Type Ordinal_Type_aux | /*vazio*/;
+Ordinal_Type ::= New_Ordinal_Type | ID;
 New_Ordinal_Type ::= Enumerated_Type | SubRange_Type;
-Enumerated_Type ::= LPar Id_List RPar;
-SubRange_Type ::= Constant DoubleDot Constant;
-Constant ::= Sign NumInt | Character_String;
-Character_String ::= String_Element String_Element_aux; // string element ? 
-String_Element_aux::= String_Character | String_Element_aux | /*vazio*/;
-String_Character::= Char;
-Variable_Declaration_Part ::= Var Variable_Declaration SemiColon Variable_Declaration_aux | /*vazio*/;
-Variable_Declaration_aux ::= Variable_Declaration SemiColon| Variable_Declaration_aux | /*vazio*/;
-Variable_Declaration ::= Id_List Colon Type_Denoter;
+Enumerated_Type ::= LPAR Id_List RPAR;
+SubRange_Type ::= Constant DOUBLEDOT Constant;
+Constant ::= Sign_aux NUMINT | Character_String;
+Sign_aux::= SIGN | /*vazio*/ ;
+Character_String ::= SINGLEQUOTES String_Element String_Element_aux SINGLEQUOTES; // string element ? 
+String_Element_aux::= String_Character String_Element_aux | /*vazio*/;
+String_Character::= CHAR;
+
+Variable_Declaration_Part ::= VAR Variable_Declaration SEMICOLON Variable_Declaration_aux | /*vazio*/;
+Variable_Declaration_aux ::= Variable_Declaration SEMICOLON Variable_Declaration_aux | /*vazio*/;
+Variable_Declaration ::= Id_List COLON Type_Denoter;
+
+Procedure_and_Function_Declaration_Part ::= Procedure_and_Function_Declaration_aux | /*vazio*/ ;
+Procedure_and_Function_Declaration_aux ::= Procedure_Declaration Procedure_and_Function_Declaration_aux 
+				| Function_Declaration Procedure_and_Function_Declaration_aux | /*vazio*/ ;
+Procedure_Declaration ::= Procedure_Heading SEMICOLON Block;
+Function_Declaration ::= Function_Heading SEMICOLON Block;
 
 
-expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
-            | expr:e SEMI                   {: System.out.println(e); :}
+
+expr_list ::= expr_list expr:e SEMICOLON         {: System.out.println(e); :}
+            | expr:e SEMICOLON                   {: System.out.println(e); :}
             ;
             
 expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;        :}
              | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;        :}
-             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;        :}
+             | expr:e1 MULTIPLY expr:e2        {: RESULT = e1*e2;        :}
              | MINUS expr:e                 {: RESULT = -e;           :}
              %prec UMINUS
-             | LPAREN expr:e RPAREN	         {: RESULT = e;           :}
+             | LPAR expr:e RPAR	         {: RESULT = e;           :}
              | NUMBER:n	                     {: RESULT = n;           :}
              ;
        
