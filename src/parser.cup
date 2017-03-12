@@ -30,7 +30,7 @@ init with {:
 :};
 scan with {: return lexer.next_token(); :};
 /* Terminals (tokens returned by the scanner). */
-terminal            PLUS, MINUS, MULTIPLY, DIVIDE, SIGN; // operadores aritmeticos
+terminal            PLUS, MINUS, MULTIPLY, DIVIDE; // operadores aritmeticos
 terminal			DOT, DOUBLEDOT, COMMA, COLON, SEMICOLON, CARET, ASSIGN; 
 terminal 			LPAR, RPAR, LBRA, RBRA, SINGLEQUOTES;
 terminal 			LT,LE,GT,GE,EQUAL,DIFF;
@@ -44,11 +44,22 @@ terminal Integer    NUMINT;        // our scanner provides numbers as integers
 terminal float  	NumReal;
 
 /* Non terminals */
-non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part,Type_Definition_Part;
-non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Procedure_and_Function_Declaration_Part,Procedure_and_Function_Declaration_aux,Compound_Statement;
+non terminal            expr_list,Program_Heading,Prog,Block,Id_List,Label_Declaration_Part, Label, Type_Definition_Part;
+non terminal 			Variable_Declaration_Part,Procedure_And_Function_Part,Procedure_and_Function_Declaration_Part,Procedure_and_Function_Declaration_aux,Procedure_or_Function_Declaration;
 non terminal			Label_Declaration_aux,Type_Definition_aux,Type_Definition,Type_Denoter,New_Type,New_Ordinary_Type,Array_Type,Ordinal_Type,Ordinal_Type_aux;
 non terminal 			New_Ordinal_Type,Enumerated_Type,SubRange_Type,Constant,Character_String,String_Element,String_Element_aux,String_Character,Variable_Declaration,Variable_Declaration_aux; 			
-non terminal			Sign_aux, Id_List_aux;
+non terminal 			Procedure_Declaration, Function_Declaration, Procedure_Heading, Function_Heading, Procedure, Function;
+non terminal 			Formal_Parameter_List, Result_Type, Formal_Parameter_Section, Formal_Parameter_Section_aux;
+non terminal 			Value_Parameter_Specification, Variable_Parameter_Specification, Conformant_Array_Parameter_Specification;
+non terminal 			Value_Conformant_Array_Specification, Variable_Conformant_Array_Specification, Conformant_Array_Schema;
+non terminal 			Index_Type_Specification, Index_Type_Specification_aux, Identifier_or_Conformant_Array_Schema;
+non terminal 			Compound_Statement, Statement_Sequence, Statement_aux, Statement, Simple_or_Structured_Statement;
+non terminal 			Simple_Statement, Empty_Statement, Assignment_Statement, Variable_Access, Indexed_Variable, Expression_aux;
+non terminal 			Procedure_Statement, Actual_Parameter_List, Actual_Parameter_aux, Actual_Parameter, Goto_Statement;
+non terminal 			Structured_Statement, If_Statement, Else_Part, While_Statement;
+non terminal 			Expression, Relational_Operator , Simple_Expression, Term_aux, Term, Factor_aux, Factor;
+non terminal 			Multiplying_Operator, Adding_Operator, Unsigned_Constant, Function_Designator;
+non terminal			Sign_aux, Sign, Id_List_aux;
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /* Precedences */
@@ -59,17 +70,16 @@ precedence left MULTIPLY,DIVIDE;
 
 /* The grammar rules */
 Prog ::= Program_Heading SEMICOLON Block DOT;
-
-Program_Heading ::= PROGRAM ID | LPAR Id_List RPAR;
+Program_Heading ::= PROGRAM ID | PROGRAM ID LPAR Id_List RPAR;
 
 Id_List ::= ID Id_List_aux;
 Id_List_aux ::= COMMA ID Id_List_aux | /*vazio*/ ;
 
-Block ::= Label_Declaration_Part 
-		| Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
+Block ::= Label_Declaration_Part Type_Definition_Part Variable_Declaration_Part Procedure_And_Function_Part Compound_Statement;
 
-Label_Declaration_Part ::= LABEL ID Label_Declaration_aux SEMICOLON | /*vazio*/; // optional
-Label_Declaration_aux ::= COMMA ID Label_Declaration_aux | /*vazio*/ ;
+Label_Declaration_Part ::= LABEL Label Label_Declaration_aux SEMICOLON | /*vazio*/; // optional
+Label_Declaration_aux ::= COMMA Label Label_Declaration_aux | /*vazio*/ ;
+Label ::= Digit_Sequence ;
 
 Type_Definition_Part ::= TYPE Type_Definition SEMICOLON Type_Definition_aux | /*vazio*/ ;
 Type_Definition_aux ::= Type_Definition SEMICOLON Type_Definition_aux | /*vazio*/ ;
@@ -82,8 +92,9 @@ Ordinal_Type ::= New_Ordinal_Type | ID;
 New_Ordinal_Type ::= Enumerated_Type | SubRange_Type;
 Enumerated_Type ::= LPAR Id_List RPAR;
 SubRange_Type ::= Constant DOUBLEDOT Constant;
-Constant ::= Sign_aux NUMINT | Character_String;
-Sign_aux::= SIGN | /*vazio*/ ;
+Constant ::= Sign_aux NUMINT | Character_String; // NUMINT -> UnsignedNumber
+Sign_aux::= Sign | /*vazio*/ ;
+Sign ::= PLUS | MINUS ;
 Character_String ::= SINGLEQUOTES String_Element String_Element_aux SINGLEQUOTES; // string element ? 
 String_Element_aux::= String_Character String_Element_aux | /*vazio*/;
 String_Character::= CHAR;
@@ -92,27 +103,67 @@ Variable_Declaration_Part ::= VAR Variable_Declaration SEMICOLON Variable_Declar
 Variable_Declaration_aux ::= Variable_Declaration SEMICOLON Variable_Declaration_aux | /*vazio*/;
 Variable_Declaration ::= Id_List COLON Type_Denoter;
 
-Procedure_and_Function_Declaration_Part ::= Procedure_and_Function_Declaration_aux | /*vazio*/ ;
-Procedure_and_Function_Declaration_aux ::= Procedure_Declaration Procedure_and_Function_Declaration_aux 
-				| Function_Declaration Procedure_and_Function_Declaration_aux | /*vazio*/ ;
+Procedure_and_Function_Declaration_Part ::= Procedure_and_Function_Declaration_aux ;
+Procedure_and_Function_Declaration_aux ::= Procedure_or_Function_Declaration SEMICOLON Procedure_and_Function_Declaration_aux | /*vazio*/ ;
+Procedure_or_Function_Declaration ::= Procedure_Declaration | Function_Declaration ;
 Procedure_Declaration ::= Procedure_Heading SEMICOLON Block;
 Function_Declaration ::= Function_Heading SEMICOLON Block;
 
-Procedure_Heading ::= Procedure Id | Formal_Parameter_List;
-Function_Heading ::= Function Id | Formal_Parameter_List Colon Result_Type;
+Procedure_Heading ::= PROCEDURE ID | PROCEDURE ID Formal_Parameter_List;
+Function_Heading ::= FUNCTION ID COLON Result_Type | FUNCTION ID Formal_Parameter_List COLON Result_Type;
 
-Formal_Parameter_List ::= LPar Formal_Parameter_Section Formal_Parameter_Section_aux RPar;
-Formal_Parameter_Section_aux ::= SemiColon Formal_Parameter_Section | Formal_Parameter_Section_aux |/*vazio*/ ;
+Formal_Parameter_List ::= LPAR Formal_Parameter_Section Formal_Parameter_Section_aux RPAR;
+Formal_Parameter_Section_aux ::= SEMICOLON Formal_Parameter_Section Formal_Parameter_Section_aux | /*vazio*/ ;
 Formal_Parameter_Section ::= Value_Parameter_Specification | Variable_Parameter_Specification | Conformant_Array_Parameter_Specification;
 
-Value_Parameter_Specification::= Id_List Colon Id;
-Variable_Parameter_Specification ::= Var Id_List Colon Id;
+Value_Parameter_Specification::= Id_List COLON ID;
+Variable_Parameter_Specification ::= VAR Id_List COLON ID;
 Conformant_Array_Parameter_Specification ::= Value_Conformant_Array_Specification | Variable_Conformant_Array_Specification;
-Value_Conformant_Array_Specification::= Id_List Colon Conformant_Array_Schema; 
-Variable_Conformant_Array_Specification ::= Var Id_List Colon Conformant_Array_Schema;
-Conformant_Array_Schema ::= Array Index_Type_Specification_aux Of Identifier_or_Conformant_Array_Schema;
-Index_Type_Specification_aux1 ::= SemiColon Index_Type_Specification | Index_Type_Specification_aux | /*vazio*/;
-Index_Type_Specification_aux ::= Index_Type_Specification Index_Type_Specification_aux1 | /*vazio*/;
+Value_Conformant_Array_Specification::= Id_List COLON Conformant_Array_Schema; 
+Variable_Conformant_Array_Specification ::= VAR Id_List COLON Conformant_Array_Schema;
+Conformant_Array_Schema ::= ARRAY LBRA Index_Type_Specification Index_Type_Specification_aux RBRA OF Identifier_or_Conformant_Array_Schema;
+Identifier_or_Conformant_Array_Schema ::= ID | Conformant_Array_Schema ;
+Index_Type_Specification_aux ::= SEMICOLON Index_Type_Specification Index_Type_Specification_aux | /*vazio*/;
+Index_Type_Specification ::= ID DOUBLEDOT ID COLON Ordinal_Type_Identifier ;
+
+Compound_Statement ::= BEGIN Statement_Sequence END ;
+Statement_Sequence ::= Statement Statement_aux ;
+Statement_aux ::= SEMICOLON Statement Statement_aux | /*vazio*/ ;
+Statement ::= Label COLON Simple_or_Structured_Statement
+        | Simple_or_Structured_Statement ;
+Simple_or_Structured_Statement ::= Simple_Statement | Structured_Statement ;
+
+Simple_Statement ::= Empty_Statement | Assignment_Statement
+        | Procedure_Statement | Goto_Statement ;
+Empty_Statement ::= /*vazio*/ ;
+Assignment_Statement ::= Variable_Access ASSIGN Expression ;
+Variable_Access ::= ID | Indexed_Variable ;
+Indexed_Variable ::= Variable_Access LBRA Expression Expression_aux RBRA ;
+Expression_aux ::= COMMA Expression Expression_aux | /*vazio*/ ;
+Procedure_Statement ::= Procedure_Identifier | Procedure_Identifier Actual_Parameter_List ;
+Actual_Parameter_List ::= LPAR Actual_Parameter Actual_Parameter_aux RPAR ;
+Actual_Parameter_aux ::= COMMA Actual_Parameter Actual_Parameter_aux | /*vazio*/ ;
+Actual_Parameter ::= Expression | Variable_Access ;
+Goto_Statement ::= GOTO Label ;
+
+Structured_Statement ::= Compound_Statement | If_Statement | While_Statement ;
+If_Statement ::= IF Expression THEN Statement
+        | IF Expression THEN Statement Else_Part ;
+Else_Part ::= ELSE Statement ;
+While_Statement ::= WHILE Expression DO Statement ;
+
+Expression ::= Simple_Expression | Simple_Expression Relational_Operator Simple_Expression ;
+Simple_Expression ::= Sign Term Term_aux ;
+Term_aux ::= Adding_Operator Term Term_aux | /*vazio*/ ;
+Term ::= Factor Factor_aux ;
+Factor_aux ::= Multiplying_Operator Factor Factor_aux | /*vazio*/ ;
+Factor ::= Variable_Access | Unsigned_Constant | Function_Designator
+        | LPAR Expression RPAR | NOT Factor ;
+Multiplying_Operator ::= MULTIPLY | DIVIDE | MOD | AND ;
+Adding_Operator ::= PLUS | MINUS | OR ;
+Relational_Operator ::= LT | LE | GT | GE | EQUAL | DIFF ;
+Unsigned_Constant ::= Unsigned_Number | Character_String ;
+Function_Designator ::= Function_Identifier | Function_Identifier Actual_Parameter_List ;
 
 
 expr_list ::= expr_list expr:e SEMICOLON         {: System.out.println(e); :}

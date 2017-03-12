@@ -52,8 +52,6 @@ GT = ">"
 GE = ">="
 Equal = "="
 Diff = "<>"
-Sign = [+|-]
-
 
 // Types
 Id = {Letter}({Letter}|{Digit})*
@@ -206,7 +204,6 @@ Xor = [Xx][Oo][Rr]
 {Chr}						 { return newSymbol("CHR", yytext()); }
 {Str}   					 { return newSymbol("STR", yytext()); }
 {Comment}					 { return newSymbol("COMMENT", yytext()); }
-{Sign}						 { return newSymbol("SIGN"); }
 
 
 . { throw new RuntimeException("Caracter não reconhecido " + yytext() +
