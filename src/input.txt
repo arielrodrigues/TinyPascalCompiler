@@ -1,46 +1,20 @@
-program exString;
-
-label 10, 53, 71;
-
-const
-   name = 'Victor';
-   integer = 100;
-   real = 345.76;
-
-type Pointer = ^pointer;
-
+program exFunction;
 var
-   greetings: string;
-   name: packed array [1..10] of char;
-   organisation: string;
-   message: pchar;
-   Num1, Num2, Sum : Integer;
+   a, b, ret : integer;
 
+function max(num1, num2: integer): integer;
+var
+   result: integer;
 begin
-	10:Clrscr;
-	Write('Input number 1:');
-	Readln(Num1);
-	Writeln('Input number 2:');
-	Readln(Num2);
-	Sum := Num1 + Num2;
-	Writeln(Sum);
-	Readln;
-	greetings := 'Hello ';
-	if Sel = '3' then
-		begin
-			ClrScr;
-			Write('Are you sure?(Y/N)');
-			YN := Readkey;
-			if YN = 'y' then Halt
-			else
-				writeln('sorry, you''ve got it wrong!');
-			if YN = 'n' then goto 1;
-		end;
-	message := 'Good Day!';
-	writeln('Please Enter your Name');
-	readln(name);
-	writeln('Please Enter the name of your Organisation');
-	readln(organisation);
-	writeln(greetings, name, ' from ', organisation);
-	writeln(message);
+   if (num1 > num2) then
+      result := num1
+   else
+      result := num2;
+   max := result;
+end;
+begin
+   a := 100;
+   b := 200;
+   ret := max(a, b);
+   writeln( 'Max value is : ', ret );
 end.

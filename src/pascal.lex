@@ -1,9 +1,11 @@
+package cup.example;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.io.InputStreamReader;
 import java_cup.runtime.Symbol;
 import java.lang.*;
-import jflex.sym;
+import cup.example.*;
+import java.io.FileInputStream;
 
 %%
 
@@ -16,7 +18,7 @@ import jflex.sym;
 %cup
 %char
 %{
-    public Lexer(ComplexSymbolFactory sf, java.io.InputStreamReader is) {
+    public Lexer(ComplexSymbolFactory sf, FileInputStream is) {
         this(is);
         symbolFactory = sf;
     }
@@ -87,7 +89,6 @@ Diff = "<>"
 Sign = [+|-]
 
 /* Types */
-Id = {Letter}({Letter}|{Digit})*
 NumInt = 0|[1-9][0-9]*
 NumReal = {Digit}+(\.{Digit}+)?([E|e](\+|-)?{Digit}+)?
 Chr = "'"[ -ÿ]"'"|"'""'"
@@ -132,6 +133,7 @@ Or = [Oo][Rr]
 Packed = [Pp][Aa][Cc][Kk][Ee][Dd]
 Procedure = [Pp][Rr][Oo][Cc][Ee][Dd][Uu][Rr][Ee]
 Program = [Pp][Rr][Oo][Gg][Rr][Aa][Mm]
+Real = [Rr][Ee][Aa][Ll]
 Record = [Rr][Ee][Cc][Oo][Rr][Dd]
 Repeat = [Rr][Ee][Pp][Ee][Aa][Tt]
 Set = [Ss][Ee][Tt]
@@ -149,6 +151,8 @@ Var = [Vv][Aa][Rr]
 While = [Ww][Hh][Ii][Ll][Ee]
 With = [Ww][Ii][Tt][Hh]
 Xor = [Xx][Oo][Rr]
+
+Id = {Letter}({Letter}|{Digit})*
 
 %eofval{
     return symbol("EOF", sym.EOF);
@@ -181,9 +185,11 @@ Xor = [Xx][Oo][Rr]
 {Diff}			             { return symbol("DIFF", DIFF); }
 
 /* Types */
-{Id}                         { return symbol("ID", ID); }
 {NumInt}                     { return symbol("NUMINT", NUMINT, Integer.parseInt(yytext())); }
 {NumReal}					 { return symbol("NUMREAL", NUMREAL, Double.parseDouble(yytext())); }
+{Real}						 { return symbol("REAL", REAL); }
+{Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
+{Integer}                    { return symbol("INTEGER", INTEGER); }
 {Chr}						 { return symbol("CHR", CHR); }
 {Str}   					 { return symbol("STR", STR); }
 {Comment}					 { return symbol("COMMENT", COMMENT); }
@@ -191,10 +197,9 @@ Xor = [Xx][Oo][Rr]
 
 /* Reserved words */
 {And}						 { return symbol("AND", AND); }
-{Array}						 { return symbol("Array", ARRAY); }
+{Array}						 { return symbol("ARRAY", ARRAY); }
 {Asm}						 { return symbol("ASM", ASM); }
 {Begin}						 { return symbol("BEGIN", BEGIN); }
-{Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
 {Case}						 { return symbol("CASE", CASE); }
 {Char}                       { return symbol("CHAR", CHAR); }
 {Const}						 { return symbol("CONST", CONST); }
@@ -216,7 +221,6 @@ Xor = [Xx][Oo][Rr]
 {In}						 { return symbol("IN", IN); }
 {Inline}					 { return symbol("INLINE", INLINE); }
 {Interface}					 { return symbol("INTERFACE", INTERFACE); }
-{Integer}                    { return symbol("INTEGER", INTEGER); }
 {Label}						 { return symbol("LABEL", LABEL); }
 {Mod}						 { return symbol("MOD", MOD); }
 {Nil}						 { return symbol("NIL", NIL); }
@@ -244,6 +248,7 @@ Xor = [Xx][Oo][Rr]
 {While}						 { return symbol("WHILE", WHILE); }
 {With}						 { return symbol("WITH", WITH); }
 {Xor}						 { return symbol("XOR", XOR); }
+{Id}                         { return symbol("ID", ID); }
 
 // error warning
 .|\n						 { emit_warning("Caracter não reconhecido " + yytext() + " -- ignorado"); }
