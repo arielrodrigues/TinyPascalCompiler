@@ -62,9 +62,32 @@ import java.io.FileInputStream;
 LineTerminator = [\n|\r|\r\n]
 Comment =  (\(\*|\{)([^\*\}]|\*+[^\)\}])*(\*+\)|\})
 WhiteSpace = {LineTerminator}|[\t|\f| ]
+Ignore = {WhiteSpace}|{Comment}
 Letter = [a-z|A-Z]
 Digit = [0-9]
-Ignore = {WhiteSpace}|{Comment}
+
+/* Arithmetic operators */
+Plus = "+"
+Minus = "-"
+Multiply = "*"
+Divide = "/"
+Div = [Dd][Ii][Vv]
+Mod = [Mm][Oo][Dd]
+Shl = [Ss][Hh][Ll]
+Shr = [Ss][Hh][Rr]
+
+/* Relational operators */
+LT = "<"
+LE = "<="
+GT = ">"
+GE = ">="
+Equal = "="
+Diff = "<>"
+
+/* Logic operators */
+And = [Aa][Nn][Dd]
+Or = [Oo][Rr]
+Not = [Nn][Oo][Tt]
 
 /* Symbols */
 Dot = "."
@@ -74,48 +97,42 @@ Colon = ":"
 Semicolon = ";"
 Caret = "^"
 Assign = ":="
-Plus = "+"
-Minus = "-"
-Multiply = "*"
-Divide = "/"
 LPar = "("
 RPar = ")"
 LBra = "["
 RBra = "]"
-LT = "<"
-LE = "<="
-GT = ">"
-GE = ">="
-Equal = "="
-Diff = "<>"
 Sign = [+|-]
 SingleQuote = \'
 DoubleQuote = \"
 NQUOTE = [^']
 
 /* Types */
+Chr = "'"{NQUOTE}"'"
+True = [Tt][Rr][Uu][Ee]
+False = [Ff][Aa][Ll][Ss][Ee]
 NumInt = 0|[1-9][0-9]*
 NumReal = {Digit}+(\.{Digit}+)?([E|e](\+|-)?{Digit}+)?
-Chr = "'"{NQUOTE}"'"
 Str = "'"{NQUOTE}+"'"
 
+/* Type definition */
+Boolean = [Bb][Oo][Oo][Ll][Ee][Aa][Nn]
+Char = [Cc][Hh][Aa][Rr]
+Integer = [Ii][Nn][Tt][Ee][Gg][Ee][Rr]
+Real = [Rr][Ee][Aa][Ll]
+String = [Ss][Tt][Rr][Ii][Nn][Gg]
+
 /* Reserved words */
-And = [Aa][Nn][Dd]
 Array = [Aa][Rr][Rr][Aa][Yy]
 Asm = [Aa][Ss][Mm]
 Begin = [Bb][Ee][Gg][Ii][Nn]
-Boolean = [Bb][Oo][Oo][Ll][Ee][Aa][Nn]
 Case = [Cc][Aa][Ss][Ee]
-Char = [Cc][Hh][Aa][Rr]
 Const = [Cc][Oo][Nn][Ss][Tt]
 Constructor = [Cc][Oo][Nn][Ss][Tt][Rr][Uu][Cc][Tt][Oo][Rr]
 Destructor = [Dd][Ee][Ss][Tt][Rr][Uu][Cc][Tt][Oo][Rr]
-Div = [Dd][Ii][Vv]
 Do = [Dd][Oo]
 Downto = [Dd][Oo][Ww][Nn][Tt][Oo]
 Else = [Ee][Ll][Ss][Ee]
 End = [Ee][Nn][Dd]
-False = [Ff][Aa][Ll][Ss][Ee]
 File = [Ff][Ii][Ll][Ee]
 For = [Ff][Oo][Rr]
 Foward = [Ff][Oo][Ww][Aa][Rr][Dd]
@@ -125,28 +142,19 @@ If = [Ii][Ff]
 Implementation = [Ii][Mm][Pp][Ll][Ee][Mm][Ee][Nn][Tt][Aa][Tt][Ii][Oo][Nn]
 In = [Ii][Nn]
 Inline = [Ii][Nn][Ll][Ii][Nn][Ee]
-Integer = [Ii][Nn][Tt][Ee][Gg][Ee][Rr]
 Interface = [Ii][Nn][Tt][Ee][Rr][Ff][Aa][Cc][Ee]
 Label = [Ll][Aa][Bb][Ee][Ll]
-Mod = [Mm][Oo][Dd]
 Nil = [Nn][Ii][Ll]
-Not = [Nn][Oo][Tt]
 Object = [Oo][Bb][Jj][Ee][Cc][Tt]
 Of = [Oo][Ff]
-Or = [Oo][Rr]
 Packed = [Pp][Aa][Cc][Kk][Ee][Dd]
 Procedure = [Pp][Rr][Oo][Cc][Ee][Dd][Uu][Rr][Ee]
 Program = [Pp][Rr][Oo][Gg][Rr][Aa][Mm]
-Real = [Rr][Ee][Aa][Ll]
 Record = [Rr][Ee][Cc][Oo][Rr][Dd]
 Repeat = [Rr][Ee][Pp][Ee][Aa][Tt]
 Set = [Ss][Ee][Tt]
-Shl = [Ss][Hh][Ll]
-Shr = [Ss][Hh][Rr]
-String = [Ss][Tt][Rr][Ii][Nn][Gg]
 Then = [Tt][Hh][Ee][Nn]
 To = [Tt][Oo]
-True = [Tt][Rr][Uu][Ee]
 Type = [Tt][Yy][Pp][Ee]
 Unit = [Uu][Nn][Ii][Tt]
 Until = [Uu][Nn][Tt][Ii][Ll]
@@ -156,16 +164,17 @@ While = [Ww][Hh][Ii][Ll][Ee]
 With = [Ww][Ii][Tt][Hh]
 Xor = [Xx][Oo][Rr]
 
+/* Id */
 Id = {Letter}({Letter}|{Digit})*
 
+/* eof */
 %eofval{
     return symbol("EOF", sym.EOF);
 %eofval}
 %state CODESEG
 %%
 
-    <YYINITIAL> {
-    /* Symbols */
+<YYINITIAL> {
     {Ignore}                     { }
     {Dot}			             { return symbol("DOT", DOT); }
     {DoubleDot}					 { return symbol("DOUBLEDOT", DOUBLEDOT); }
@@ -191,7 +200,6 @@ Id = {Letter}({Letter}|{Digit})*
     {Equal}		        	     { return symbol("EQUAL", EQUAL); }
     {Diff}			             { return symbol("DIFF", DIFF); }
 
-    /* Types */
     {NumInt}                     { return symbol("NUMINT", NUMINT, Integer.parseInt(yytext())); }
     {NumReal}					 { return symbol("NUMREAL", NUMREAL, Double.parseDouble(yytext())); }
     {Real}						 { return symbol("REAL", REAL); }
@@ -201,7 +209,6 @@ Id = {Letter}({Letter}|{Digit})*
     {Str}              			 { return symbol("STRINGCHARACTER", STRINGCHARACTER); }
     {Sign}						 { return symbol("SIGN", SIGN); }
 
-    /* Reserved words */
     {And}						 { return symbol("AND", AND); }
     {Array}						 { return symbol("ARRAY", ARRAY); }
     {Asm}						 { return symbol("ASM", ASM); }
