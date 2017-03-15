@@ -60,9 +60,11 @@ import java.io.FileInputStream;
 
 /* Basic */
 LineTerminator = [\n|\r|\r\n]
+Comment =  (\(\*|\{)([^\*\}]|\*+[^\)\}])*(\*+\)|\})
 WhiteSpace = {LineTerminator}|[\t|\f| ]
 Letter = [a-z|A-Z]
 Digit = [0-9]
+Ignore = {WhiteSpace}|{Comment}
 
 /* Symbols */
 Dot = "."
@@ -87,13 +89,15 @@ GE = ">="
 Equal = "="
 Diff = "<>"
 Sign = [+|-]
+SingleQuote = \'
+DoubleQuote = \"
+NQUOTE = [^']
 
 /* Types */
 NumInt = 0|[1-9][0-9]*
 NumReal = {Digit}+(\.{Digit}+)?([E|e](\+|-)?{Digit}+)?
-Chr = "'"[ -ÿ]"'"|"'""'"
-Str = ("'"[ -ÿ][ -ÿ]+"'")(#{NumInt})*
-Comment =  (\(\*|\{)([^\*\}]|\*+[^\)\}])*(\*+\)|\})
+Chr = "'"{NQUOTE}"'"
+Str = "'"{NQUOTE}+"'"
 
 /* Reserved words */
 And = [Aa][Nn][Dd]
@@ -160,95 +164,99 @@ Id = {Letter}({Letter}|{Digit})*
 %state CODESEG
 %%
 
-/* Symbols */
-{WhiteSpace}                 { }
-{Dot}			             { return symbol("DOT", DOT); }
-{DoubleDot}					 { return symbol("DOUBLEDOT", DOUBLEDOT); }
-{Comma}		        	     { return symbol("COMMA", COMMA); }
-{Colon}			             { return symbol("COLON", COLON); }
-{Semicolon}		             { return symbol("SEMICOLON", SEMICOLON); }
-{Caret}						 { return symbol("CARET", CARET); }
-{Assign}                     { return symbol("ASSIGN", ASSIGN); }
-{Plus}                       { return symbol("PLUS", PLUS); }
-{Minus}			             { return symbol("MINUS", MINUS); }
-{Multiply}      		     { return symbol("MULTIPLY", MULTIPLY); }
-{Divide}        		     { return symbol("DIVIDE", DIVIDE); }
-{LPar}	        		     { return symbol("LPAR", LPAR); }
-{RPar}	        		     { return symbol("RPAR", RPAR); }
-{LBra}		        	     { return symbol("LBRA", LBRA); }
-{RBra}      			     { return symbol("RBRA", RBRA); }
-{LT}        			     { return symbol("LT", LT); }
-{LE}	        		     { return symbol("LE", LE); }
-{GT}        			     { return symbol("GT", GT); }
-{GE}        			     { return symbol("GE", GE); }
-{Equal}		        	     { return symbol("EQUAL", EQUAL); }
-{Diff}			             { return symbol("DIFF", DIFF); }
+    <YYINITIAL> {
+    /* Symbols */
+    {Ignore}                     { }
+    {Dot}			             { return symbol("DOT", DOT); }
+    {DoubleDot}					 { return symbol("DOUBLEDOT", DOUBLEDOT); }
+    {Comma}		        	     { return symbol("COMMA", COMMA); }
+    {Colon}			             { return symbol("COLON", COLON); }
+    {Semicolon}		             { return symbol("SEMICOLON", SEMICOLON); }
+    {SingleQuote}                { return symbol("SINGLEQUOTE", SINGLEQUOTE); }
+    {DoubleQuote}                { return symbol("DOUBLEQUOTE", DOUBLEQUOTE); }
+    {Caret}						 { return symbol("CARET", CARET); }
+    {Assign}                     { return symbol("ASSIGN", ASSIGN); }
+    {Plus}                       { return symbol("PLUS", PLUS); }
+    {Minus}			             { return symbol("MINUS", MINUS); }
+    {Multiply}      		     { return symbol("MULTIPLY", MULTIPLY); }
+    {Divide}        		     { return symbol("DIVIDE", DIVIDE); }
+    {LPar}	        		     { return symbol("LPAR", LPAR); }
+    {RPar}	        		     { return symbol("RPAR", RPAR); }
+    {LBra}		        	     { return symbol("LBRA", LBRA); }
+    {RBra}      			     { return symbol("RBRA", RBRA); }
+    {LT}        			     { return symbol("LT", LT); }
+    {LE}	        		     { return symbol("LE", LE); }
+    {GT}        			     { return symbol("GT", GT); }
+    {GE}        			     { return symbol("GE", GE); }
+    {Equal}		        	     { return symbol("EQUAL", EQUAL); }
+    {Diff}			             { return symbol("DIFF", DIFF); }
 
-/* Types */
-{NumInt}                     { return symbol("NUMINT", NUMINT, Integer.parseInt(yytext())); }
-{NumReal}					 { return symbol("NUMREAL", NUMREAL, Double.parseDouble(yytext())); }
-{Real}						 { return symbol("REAL", REAL); }
-{Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
-{Integer}                    { return symbol("INTEGER", INTEGER); }
-{Chr}						 { return symbol("CHR", CHR); }
-{Str}   					 { return symbol("STR", STR); }
-{Comment}					 { return symbol("COMMENT", COMMENT); }
-{Sign}						 { return symbol("SIGN", SIGN); }
+    /* Types */
+    {NumInt}                     { return symbol("NUMINT", NUMINT, Integer.parseInt(yytext())); }
+    {NumReal}					 { return symbol("NUMREAL", NUMREAL, Double.parseDouble(yytext())); }
+    {Real}						 { return symbol("REAL", REAL); }
+    {Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
+    {Integer}                    { return symbol("INTEGER", INTEGER); }
+    {Chr}						 { return symbol("CHARACTER", CHARACTER); }
+    {Str}              			 { return symbol("STRINGCHARACTER", STRINGCHARACTER); }
+    {Sign}						 { return symbol("SIGN", SIGN); }
 
-/* Reserved words */
-{And}						 { return symbol("AND", AND); }
-{Array}						 { return symbol("ARRAY", ARRAY); }
-{Asm}						 { return symbol("ASM", ASM); }
-{Begin}						 { return symbol("BEGIN", BEGIN); }
-{Case}						 { return symbol("CASE", CASE); }
-{Char}                       { return symbol("CHAR", CHAR); }
-{Const}						 { return symbol("CONST", CONST); }
-{Constructor}				 { return symbol("CONSTRUCTOR", CONSTRUCTOR); }
-{Destructor}				 { return symbol("DESTRUCTOR", DESTRUCTOR); }
-{Div}						 { return symbol("DIV", DIV); }
-{Do}						 { return symbol("DO", DO); }
-{Downto}					 { return symbol("DOWNTO", DOWNTO); }
-{Else}						 { return symbol("ELSE", ELSE); }
-{End}						 { return symbol("END", END); }
-{False}                      { return symbol("FALSE", FALSE); }
-{File}						 { return symbol("FILE", FILE); }
-{For}						 { return symbol("FOR", FOR); }
-{Foward}					 { return symbol("FOWARD", FOWARD); }
-{Function}					 { return symbol("FUNCTION", FUNCTION); }
-{Goto}						 { return symbol("GOTO", GOTO); }
-{If}                         { return symbol("IF", IF); }
-{Implementation}			 { return symbol("IMPLEMENTATION", IMPLEMENTATION); }
-{In}						 { return symbol("IN", IN); }
-{Inline}					 { return symbol("INLINE", INLINE); }
-{Interface}					 { return symbol("INTERFACE", INTERFACE); }
-{Label}						 { return symbol("LABEL", LABEL); }
-{Mod}						 { return symbol("MOD", MOD); }
-{Nil}						 { return symbol("NIL", NIL); }
-{Not}						 { return symbol("NOT", NOT); }
-{Object}					 { return symbol("OBJECT", OBJECT); }
-{Of}						 { return symbol("OF", OF); }
-{Or}                         { return symbol("OR", OR); }
-{Packed}					 { return symbol("PACKED", PACKED); }
-{Procedure}					 { return symbol("PROCEDURE", PROCEDURE); }
-{Program}					 { return symbol("PROGRAM", PROGRAM); }
-{Record}					 { return symbol("RECORD", RECORD); }
-{Repeat}					 { return symbol("REPEAT", REPEAT); }
-{Set}						 { return symbol("SET", SET); }
-{Shl}						 { return symbol("SHL", SHL); }
-{Shr}						 { return symbol("SHR", SHR); }
-{String}					 { return symbol("STRING", STRING); }
-{Then}                       { return symbol("THEN", THEN); }
-{To}						 { return symbol("TO", TO); }
-{True}                       { return symbol("TRUE", TRUE); }
-{Type}						 { return symbol("TYPE", TYPE); }
-{Unit}						 { return symbol("UNIT", UNIT); }
-{Until}						 { return symbol("UNTIL", UNTIL); }
-{Uses}						 { return symbol("USES", USES); }
-{Var}						 { return symbol("VAR", VAR); }
-{While}						 { return symbol("WHILE", WHILE); }
-{With}						 { return symbol("WITH", WITH); }
-{Xor}						 { return symbol("XOR", XOR); }
-{Id}                         { return symbol("ID", ID); }
+    /* Reserved words */
+    {And}						 { return symbol("AND", AND); }
+    {Array}						 { return symbol("ARRAY", ARRAY); }
+    {Asm}						 { return symbol("ASM", ASM); }
+    {Begin}						 { return symbol("BEGIN", BEGIN); }
+    {Case}						 { return symbol("CASE", CASE); }
+    {Char}                       { return symbol("CHAR", CHAR); }
+    {Const}						 { return symbol("CONST", CONST); }
+    {Constructor}				 { return symbol("CONSTRUCTOR", CONSTRUCTOR); }
+    {Destructor}				 { return symbol("DESTRUCTOR", DESTRUCTOR); }
+    {Div}						 { return symbol("DIV", DIV); }
+    {Do}						 { return symbol("DO", DO); }
+    {Downto}					 { return symbol("DOWNTO", DOWNTO); }
+    {Else}						 { return symbol("ELSE", ELSE); }
+    {End}						 { return symbol("END", END); }
+    {False}                      { return symbol("FALSE", FALSE); }
+    {File}						 { return symbol("FILE", FILE); }
+    {For}						 { return symbol("FOR", FOR); }
+    {Foward}					 { return symbol("FOWARD", FOWARD); }
+    {Function}					 { return symbol("FUNCTION", FUNCTION); }
+    {Goto}						 { return symbol("GOTO", GOTO); }
+    {If}                         { return symbol("IF", IF); }
+    {Implementation}			 { return symbol("IMPLEMENTATION", IMPLEMENTATION); }
+    {In}						 { return symbol("IN", IN); }
+    {Inline}					 { return symbol("INLINE", INLINE); }
+    {Interface}					 { return symbol("INTERFACE", INTERFACE); }
+    {Label}						 { return symbol("LABEL", LABEL); }
+    {Mod}						 { return symbol("MOD", MOD); }
+    {Nil}						 { return symbol("NIL", NIL); }
+    {Not}						 { return symbol("NOT", NOT); }
+    {Object}					 { return symbol("OBJECT", OBJECT); }
+    {Of}						 { return symbol("OF", OF); }
+    {Or}                         { return symbol("OR", OR); }
+    {Packed}					 { return symbol("PACKED", PACKED); }
+    {Procedure}					 { return symbol("PROCEDURE", PROCEDURE); }
+    {Program}					 { return symbol("PROGRAM", PROGRAM); }
+    {Record}					 { return symbol("RECORD", RECORD); }
+    {Repeat}					 { return symbol("REPEAT", REPEAT); }
+    {Set}						 { return symbol("SET", SET); }
+    {Shl}						 { return symbol("SHL", SHL); }
+    {Shr}						 { return symbol("SHR", SHR); }
+    {String}					 { return symbol("STRING", STRING); }
+    {Then}                       { return symbol("THEN", THEN); }
+    {To}						 { return symbol("TO", TO); }
+    {True}                       { return symbol("TRUE", TRUE); }
+    {Type}						 { return symbol("TYPE", TYPE); }
+    {Unit}						 { return symbol("UNIT", UNIT); }
+    {Until}						 { return symbol("UNTIL", UNTIL); }
+    {Uses}						 { return symbol("USES", USES); }
+    {Var}						 { return symbol("VAR", VAR); }
+    {While}						 { return symbol("WHILE", WHILE); }
+    {With}						 { return symbol("WITH", WITH); }
+    {Xor}						 { return symbol("XOR", XOR); }
+
+    {Id}                         { return symbol("ID", ID); }
+}
 
 // error warning
 .|\n						 { emit_warning("Caracter não reconhecido " + yytext() + " -- ignorado"); }

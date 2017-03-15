@@ -32,12 +32,12 @@ scan with {:
 terminal            PLUS, MINUS, MULTIPLY, DIVIDE;
 /* symbols */
 terminal			DOT, DOUBLEDOT, COMMA, COLON, SEMICOLON, CARET, ASSIGN;
-terminal 			LPAR, RPAR, LBRA, RBRA, SINGLEQUOTES;
+terminal 			LPAR, RPAR, LBRA, RBRA, SINGLEQUOTE, DOUBLEQUOTE;
 terminal 			LT,LE,GT,GE,EQUAL,DIFF, SIGN;
 /* types */
 terminal			BOOLEAN, CHAR, INTEGER, REAL, STRING;
 /* reserved words */
-terminal			ID,CHR,STR,COMMENT;
+terminal			ID,CHARACTER,STRINGCHARACTER,COMMENT;
 terminal			AND, ARRAY, ASM, BEGIN, CASE, CONST, CONSTRUCTOR, DESTRUCTOR,
 					DIV, DO, DOWNTO, ELSE, END, FALSE, FILE, FOR, FOWARD, FUNCTION, GOTO,
 					IF, IMPLEMENTATION, IN, INLINE, INTERFACE, LABEL, MOD, NIL, NOT,
@@ -57,8 +57,8 @@ non terminal 			variable_declaration_part,procedure_and_function_declaration_par
 /* Labels and Types */
 non terminal			next_label,type,next_type_definition,type_definition,type_denoter,new_type,new_ordinal_type,array_type,
                         ordinal_type,next_ordinal_type;
-non terminal 			enumerated_type,subRange_type,constant,character_string,string_element,next_string_element,
-                        string_character,variable_declaration,next_variable_declaration;
+non terminal 			enumerated_type,subRange_type,constant,string,char,variable_declaration,
+						next_variable_declaration;
 /* procedure and Funciton Declaration */
 non terminal 			procedure_declaration,function_declaration,procedure_heading,function_heading;
 /* Parameter lists */
@@ -74,7 +74,7 @@ non terminal 			compound_statement,statement_sequence,next_statement,statement,s
                         structured_statement,if_statement,else_part,while_statement;
 /* Expressions and Operations */
 non terminal 			expression,relational_operator,simple_expression,term_aux,term,signedfactor, unsignedfactor, factor_aux,
-						factor,multiplying_operator,adding_operator,unsigned_constant,function_Designator;
+						factor,multiplying_operator,adding_operator,unsigned_constant, boolean;
 /* sign and id list */
 non terminal			next_id;
 
@@ -102,7 +102,7 @@ label ::= NUMINT;
 type_definition_part ::= TYPE type_definition SEMICOLON next_type_definition | /*vazio*/ ;
 next_type_definition ::= type_definition SEMICOLON next_type_definition | /*vazio*/ ;
 type_definition ::= ID EQUAL type_denoter;
-type ::= INTEGER | CHAR | REAL | STRING |  BOOLEAN ;
+type ::= INTEGER | CHAR | REAL | STRING |  BOOLEAN;
 type_denoter ::= type | new_type;
 new_type ::= new_ordinal_type | array_type;
 array_type ::= ARRAY LBRA ordinal_type next_ordinal_type RBRA OF type_denoter;
@@ -111,10 +111,9 @@ ordinal_type ::= new_ordinal_type | ID;
 new_ordinal_type ::= enumerated_type | subRange_type;
 enumerated_type ::= LPAR id_list RPAR;
 subRange_type ::= constant DOUBLEDOT constant;
-constant ::= SIGN NUMINT | character_string; // NUMINT -> UnsignedNumber
-character_string ::= SINGLEQUOTES string_element next_string_element SINGLEQUOTES; // string element ?
-next_string_element::= string_character next_string_element | /*vazio*/;
-string_character::= CHAR;
+constant ::= SIGN NUMINT | NUMINT | string | char;
+string ::= STRINGCHARACTER;
+char ::= CHARACTER;
 
 /* Variable Declaration */
 variable_declaration_part ::= VAR variable_declaration SEMICOLON next_variable_declaration | /*vazio*/;
@@ -130,7 +129,6 @@ function_declaration ::= function_heading SEMICOLON block;
 procedure_heading ::= PROCEDURE ID | PROCEDURE ID formal_parameter_list;
 result_type ::=  INTEGER | CHAR | REAL | STRING |  BOOLEAN ;
 function_heading ::= FUNCTION ID COLON result_type | FUNCTION ID formal_parameter_list COLON result_type;
-function_Designator ::= FUNCTION | FUNCTION actual_parameter_list ;
 
 /* Parameter List and Section */
 formal_parameter_list ::= LPAR formal_parameter_section next_formal_parameter_section RPAR;
@@ -158,7 +156,7 @@ simple_or_structured_statement ::= simple_statement | structured_statement;
 
 /* Simple statement */
 simple_statement ::= empty_statement | assignment_statement
-        | function_or_procedure_statement | goto_statement;
+        | ID | ID actual_parameter_list | goto_statement;
 empty_statement ::= /*vazio*/;
 assignment_statement ::= variable_access ASSIGN expression;
 variable_access ::= ID | indexed_variable;
@@ -184,11 +182,12 @@ term ::= signedfactor | unsignedfactor;
 factor_aux ::= multiplying_operator factor factor_aux | /*vazio*/;
 signedfactor ::= SIGN factor factor_aux ;
 unsignedfactor ::= factor factor_aux;
-factor ::= variable_access | unsigned_constant | function_Designator
+factor ::= variable_access | unsigned_constant | ID actual_parameter_list
         | LPAR expression RPAR | NOT factor;
 
 /* Operations */
 multiplying_operator ::= MULTIPLY | DIVIDE | MOD | AND;
 adding_operator ::= PLUS | MINUS | OR;
 relational_operator ::= LT | LE | GT | GE | EQUAL | DIFF;
-unsigned_constant ::= NUMINT | character_string;
+boolean ::= TRUE | FALSE;
+unsigned_constant ::= NUMINT | string | char | boolean;

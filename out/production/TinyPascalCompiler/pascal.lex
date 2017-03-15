@@ -1,59 +1,26 @@
-import java_cup.runtime.ComplexSymbolFactory.Location;
-import java_cup.runtime.ComplexSymbolFactory;
-import java.io.InputStreamReader;
-import java_cup.runtime.Symbol;
-import java.lang.*;
-import jflex.sym;
-
+package	LexicalAnalyzer;
 %%
 
-%class Lexer
-%implements sym
 %public
-%unicode
+%class LexicalAnalyzer
 %line
 %column
-%cup
-%char
+
+
 %{
-    public Lexer(ComplexSymbolFactory sf, java.io.InputStreamReader is) {
-        this(is);
-        symbolFactory = sf;
-    }
-    public Lexer(ComplexSymbolFactory sf, java.io.Reader reader) {
-        this(reader);
-        symbolFactory = sf;
-    }
 
-    private StringBuffer sb;
-    private ComplexSymbolFactory symbolFactory;
-    private int csline,cscolumn;
+private void newSymbol(String nome) {
+    System.out.println(nome);
+}
 
-    private Symbol symbol(String name, int code) {
-        return symbolFactory.newSymbol(name, code,
-                            new Location(yyline+1, yycolumn+1, yychar),
-                            new Location(yyline+1, yycolumn+yylength(), yychar+yylength()));
-    }
-    public Symbol symbol(String nome, int code, Integer lexem){
-        return symbolFactory.newSymbol(nome, code,
-						new Location(yyline+1, yycolumn +1, yychar),
-						new Location(yyline+1,yycolumn+yylength(), yychar+yylength()), lexem);
-    }
-    public Symbol symbol(String nome, int code, Double lexem){
-      return symbolFactory.newSymbol(nome, code,
-              new Location(yyline+1, yycolumn +1, yychar),
-              new Location(yyline+1,yycolumn+yylength(), yychar+yylength()), lexem);
-    }
-    public Symbol symbol(String nome, int code, String lexem){
-      return symbolFactory.newSymbol(nome, code,
-              new Location(yyline+1, yycolumn +1, yychar),
-              new Location(yyline+1,yycolumn+yylength(), yychar+yylength()), lexem);
-    }
+private void newSymbol(String nome, String lexema) {
+    System.out.println(nome);
+}
 
-    protected void emit_warning(String message){
-        System.out.println("scanner warning: " + message + " at : 2 "+
-    			(yyline+1) + " " + (yycolumn+1) + " " + yychar);
-    }
+private void newSymbol(String nome, String lexema, Object value) {
+    System.out.println(nome);
+}
+
 %}
 
 /* Basic */
@@ -85,13 +52,15 @@ GE = ">="
 Equal = "="
 Diff = "<>"
 Sign = [+|-]
+SingleQuote = \'
+DoubleQuote = \"
+NQUOTE = [^']
 
 /* Types */
-Id = {Letter}({Letter}|{Digit})*
 NumInt = 0|[1-9][0-9]*
 NumReal = {Digit}+(\.{Digit}+)?([E|e](\+|-)?{Digit}+)?
-Chr = "'"[ -ÿ]"'"|"'""'"
-Str = ("'"[ -ÿ][ -ÿ]+"'")(#{NumInt})*
+Chr = (\'{NQUOTE}\')
+Str = (\'{NQUOTE}+\')
 Comment =  (\(\*|\{)([^\*\}]|\*+[^\)\}])*(\*+\)|\})
 
 /* Reserved words */
@@ -132,6 +101,7 @@ Or = [Oo][Rr]
 Packed = [Pp][Aa][Cc][Kk][Ee][Dd]
 Procedure = [Pp][Rr][Oo][Cc][Ee][Dd][Uu][Rr][Ee]
 Program = [Pp][Rr][Oo][Gg][Rr][Aa][Mm]
+Real = [Rr][Ee][Aa][Ll]
 Record = [Rr][Ee][Cc][Oo][Rr][Dd]
 Repeat = [Rr][Ee][Pp][Ee][Aa][Tt]
 Set = [Ss][Ee][Tt]
@@ -150,100 +120,108 @@ While = [Ww][Hh][Ii][Ll][Ee]
 With = [Ww][Ii][Tt][Hh]
 Xor = [Xx][Oo][Rr]
 
+Id = {Letter}({Letter}|{Digit})*
+
 %eofval{
-    return symbol("EOF", sym.EOF);
+     newSymbol("EOF");
 %eofval}
 %state CODESEG
 %%
 
-/* Symbols */
-{WhiteSpace}                 { }
-{Dot}			             { return symbol("DOT", DOT); }
-{DoubleDot}					 { return symbol("DOUBLEDOT", DOUBLEDOT); }
-{Comma}		        	     { return symbol("COMMA", COMMA); }
-{Colon}			             { return symbol("COLON", COLON); }
-{Semicolon}		             { return symbol("SEMICOLON", SEMICOLON); }
-{Caret}						 { return symbol("CARET", CARET); }
-{Assign}                     { return symbol("ASSIGN", ASSIGN); }
-{Plus}                       { return symbol("PLUS", PLUS); }
-{Minus}			             { return symbol("MINUS", MINUS); }
-{Multiply}      		     { return symbol("MULTIPLY", MULTIPLY); }
-{Divide}        		     { return symbol("DIVIDE", DIVIDE); }
-{LPar}	        		     { return symbol("LPAR", LPAR); }
-{RPar}	        		     { return symbol("RPAR", RPAR); }
-{LBra}		        	     { return symbol("LBRA", LBRA); }
-{RBra}      			     { return symbol("RBRA", RBRA); }
-{LT}        			     { return symbol("LT", LT); }
-{LE}	        		     { return symbol("LE", LE); }
-{GT}        			     { return symbol("GT", GT); }
-{GE}        			     { return symbol("GE", GE); }
-{Equal}		        	     { return symbol("EQUAL", EQUAL); }
-{Diff}			             { return symbol("DIFF", DIFF); }
+    <YYINITIAL> {
+    /* Symbols */
+    {WhiteSpace}                 { }
+    {Dot}			             {  newSymbol("DOT"); }
+    {DoubleDot}					 {  newSymbol("DOUBLEDOT"); }
+    {Comma}		        	     {  newSymbol("COMMA"); }
+    {Colon}			             {  newSymbol("COLON"); }
+    {Semicolon}		             {  newSymbol("SEMICOLON"); }
+    {SingleQuote}                {  newSymbol("SINGLEQUOTE"); }
+    {DoubleQuote}                {  newSymbol("DOUBLEQUOTE"); }
+    {Caret}						 {  newSymbol("CARET"); }
+    {Assign}                     {  newSymbol("ASSIGN"); }
+    {Plus}                       {  newSymbol("PLUS"); }
+    {Minus}			             {  newSymbol("MINUS"); }
+    {Multiply}      		     {  newSymbol("MULTIPLY"); }
+    {Divide}        		     {  newSymbol("DIVIDE"); }
+    {LPar}	        		     {  newSymbol("LPAR"); }
+    {RPar}	        		     {  newSymbol("RPAR"); }
+    {LBra}		        	     {  newSymbol("LBRA"); }
+    {RBra}      			     {  newSymbol("RBRA"); }
+    {LT}        			     {  newSymbol("LT"); }
+    {LE}	        		     {  newSymbol("LE"); }
+    {GT}        			     {  newSymbol("GT"); }
+    {GE}        			     {  newSymbol("GE"); }
+    {Equal}		        	     {  newSymbol("EQUAL"); }
+    {Diff}			             {  newSymbol("DIFF"); }
 
-/* Types */
-{Id}                         { return symbol("ID", ID); }
-{NumInt}                     { return symbol("NUMINT", NUMINT, Integer.parseInt(yytext())); }
-{NumReal}					 { return symbol("NUMREAL", NUMREAL, Double.parseDouble(yytext())); }
-{Chr}						 { return symbol("CHR", CHR); }
-{Str}   					 { return symbol("STR", STR); }
-{Comment}					 { return symbol("COMMENT", COMMENT); }
-{Sign}						 { return symbol("SIGN", SIGN); }
+    /* Types */
+    {NumInt}                     {  newSymbol("NUMINT"nteger.parseInt(yytext())); }
+    {NumReal}					 {  newSymbol("NUMREAL"ouble.parseDouble(yytext())); }
+    {Real}						 {  newSymbol("REAL"); }
+    {Boolean}                    {  newSymbol("BOOLEAN"); }
+    {Integer}                    {  newSymbol("INTEGER"); }
+    {Chr}						 {  newSymbol("CHR"); }
+    {Str}              			 {  newSymbol("STRINGCHARACTER"); }
+    {Comment}					 {  newSymbol("COMMENT"); }
+    {Sign}						 {  newSymbol("SIGN"); }
 
-/* Reserved words */
-{And}						 { return symbol("AND", AND); }
-{Array}						 { return symbol("Array", ARRAY); }
-{Asm}						 { return symbol("ASM", ASM); }
-{Begin}						 { return symbol("BEGIN", BEGIN); }
-{Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
-{Case}						 { return symbol("CASE", CASE); }
-{Char}                       { return symbol("CHAR", CHAR); }
-{Const}						 { return symbol("CONST", CONST); }
-{Constructor}				 { return symbol("CONSTRUCTOR", CONSTRUCTOR); }
-{Destructor}				 { return symbol("DESTRUCTOR", DESTRUCTOR); }
-{Div}						 { return symbol("DIV", DIV); }
-{Do}						 { return symbol("DO", DO); }
-{Downto}					 { return symbol("DOWNTO", DOWNTO); }
-{Else}						 { return symbol("ELSE", ELSE); }
-{End}						 { return symbol("END", END); }
-{False}                      { return symbol("FALSE", FALSE); }
-{File}						 { return symbol("FILE", FILE); }
-{For}						 { return symbol("FOR", FOR); }
-{Foward}					 { return symbol("FOWARD", FOWARD); }
-{Function}					 { return symbol("FUNCTION", FUNCTION); }
-{Goto}						 { return symbol("GOTO", GOTO); }
-{If}                         { return symbol("IF", IF); }
-{Implementation}			 { return symbol("IMPLEMENTATION", IMPLEMENTATION); }
-{In}						 { return symbol("IN", IN); }
-{Inline}					 { return symbol("INLINE", INLINE); }
-{Interface}					 { return symbol("INTERFACE", INTERFACE); }
-{Integer}                    { return symbol("INTEGER", INTEGER); }
-{Label}						 { return symbol("LABEL", LABEL); }
-{Mod}						 { return symbol("MOD", MOD); }
-{Nil}						 { return symbol("NIL", NIL); }
-{Not}						 { return symbol("NOT", NOT); }
-{Object}					 { return symbol("OBJECT", OBJECT); }
-{Of}						 { return symbol("OF", OF); }
-{Or}                         { return symbol("OR", OR); }
-{Packed}					 { return symbol("PACKED", PACKED); }
-{Procedure}					 { return symbol("PROCEDURE", PROCEDURE); }
-{Program}					 { return symbol("PROGRAM", PROGRAM); }
-{Record}					 { return symbol("RECORD", RECORD); }
-{Repeat}					 { return symbol("REPEAT", REPEAT); }
-{Set}						 { return symbol("SET", SET); }
-{Shl}						 { return symbol("SHL", SHL); }
-{Shr}						 { return symbol("SHR", SHR); }
-{String}					 { return symbol("STRING", STRING); }
-{Then}                       { return symbol("THEN", THEN); }
-{To}						 { return symbol("TO", TO); }
-{True}                       { return symbol("TRUE", TRUE); }
-{Type}						 { return symbol("TYPE", TYPE); }
-{Unit}						 { return symbol("UNIT", UNIT); }
-{Until}						 { return symbol("UNTIL", UNTIL); }
-{Uses}						 { return symbol("USES", USES); }
-{Var}						 { return symbol("VAR", VAR); }
-{While}						 { return symbol("WHILE", WHILE); }
-{With}						 { return symbol("WITH", WITH); }
-{Xor}						 { return symbol("XOR", XOR); }
+    /* Reserved words */
+    {And}						 {  newSymbol("AND"); }
+    {Array}						 {  newSymbol("ARRAY"); }
+    {Asm}						 {  newSymbol("ASM"); }
+    {Begin}						 {  newSymbol("BEGIN"); }
+    {Case}						 {  newSymbol("CASE"); }
+    {Char}                       {  newSymbol("CHAR"); }
+    {Const}						 {  newSymbol("CONST"); }
+    {Constructor}				 {  newSymbol("CONSTRUCTOR"); }
+    {Destructor}				 {  newSymbol("DESTRUCTOR"); }
+    {Div}						 {  newSymbol("DIV"); }
+    {Do}						 {  newSymbol("DO"); }
+    {Downto}					 {  newSymbol("DOWNTO"); }
+    {Else}						 {  newSymbol("ELSE"); }
+    {End}						 {  newSymbol("END"); }
+    {False}                      {  newSymbol("FALSE"); }
+    {File}						 {  newSymbol("FILE"); }
+    {For}						 {  newSymbol("FOR"); }
+    {Foward}					 {  newSymbol("FOWARD"); }
+    {Function}					 {  newSymbol("FUNCTION"); }
+    {Goto}						 {  newSymbol("GOTO"); }
+    {If}                         {  newSymbol("IF"); }
+    {Implementation}			 {  newSymbol("IMPLEMENTATION"); }
+    {In}						 {  newSymbol("IN"); }
+    {Inline}					 {  newSymbol("INLINE"); }
+    {Interface}					 {  newSymbol("INTERFACE"); }
+    {Label}						 {  newSymbol("LABEL"); }
+    {Mod}						 {  newSymbol("MOD"); }
+    {Nil}						 {  newSymbol("NIL"); }
+    {Not}						 {  newSymbol("NOT"); }
+    {Object}					 {  newSymbol("OBJECT"); }
+    {Of}						 {  newSymbol("OF"); }
+    {Or}                         {  newSymbol("OR"); }
+    {Packed}					 {  newSymbol("PACKED"); }
+    {Procedure}					 {  newSymbol("PROCEDURE"); }
+    {Program}					 {  newSymbol("PROGRAM"); }
+    {Record}					 {  newSymbol("RECORD"); }
+    {Repeat}					 {  newSymbol("REPEAT"); }
+    {Set}						 {  newSymbol("SET"); }
+    {Shl}						 {  newSymbol("SHL"); }
+    {Shr}						 {  newSymbol("SHR"); }
+    {String}					 {  newSymbol("STRING"); }
+    {Then}                       {  newSymbol("THEN"); }
+    {To}						 {  newSymbol("TO"); }
+    {True}                       {  newSymbol("TRUE"); }
+    {Type}						 {  newSymbol("TYPE"); }
+    {Unit}						 {  newSymbol("UNIT"); }
+    {Until}						 {  newSymbol("UNTIL"); }
+    {Uses}						 {  newSymbol("USES"); }
+    {Var}						 {  newSymbol("VAR"); }
+    {While}						 {  newSymbol("WHILE"); }
+    {With}						 {  newSymbol("WITH"); }
+    {Xor}						 {  newSymbol("XOR"); }
+
+    {Id}                         {  newSymbol("ID"); }
+}
 
 // error warning
-.|\n						 { emit_warning("Caracter não reconhecido " + yytext() + " -- ignorado"); }
+.|\n						 { System.out.println("Caracter não reconhecido " + yytext() + " -- ignorado"); }

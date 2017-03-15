@@ -1,28 +1,25 @@
-/*
-import LexicalAnalyzer.*;
+''/*
+
 import utils.FileManager;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        Symbol token;
         FileManager fileManager = new FileManager();
         StringBuilder stringBuilder = new StringBuilder();
-        String inFile = Paths.get("").toAbsolutePath().toString()+"/pascalprograms/"+"common.pas";
+        String inFile = Paths.get("").toAbsolutePath().toString()+"/src/"+"input.txt";
+		LexicalAnalyzer lex = new LexicalAnalyzer(new StringReader(inFile.toString()));
+		lex.yylex();
 
         LexicalAnalyzer scanner = new LexicalAnalyzer(new FileReader(inFile));
-
-        while ((token = scanner.yylex()) != null) stringBuilder.append(token.toString()).append("\n");
-
-        fileManager.writeToFile("file.out", stringBuilder.toString());
     }
-}
-*/
+}*/
 
 public class Main {
 	public static void main(String[] args) throws Exception {
