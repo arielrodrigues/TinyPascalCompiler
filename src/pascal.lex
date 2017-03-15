@@ -1,10 +1,8 @@
-package cup.example;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.io.InputStreamReader;
 import java_cup.runtime.Symbol;
 import java.lang.*;
-import cup.example.*;
 import java.io.FileInputStream;
 
 %%
