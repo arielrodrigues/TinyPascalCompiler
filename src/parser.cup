@@ -133,6 +133,7 @@ subRange_type ::= constant DOUBLEDOT constant;
 constant ::= SIGN NUMINT
            | NUMINT
            | string
+           | boolean
            | char;
 boolean ::= TRUE
           | FALSE;
