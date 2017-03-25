@@ -1,3 +1,4 @@
+package lexicalAnalyzer;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory;
 import java.io.InputStreamReader;
