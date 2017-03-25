@@ -1,0 +1,269 @@
+package syntacticAnalyzer;
+
+import java.io.FileInputStream;
+import lexicalAnalyzer.Lexer;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java_cup.runtime.*;
+import java.io.File;
+
+parser code {:
+  protected Lexer lexer;
+:}
+
+/* define how to connect to the lexicalAnalyzer! */
+init with {:
+    ComplexSymbolFactory f = new ComplexSymbolFactory();
+    symbolFactory = f;
+    File file = new File(Paths.get("").toAbsolutePath().toString() + "/src/" + "input.txt");
+    FileInputStream fis = null;
+    try {
+        fis = new FileInputStream(file);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    lexer = new Lexer(f,fis);
+:};
+
+scan with {:
+    return lexer.next_token();
+:};
+
+/* @@@@@@@@@@@@ terminals (tokens returned by the lexicalAnalyzer) @@@@@@@@@@@@ */
+
+/* ID */
+terminal			ID;
+/* arithmetic operators */
+terminal            PLUS,MINUS,MULTIPLY,DIVIDE;
+terminal            DIV,MOD,SHL,SHR;
+/* relational operators */
+terminal 			LT,LE,GT,GE,EQUAL,DIFF;
+/* logic operators */
+terminal            AND,NOT,OR;
+/* symbols */
+terminal			DOT,DOUBLEDOT,COMMA,COLON,SEMICOLON;
+terminal 			LPAR,RPAR,LBRA,RBRA;
+terminal            CARET,ASSIGN,SIGN,SINGLEQUOTE,DOUBLEQUOTE;
+/* types */
+terminal char       CHARACTER;
+terminal boolean	FALSE,TRUE;
+terminal int        NUMINT;
+terminal double 	NUMREAL;
+terminal String     STRINGCHARACTER;
+/* type def */
+terminal            BOOLEAN,CHAR,INTEGER,REAL,STRING;
+/* reserved words */
+terminal			ARRAY, ASM, BEGIN, CASE, CONST, CONSTRUCTOR, DESTRUCTOR, DO, DOWNTO, ELSE, END,
+                    FILE, FOR, FOWARD, FUNCTION, GOTO, IF, IMPLEMENTATION, IN, INLINE, INTERFACE,
+                    LABEL, NIL, OBJECT, OF, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET, THEN,
+                    TO, TYPE, UNIT, UNTIL, USES, VAR, WHILE, WITH, XOR;
+
+/* @@@@@@@@@@@@ Non terminals @@@@@@@@@@@@ */
+
+/* Program heading */
+non terminal            program_heading,prog,block,id_list,next_id,label_declaration,label,type_definition_part;
+/* Variables decalration */
+non terminal 			variable_declaration_part,procedure_and_function_declaration_part,
+                        next_procedure_and_function_declaration,procedure_or_function_declaration;
+/* Labels and Types */
+non terminal			next_label,type,next_type_definition,type_definition,type_denoter,new_type,new_ordinal_type,array_type,
+                        ordinal_type,next_ordinal_type;
+non terminal 			enumerated_type,subRange_type,constant,string,char,boolean,variable_declaration,
+						next_variable_declaration;
+/* procedure and Funciton Declaration */
+non terminal 			procedure_declaration,function_declaration,procedure_heading,function_heading;
+/* Parameter lists */
+non terminal 			formal_parameter_list,result_type,formal_parameter_section,next_formal_parameter_section;
+/* Parameter Specification */
+non terminal 			value_parameter_specification,variable_parameter_specification,conformant_array_parameter_specification,
+ 			            value_conformant_array_specification,variable_conformant_array_specification,conformant_array_schema,
+                        index_type_specification,next_index_type_specification,identifier_or_conformant_array_schema;
+/* Statements */
+non terminal 			compound_statement,statement_sequence,next_statement,statement,simple_or_structured_statement,
+		                simple_statement,empty_statement,assignment_statement,variable_access,indexed_variable,expression_aux,
+ 			            function_or_procedure_statement,actual_parameter_list,actual_parameter_aux,goto_statement,
+                        structured_statement,if_statement,else_part,while_statement;
+/* Expressions and Operations */
+non terminal 			expression,relational_operator,simple_expression,term_aux,term,signedfactor, unsignedfactor, factor_aux,
+						factor,multiplying_operator,adding_operator,unsigned_constant;
+
+/* Precedences */
+precedence nonassoc ELSE;
+
+/* @@@@@@@@@@@@ Grammar rules and syntatic evaluation @@@@@@@@@@@@ */
+
+/* program */
+prog ::= program_heading SEMICOLON block DOT;
+program_heading ::= PROGRAM ID
+                  | PROGRAM ID LPAR id_list RPAR;
+/* identifier list */
+id_list ::= ID next_id;
+next_id ::= COMMA ID next_id
+          | /*vazio*/ ;
+
+/* block */
+block ::= label_declaration type_definition_part variable_declaration_part procedure_and_function_declaration_part compound_statement;
+
+/* label */
+label_declaration ::= LABEL label next_label SEMICOLON
+                    | /*vazio*/; // optional
+next_label ::= COMMA label next_label
+             | /*vazio*/;
+label ::= NUMINT;
+
+/* Type Definition */
+type_definition_part ::= TYPE type_definition SEMICOLON next_type_definition
+                       | /*vazio*/ ;
+next_type_definition ::= type_definition SEMICOLON next_type_definition
+                       | /*vazio*/ ;
+type_definition ::= ID EQUAL type_denoter;
+type ::= INTEGER
+       | CHAR
+       | REAL
+       | STRING
+       |  BOOLEAN;
+type_denoter ::= type
+               | new_type;
+new_type ::= new_ordinal_type
+           | array_type;
+array_type ::= ARRAY LBRA ordinal_type next_ordinal_type RBRA OF type_denoter;
+next_ordinal_type ::= COMMA ordinal_type next_ordinal_type
+                    | /*vazio*/;
+ordinal_type ::= new_ordinal_type
+               | ID;
+new_ordinal_type ::= enumerated_type
+                   | subRange_type;
+enumerated_type ::= LPAR id_list RPAR;
+subRange_type ::= constant DOUBLEDOT constant;
+constant ::= SIGN NUMINT
+           | NUMINT
+           | string
+           | boolean
+           | char;
+boolean ::= TRUE
+          | FALSE;
+char ::= CHARACTER;
+string ::= STRINGCHARACTER;
+
+/* Variable Declaration */
+variable_declaration_part ::= VAR variable_declaration SEMICOLON next_variable_declaration
+                            | /*vazio*/;
+next_variable_declaration ::= variable_declaration SEMICOLON next_variable_declaration
+                            | /*vazio*/;
+variable_declaration ::= id_list COLON type_denoter;
+
+/* procedure and function Declaration */
+procedure_and_function_declaration_part ::= procedure_or_function_declaration SEMICOLON next_procedure_and_function_declaration
+                                           | /* vazio */;
+next_procedure_and_function_declaration ::= procedure_or_function_declaration SEMICOLON next_procedure_and_function_declaration
+                                          | /*vazio*/ ;
+procedure_or_function_declaration ::= procedure_declaration
+                                    | function_declaration ;
+procedure_declaration ::= procedure_heading SEMICOLON block;
+function_declaration ::= function_heading SEMICOLON block;
+procedure_heading ::= PROCEDURE ID
+                    | PROCEDURE ID formal_parameter_list;
+result_type ::= INTEGER
+              | CHAR
+              | REAL
+              | STRING
+              | BOOLEAN;
+function_heading ::= FUNCTION ID COLON result_type
+                   | FUNCTION ID formal_parameter_list COLON result_type;
+
+/* Parameter List and Section */
+formal_parameter_list ::= LPAR formal_parameter_section next_formal_parameter_section RPAR;
+next_formal_parameter_section ::= SEMICOLON formal_parameter_section next_formal_parameter_section
+                                | /*vazio*/;
+formal_parameter_section ::= value_parameter_specification
+                           | variable_parameter_specification
+                           | conformant_array_parameter_specification;
+
+/* Parameter and identifier Specification */
+value_parameter_specification::= id_list COLON type;
+variable_parameter_specification ::= VAR id_list COLON type;
+conformant_array_parameter_specification ::= value_conformant_array_specification
+                                           | variable_conformant_array_specification;
+value_conformant_array_specification::= id_list COLON conformant_array_schema;
+variable_conformant_array_specification ::= VAR id_list COLON conformant_array_schema;
+conformant_array_schema ::= ARRAY LBRA index_type_specification next_index_type_specification RBRA OF identifier_or_conformant_array_schema;
+identifier_or_conformant_array_schema ::= ID
+                                        | conformant_array_schema;
+next_index_type_specification ::= SEMICOLON index_type_specification next_index_type_specification
+                                | /*vazio*/;
+index_type_specification ::= ID DOUBLEDOT ID COLON ID /*ordinal_type_identifier*/;
+
+/* Compound statement */
+compound_statement ::= BEGIN statement_sequence END;
+statement_sequence ::= statement next_statement;
+next_statement ::= SEMICOLON statement next_statement
+                 | /*vazio*/;
+statement ::= label COLON simple_or_structured_statement
+            | simple_or_structured_statement;
+simple_or_structured_statement ::= simple_statement
+                                 | structured_statement;
+
+/* Simple statement */
+simple_statement ::= empty_statement
+                   | assignment_statement
+                   | ID | ID actual_parameter_list /* function_or_procedure_statement here */
+                   | goto_statement;
+empty_statement ::= /*vazio*/;
+assignment_statement ::= variable_access ASSIGN expression;
+variable_access ::= ID
+                  | indexed_variable;
+indexed_variable ::= variable_access LBRA expression expression_aux RBRA;
+expression_aux ::= COMMA expression expression_aux
+                 | /*vazio*/;
+function_or_procedure_statement ::= ID
+                                  | ID actual_parameter_list;
+actual_parameter_list ::= LPAR expression actual_parameter_aux RPAR;
+actual_parameter_aux ::= COMMA expression actual_parameter_aux
+                       | /*vazio*/;
+goto_statement ::= GOTO label;
+
+/* Structured statement */
+structured_statement ::= compound_statement
+                       | if_statement
+                       | while_statement;
+if_statement ::= IF expression THEN statement
+               | IF expression THEN statement else_part;
+else_part ::= ELSE statement;
+while_statement ::= WHILE expression DO statement;
+
+/* expression */
+expression ::= simple_expression
+             | simple_expression relational_operator simple_expression;
+simple_expression ::= term term_aux;
+term_aux ::= adding_operator term term_aux
+           | /*vazio*/;
+term ::= signedfactor
+       | unsignedfactor;
+factor_aux ::= multiplying_operator factor factor_aux
+             | /*vazio*/;
+signedfactor ::= SIGN factor factor_aux ;
+unsignedfactor ::= factor factor_aux;
+factor ::= variable_access
+         | unsigned_constant
+         | ID actual_parameter_list
+         | LPAR expression RPAR
+         | NOT factor;
+
+/* Operations */
+multiplying_operator ::= MULTIPLY
+                       | DIVIDE
+                       | MOD
+                       | AND;
+adding_operator ::= PLUS
+                  | MINUS
+                  | OR;
+relational_operator ::= LT
+                      | LE
+                      | GT
+                      | GE
+                      | EQUAL
+                      | DIFF;
+unsigned_constant ::= NUMINT
+                    | string
+                    | char
+                    | boolean;
