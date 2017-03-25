@@ -72,7 +72,7 @@ non terminal 			enumerated_type,subRange_type,constant,string,char,boolean;
 non terminal 			procedure_and_function_declaration_part,next_procedure_and_function_declaration,
                         procedure_or_function_declarationprocedure_declaration,function_declaration,procedure_heading,function_heading;
 /* Parameter lists */
-non terminal 			formal_parameter_list,result_type,formal_parameter_section,next_formal_parameter_section;
+non terminal 			formal_parameter_list,type_id,formal_parameter_section,next_formal_parameter_section;
 /* Parameter Specification */
 non terminal 			value_parameter_specification,variable_parameter_specification,conformant_array_parameter_specification,
  			            value_conformant_array_specification,variable_conformant_array_specification,conformant_array_schema,
@@ -118,17 +118,19 @@ next_type_definition ::= type_definition SEMICOLON next_type_definition
 type_definition ::= ID EQUAL type_denoter;
 type ::= INTEGER
        | CHAR
-       | REAL
        | STRING
-       |  BOOLEAN;
-type_denoter ::= type
+       | BOOLEAN;
+type_denoter ::= ID 
+               | type
                | new_type;
 new_type ::= new_ordinal_type
+           | subRange_type
            | array_type;
 array_type ::= ARRAY LBRA ordinal_type next_ordinal_type RBRA OF type_denoter;
 next_ordinal_type ::= COMMA ordinal_type next_ordinal_type
                     | /*vazio*/;
 ordinal_type ::= new_ordinal_type
+               | type
                | ID;
 new_ordinal_type ::= enumerated_type
                    | subRange_type;
@@ -136,7 +138,6 @@ enumerated_type ::= LPAR id_list RPAR;
 subRange_type ::= constant DOUBLEDOT constant;
 constant ::= SIGN NUMINT
            | NUMINT
-           | string
            | boolean
            | char;
 boolean ::= TRUE
@@ -162,13 +163,10 @@ procedure_declaration ::= procedure_heading SEMICOLON block;
 function_declaration ::= function_heading SEMICOLON block;
 procedure_heading ::= PROCEDURE ID
                     | PROCEDURE ID formal_parameter_list;
-result_type ::= INTEGER
-              | CHAR
-              | REAL
-              | STRING
-              | BOOLEAN;
-function_heading ::= FUNCTION ID COLON result_type
-                   | FUNCTION ID formal_parameter_list COLON result_type;
+type_id ::= type
+              | ID;
+function_heading ::= FUNCTION ID COLON type_id
+                   | FUNCTION ID formal_parameter_list COLON type_id;
 
 /* Parameter List and Section */
 formal_parameter_list ::= LPAR formal_parameter_section next_formal_parameter_section RPAR;
@@ -179,14 +177,14 @@ formal_parameter_section ::= value_parameter_specification
                            | conformant_array_parameter_specification;
 
 /* Parameter and identifier Specification */
-value_parameter_specification::= id_list COLON type;
-variable_parameter_specification ::= VAR id_list COLON type;
+value_parameter_specification::= id_list COLON type_id;
+variable_parameter_specification ::= VAR id_list COLON type_id;
 conformant_array_parameter_specification ::= value_conformant_array_specification
                                            | variable_conformant_array_specification;
 value_conformant_array_specification::= id_list COLON conformant_array_schema;
 variable_conformant_array_specification ::= VAR id_list COLON conformant_array_schema;
 conformant_array_schema ::= ARRAY LBRA index_type_specification next_index_type_specification RBRA OF identifier_or_conformant_array_schema;
-identifier_or_conformant_array_schema ::= ID
+identifier_or_conformant_array_schema ::= type_id
                                         | conformant_array_schema;
 next_index_type_specification ::= SEMICOLON index_type_specification next_index_type_specification
                                 | /*vazio*/;
@@ -232,16 +230,13 @@ while_statement ::= WHILE expression DO statement;
 
 /* expression */
 expression ::= simple_expression
-             | simple_expression relational_operator simple_expression;
-simple_expression ::= term term_aux;
-term_aux ::= adding_operator term term_aux
-           | /*vazio*/;
-term ::= signedfactor
-       | unsignedfactor;
-factor_aux ::= multiplying_operator factor factor_aux
-             | /*vazio*/;
-signedfactor ::= SIGN factor factor_aux ;
-unsignedfactor ::= factor factor_aux;
+             | expression relational_operator simple_expression;
+simple_expression ::= simple_expression adding_operator term
+                    | SIGN term
+                    | term;
+term ::= term multiplying_operator factor
+       | factor;
+
 factor ::= variable_access
          | unsigned_constant
          | ID actual_parameter_list
@@ -264,5 +259,4 @@ relational_operator ::= LT
                       | DIFF;
 unsigned_constant ::= NUMINT
                     | string
-                    | char
-                    | boolean;
+                    | char;
