@@ -1,18 +1,21 @@
 package syntacticAnalyzer;
-import java_cup.runtime.*;
-import java.io.IOException;
-import java.io.File;
+
 import java.io.FileInputStream;
+import lexicalAnalyzer.Lexer;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java_cup.runtime.*;
+import java.io.File;
 
 parser code {:
   protected Lexer lexer;
 :}
 
-/* define how to connect to the scanner! */
+/* define how to connect to the lexicalAnalyzer! */
 init with {:
     ComplexSymbolFactory f = new ComplexSymbolFactory();
     symbolFactory = f;
-    File file = new File("input.txt");
+    File file = new File(Paths.get("").toAbsolutePath().toString() + "/src/" + "input.txt");
     FileInputStream fis = null;
     try {
         fis = new FileInputStream(file);
@@ -21,11 +24,12 @@ init with {:
     }
     lexer = new Lexer(f,fis);
 :};
+
 scan with {:
     return lexer.next_token();
 :};
 
-/* @@@@@@@@@@@@ terminals (tokens returned by the scanner) @@@@@@@@@@@@ */
+/* @@@@@@@@@@@@ terminals (tokens returned by the lexicalAnalyzer) @@@@@@@@@@@@ */
 
 /* ID */
 terminal			ID;
@@ -56,18 +60,17 @@ terminal			ARRAY, ASM, BEGIN, CASE, CONST, CONSTRUCTOR, DESTRUCTOR, DO, DOWNTO, 
 
 /* @@@@@@@@@@@@ Non terminals @@@@@@@@@@@@ */
 
-/* Program heading */
+/* programHeading heading */
 non terminal            program_heading,prog,block,id_list,next_id,label_declaration,label,type_definition_part;
-/* Variables decalration */
-non terminal 			variable_declaration_part,procedure_and_function_declaration_part,
-                        next_procedure_and_function_declaration,procedure_or_function_declaration;
+/* Variables, procedure and functions declaration */
+non terminal 			variable_declaration_part,variable_declaration,next_variable_declaration;
 /* Labels and Types */
 non terminal			next_label,type,next_type_definition,type_definition,type_denoter,new_type,new_ordinal_type,array_type,
                         ordinal_type,next_ordinal_type;
-non terminal 			enumerated_type,subRange_type,constant,string,char,boolean,variable_declaration,
-						next_variable_declaration;
+non terminal 			enumerated_type,subRange_type,constant,string,char,boolean;
 /* procedure and Funciton Declaration */
-non terminal 			procedure_declaration,function_declaration,procedure_heading,function_heading;
+non terminal 			procedure_and_function_declaration_part,next_procedure_and_function_declaration,
+                        procedure_or_function_declarationprocedure_declaration,function_declaration,procedure_heading,function_heading;
 /* Parameter lists */
 non terminal 			formal_parameter_list,result_type,formal_parameter_section,next_formal_parameter_section;
 /* Parameter Specification */
@@ -79,7 +82,7 @@ non terminal 			compound_statement,statement_sequence,next_statement,statement,s
 		                simple_statement,empty_statement,assignment_statement,variable_access,indexed_variable,expression_aux,
  			            function_or_procedure_statement,actual_parameter_list,actual_parameter_aux,goto_statement,
                         structured_statement,if_statement,else_part,while_statement;
-/* Expressions and Operations */
+/* Expressions and Operator */
 non terminal 			expression,relational_operator,simple_expression,term_aux,term,signedfactor, unsignedfactor, factor_aux,
 						factor,multiplying_operator,adding_operator,unsigned_constant;
 
@@ -245,7 +248,7 @@ factor ::= variable_access
          | LPAR expression RPAR
          | NOT factor;
 
-/* Operations */
+/* Operator */
 multiplying_operator ::= MULTIPLY
                        | DIVIDE
                        | MOD
