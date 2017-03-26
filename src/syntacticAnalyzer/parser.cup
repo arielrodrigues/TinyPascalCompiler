@@ -32,63 +32,59 @@ scan with {:
 /* @@@@@@@@@@@@ terminals (tokens returned by the lexicalAnalyzer) @@@@@@@@@@@@ */
 
 /* ID */
-terminalString	    ID;
+terminal      ID;
 /* arithmetic operators */
 terminal            PLUS,MINUS,MULTIPLY,DIVIDE;
 terminal            DIV,MOD,SHL,SHR;
 /* relational operators */
-terminal 			      LT,LE,GT,GE,EQUAL,DIFF;
+terminal      LT,LE,GT,GE,EQUAL,DIFF;
 /* logic operators */
 terminal            AND,NOT,OR;
 /* symbols */
-terminal			      DOT,DOUBLEDOT,COMMA,COLON,SEMICOLON;
-terminal 			      LPAR,RPAR,LBRA,RBRA;
+terminal      DOT,DOUBLEDOT,COMMA,COLON,SEMICOLON;
+terminal      LPAR,RPAR,LBRA,RBRA;
 terminal            CARET,ASSIGN,SIGN,SINGLEQUOTE,DOUBLEQUOTE;
 /* types */
 terminal char       CHARACTER;
-terminal boolean	  FALSE,TRUE;
-terminal int        NUMINT,LABEL;
-terminal double 	  NUMREAL;
-terminal String     STRINGCHARACTER;
+terminal boolean  FALSE,TRUE;
+terminal int        NUMINT;
+terminal double   NUMREAL;
+terminal String     STRINGCHARACTER,STRING;
 /* type def */
-terminal            BOOLEAN,CHAR,INTEGER,REAL,STRING;
+terminal            BOOLEAN,CHAR,INTEGER,REAL;
 /* reserved words */
-terminal			      ARRAY, ASM, BEGIN, CASE, CONST, CONSTRUCTOR, DESTRUCTOR, DO, DOWNTO, ELSE, END,
+terminal      ARRAY, ASM, BEGIN, CASE, CONST, CONSTRUCTOR, DESTRUCTOR, DO, DOWNTO, ELSE, END,
                     FILE, FOR, FOWARD, FUNCTION, GOTO, IF, IMPLEMENTATION, IN, INLINE, INTERFACE,
-                    NIL, OBJECT, OF, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET, THEN,
+                    LABEL, NIL, OBJECT, OF, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET, THEN,
                     TO, TYPE, UNIT, UNTIL, USES, VAR, WHILE, WITH, XOR;
 
 /* @@@@@@@@@@@@ Non terminals @@@@@@@@@@@@ */
 
 /* programHeading heading */
-non terminal                         program_heading,prog,block,type_definition_part;
-non terminal   ArrayList<int>        label,next_label;
+non terminal            program_heading,prog,block,id_list,next_id,label_declaration,label,type_definition_part;
 /* Variables, procedure and functions declaration */
-non terminal 			variable_declaration_part,variable_declaration,next_variable_declaration;
+non terminal      variable_declaration_part,variable_declaration,next_variable_declaration;
 /* Labels and Types */
-
-non terminal String type,type_definition,new_ordinal_type,type_denoter,new_type,array_type,ordinal_type;
-non terminal ArrayList<String> next_type_definition,next_ordinal_type,next_type_definition;                        
-
-non terminal 			enumerated_type,subRange_type,constant,string,char,boolean;
-/* procedure and Function Declaration */
-non terminal 			procedure_and_function_declaration_part,
+non terminal      next_label,type,next_type_definition,type_definition,type_denoter,new_type,new_ordinal_type,array_type,
+                        ordinal_type,next_ordinal_type;
+non terminal      enumerated_type,subRange_type,constant,string,char,boolean;
+/* procedure and Funciton Declaration */
+non terminal      procedure_and_function_declaration_part,next_procedure_and_function_declaration,
                         procedure_or_function_declarationprocedure_declaration,function_declaration,procedure_heading,function_heading;
 /* Parameter lists */
-non terminal ArrrayList<Strings>			formal_parameter_list,next_procedure_and_function_declaration,id_list,next_id,label_declaration;
-non terminal                          result_type,formal_parameter_section,next_formal_parameter_section;
+non terminal      formal_parameter_list,type_id,formal_parameter_section,next_formal_parameter_section;
 /* Parameter Specification */
-non terminal 			value_parameter_specification,variable_parameter_specification,conformant_array_parameter_specification,
- 			            value_conformant_array_specification,variable_conformant_array_specification,conformant_array_schema,
+non terminal      value_parameter_specification,variable_parameter_specification,conformant_array_parameter_specification,
+                  value_conformant_array_specification,variable_conformant_array_specification,conformant_array_schema,
                         index_type_specification,next_index_type_specification,identifier_or_conformant_array_schema;
 /* Statements */
-non terminal 			compound_statement,statement_sequence,next_statement,statement,simple_or_structured_statement,
-		                simple_statement,empty_statement,assignment_statement,variable_access,indexed_variable,expression_aux,
- 			            function_or_procedure_statement,actual_parameter_list,actual_parameter_aux,goto_statement,
+non terminal      compound_statement,statement_sequence,next_statement,statement,simple_or_structured_statement,
+                    simple_statement,empty_statement,assignment_statement,variable_access,indexed_variable,expression_aux,
+                  function_or_procedure_statement,actual_parameter_list,actual_parameter_aux,goto_statement,
                         structured_statement,if_statement,else_part,while_statement;
 /* Expressions and Operator */
-non terminal 			expression,relational_operator,simple_expression,term_aux,term,signedfactor, unsignedfactor, factor_aux,
-						factor,multiplying_operator,adding_operator,unsigned_constant;
+non terminal      expression,relational_operator,simple_expression,term_aux,term,signedfactor, unsignedfactor, factor_aux,
+            factor,multiplying_operator,adding_operator,unsigned_constant;
 
 /* Precedences */
 precedence nonassoc ELSE;
@@ -97,88 +93,80 @@ precedence nonassoc ELSE;
 
 /* program */
 prog ::= program_heading SEMICOLON block DOT;
-program_heading ::= PROGRAM ID:id {:RESULT = new program_heading(id):};
-                  | PROGRAM ID:id LPAR id_list RPAR; {:RESULT = new program_heading(id,id_list):}
+program_heading ::= PROGRAM ID:id
+                  | PROGRAM ID:id LPAR id_list RPAR;
 /* identifier list */
-id_list ::= ID : id next_id : il;       {: il.add(id);      // Creation of lists,value insertions and resulting as object
-                                               RESULT = new id_list(il); :} 
-                                        
-next_id ::= COMMA ID : id next_id : il  {: il.add(id); RESULT = il; :}
-          | /*vazio*/ ;                      {: RESULT = new ArrayList<String>(); :};
+id_list ::= ID next_id;
+next_id ::= COMMA ID next_id
+          | /*vazio*/ ;
 
 /* block */
 block ::= label_declaration type_definition_part variable_declaration_part procedure_and_function_declaration_part compound_statement;
 
 /* label */
-label_declaration ::= LABEL label:lbl next_label:label_list SEMICOLON {: label_list.add(lbl);
-                                                        | /*vazio*/;  RESULT = new label_declaration(lbl,label_list) :};    
-
-next_label ::= COMMA label:lbl next_label:label_list {: label_list.add(lbl); 
-             | /*vazio*/;                RESULT = new ArrayList<int>(); :} 
-               
-label ::= NUMINT:num;{:RESULT = new label(num):};
+label_declaration ::= LABEL label:lbl next_label:label_list SEMICOLON // lbl = label
+                    | /*vazio*/; // optional
+next_label ::= COMMA label next_label
+             | /*vazio*/;
+label ::= NUMINT:num {:RESULT = new UnsignedNumber(num);:};
 
 /* Type Definition */
-type_definition_part ::= TYPE : tipo type_definition : type_def SEMICOLON next_type_definition:type_def_list {:type_def_list.add(tipo);
-                                                                   | /*vazio*/ ;                              RESULT =  type_def_list :} 
-
-next_type_definition ::= type_definition:type_def SEMICOLON next_type_definition : type_def_list  {:type_def_list.add(tipo);
-                                                                | /*vazio*/ ;                 RESULT = new ArrayList<String>();:};
-  
-type_definition ::= ID:id EQUAL type_denoter:type_den;{:RESULT = type_den:};
-type ::= INTEGER {:RESULT = INTEGER:}
-       | CHAR    {:RESULT = CHAR:}
-       | REAL    {:RESULT = REAL:}
-       | STRING  {:RESULT = STRING:}
-       | BOOLEAN {:RESULT = BOOLEAN:};
-type_denoter ::= type : tp   {:RESULT = tp:}
-               | new_type : new_tp; {:RESULT = new type_denoter(tp,new_tp):}; /*exemplo */
-new_type ::= new_ordinal_type : new_ord_type
-           | array_type : array_tp; {:RESULT = new new_type(new_ord_type,array_tp):};
-array_type ::= ARRAY LBRA ordinal_type : ord_tp next_ordinal_type : next_ord_type RBRA OF type_denoter:type_den;{:RESULT = new array_type(ord_tp,next_ord_type,type_den);:};
-next_ordinal_type ::= COMMA ordinal_type:ord_tp next_ordinal_type:next_ord_type;{:RESULT = new next_ordinal_type(ord_tp,next_ord_type,):};
+type_definition_part ::= TYPE type_definition:type_def SEMICOLON next_type_definition {:RESULT = new TypeDefinition(id,type_den):} // ?????
+                       | /*vazio*/ ;            {:type_def_list.add(type_def):};
+next_type_definition ::= type_definition:type_def SEMICOLON next_type_definition:type_def_list {:type_def_list = new ArrayList<String>();type_def_list.add(type_def):}
+                       | /*vazio*/ {:type_def_list.add(type_def);:};
+type_definition ::= ID:id EQUAL type_denoter:type_den{:RESULT = new TypeDefinition(id,type_den):};
+type ::= INTEGER {: RESULT = PrimitiveType.INTEGER; :}
+       | CHAR {: RESULT = PrimitiveType.CHAR; :}
+       | STRING {: RESULT = PrimitiveType.STRING; :}
+       | BOOLEAN {: RESULT = PrimitiveType.BOOLEAN; :};
+type_denoter ::= ID:id {: RESULT = new TypeId(id); :}
+               | type:type {: RESULT = type; :}
+               | new_type:type {: RESULT = type; :};
+new_type ::= new_ordinal_type:ordinalType {: RESULT = ordinalType; :}
+           | subRange_type:subRangeType {: RESULT = subRangeType; :}
+           | array_type:array {: RESULT = array; :};
+array_type ::= ARRAY LBRA ordinal_type:ord next_ordinal_type:ordList RBRA OF type_denoter:typeDen {:RESULT = array :}; // ???
+next_ordinal_type ::= COMMA ordinal_type:ord_type next_ordinal_type:ordinal_type_list
                     | /*vazio*/;
-ordinal_type ::= new_ordinal_type : new_ord_type {:RESULT = new ordinal_type(new_ord_type):}
-               | ID:id; {:RESULT = new ordinal_type(id):};
-new_ordinal_type ::= enumerated_type
-                   | subRange_type;
-enumerated_type ::= LPAR id_list RPAR;
-subRange_type ::= constant DOUBLEDOT constant;
-constant ::= SIGN NUMINT
-           | NUMINT
-           | string
-           | boolean
-           | char;
+ordinal_type ::= new_ordinal_type:ordinal_type_list{:RESULT = new ordinal_type_list:}
+               | type:type {:RESULT = type:};
+               | ID : id {:RESULT = new TypeId(id):};
+new_ordinal_type ::= enumerated_type:enumType {: RESULT = enumType; :}
+                   | subRange_type:subRangeType {: RESULT = subRangeType; :};
+enumerated_type ::= LPAR id_list:idList RPAR {: RESULT = new EnumeratedType(idList); :};
+subRange_type ::= constant:const1 DOUBLEDOT constant:const2 {: RESULT = new SubrangeType(const1, const2); :};
+constant ::= SIGN:sign NUMINT:num {:RESULT = new SignedNumber(sign,num):};
+           | NUMINT               {:: }
+           | boolean              {:RESULT = PrimitiveType.BOOLEAN:}
+           | char                 {:RESULT = PrimitiveType.CHAR:};
 boolean ::= TRUE
           | FALSE;
 char ::= CHARACTER;
 string ::= STRINGCHARACTER;
 
 /* Variable Declaration */
-variable_declaration_part ::= VAR variable_declaration SEMICOLON next_variable_declaration
-                            | /*vazio*/;
-next_variable_declaration ::= variable_declaration SEMICOLON next_variable_declaration
-                            | /*vazio*/;
-variable_declaration ::= id_list COLON type_denoter;
+variable_declaration_part ::= VAR variable_declaration:var_decl SEMICOLON next_variable_declaration:var_decl_list {:var_decl_list.add(var_decl);RESULT = new VariableDeclaration(var_decl,var_decl_list);:} //??????
+                            | /*vazio*/; {:var_decl_list.add(var_decl);:}  
+next_variable_declaration ::= variable_declaration:var_decl SEMICOLON next_variable_declaration:var_decl_list {:var_decl_list = new ArrayList<String>();var_decl_list.add(var_decl):}
+                            | /*vazio*/; {:var_decl_list.add(var_decl);:}
+variable_declaration ::= id_list:id COLON type_denoter:type_den {:RESULT = new VariableDeclaration(id,type_den):};
 
 /* procedure and function Declaration */
-procedure_and_function_declaration_part ::= procedure_or_function_declaration SEMICOLON next_procedure_and_function_declaration
+procedure_and_function_declaration_part ::= procedure_or_function_declaration SEMICOLON next_procedure_and_function_declaration // ??????
                                            | /* vazio */;
 next_procedure_and_function_declaration ::= procedure_or_function_declaration SEMICOLON next_procedure_and_function_declaration
                                           | /*vazio*/ ;
-procedure_or_function_declaration ::= procedure_declaration
-                                    | function_declaration ;
-procedure_declaration ::= procedure_heading SEMICOLON block;
-function_declaration ::= function_heading SEMICOLON block;
-procedure_heading ::= PROCEDURE ID
-                    | PROCEDURE ID formal_parameter_list;
-result_type ::= INTEGER
-              | CHAR
-              | REAL
-              | STRING
-              | BOOLEAN;
-function_heading ::= FUNCTION ID COLON result_type
-                   | FUNCTION ID formal_parameter_list COLON result_type;
+procedure_or_function_declaration ::= procedure_declaration // ?????
+                                    | function_declaration;
+procedure_declaration ::= procedure_heading:procedure_head SEMICOLON block:block; // ????
+function_declaration ::= function_heading:function_head SEMICOLON block:block;
+procedure_heading ::= PROCEDURE ID:id {:RESULT = new TypeId(id);:};
+                    | PROCEDURE ID:id formal_parameter_list:formalP_list; // ??????
+type_id ::= type:type {:RESULT = new TypeId(type):}
+              | ID:id {:RESULT = new TypeId(id):};
+function_heading ::= FUNCTION ID:id COLON type_id:type_id {:formalP_list.add(type_id); RESULT = new FunctionDesignator(id,formalP_list):}
+                   | FUNCTION ID formal_parameter_list:formalP_list COLON type_id:type_id{:formalP_list = new ArrayList<String>();formalP_list.add(type_id):};
 
 /* Parameter List and Section */
 formal_parameter_list ::= LPAR formal_parameter_section next_formal_parameter_section RPAR;
@@ -189,14 +177,14 @@ formal_parameter_section ::= value_parameter_specification
                            | conformant_array_parameter_specification;
 
 /* Parameter and identifier Specification */
-value_parameter_specification::= id_list COLON type;
-variable_parameter_specification ::= VAR id_list COLON type;
+value_parameter_specification::= id_list COLON type_id;
+variable_parameter_specification ::= VAR id_list COLON type_id;
 conformant_array_parameter_specification ::= value_conformant_array_specification
                                            | variable_conformant_array_specification;
 value_conformant_array_specification::= id_list COLON conformant_array_schema;
 variable_conformant_array_specification ::= VAR id_list COLON conformant_array_schema;
 conformant_array_schema ::= ARRAY LBRA index_type_specification next_index_type_specification RBRA OF identifier_or_conformant_array_schema;
-identifier_or_conformant_array_schema ::= ID
+identifier_or_conformant_array_schema ::= type_id
                                         | conformant_array_schema;
 next_index_type_specification ::= SEMICOLON index_type_specification next_index_type_specification
                                 | /*vazio*/;
@@ -242,16 +230,13 @@ while_statement ::= WHILE expression DO statement;
 
 /* expression */
 expression ::= simple_expression
-             | simple_expression relational_operator simple_expression;
-simple_expression ::= term term_aux;
-term_aux ::= adding_operator term term_aux
-           | /*vazio*/;
-term ::= signedfactor
-       | unsignedfactor;
-factor_aux ::= multiplying_operator factor factor_aux
-             | /*vazio*/;
-signedfactor ::= SIGN factor factor_aux ;
-unsignedfactor ::= factor factor_aux;
+             | expression relational_operator simple_expression;
+simple_expression ::= simple_expression adding_operator term
+                    | SIGN term
+                    | term;
+term ::= term multiplying_operator factor
+       | factor;
+
 factor ::= variable_access
          | unsigned_constant
          | ID actual_parameter_list
@@ -259,20 +244,20 @@ factor ::= variable_access
          | NOT factor;
 
 /* Operator */
-multiplying_operator ::= MULTIPLY
-                       | DIVIDE
-                       | MOD
-                       | AND;
-adding_operator ::= PLUS
-                  | MINUS
-                  | OR;
-relational_operator ::= LT
-                      | LE
-                      | GT
-                      | GE
-                      | EQUAL
-                      | DIFF;
-unsigned_constant ::= NUMINT
-                    | string
-                    | char
-                    | boolean;
+multiplying_operator ::= MULTIPLY {:RESULT = BinaryArithmeticOperator.TIMES:}
+                       | DIVIDE {:RESULT = BinaryArithmeticOperator.DIV:}
+                       | MOD  {:RESULT = BinaryArithmeticOperator.MOD:}
+                       | AND  {:RESULT = BinaryBooleanOperator.AND:};
+adding_operator ::= PLUS      {:RESULT = BinaryArithmeticOperator.PLUS:}
+                  | MINUS     {:RESULT = BinaryArithmeticOperator.MINUS:}
+                  | OR        {:RESULT = BinaryBooleanOperator.OR:};
+
+relational_operator ::= LT    {:RESULT = RelationalOperator.LT:}
+                      | LE    {:RESULT = RelationalOperator.LTE:}
+                      | GT    {:RESULT = RelationalOperator.GT:}
+                      | GE    {:RESULT = RelationalOperator.GTE:}
+                      | EQUAL {:RESULT = RelationalOperator.EQ:}
+                      | DIFF; {:RESULT = RelationalOperator.NEQ:};
+unsigned_constant ::= NUMINT:num {:RESULT = new UnsignedNumber(num);:}
+                    | string : str {:RESULT = Str:}
+                    | char;  {:RESULT = PrimitiveType.CHAR:};
