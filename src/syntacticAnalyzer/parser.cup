@@ -96,9 +96,9 @@ prog ::= program_heading SEMICOLON block DOT;
 program_heading ::= PROGRAM ID:id
                   | PROGRAM ID:id LPAR id_list RPAR;
 /* identifier list */
-id_list ::= ID next_id;
-next_id ::= COMMA ID next_id
-          | /*vazio*/ ;
+id_list ::= ID:id next_id:il{:RESULT = new TypeID(il):};
+next_id ::= COMMA ID:id next_id:il {:il = new ArrayList<String>();il.add(id):}
+          | /*vazio*/ {:il.add(id):};
 
 /* block */
 block ::= label_declaration type_definition_part variable_declaration_part procedure_and_function_declaration_part compound_statement;
@@ -173,69 +173,59 @@ formal_parameter_list ::= LPAR formal_parameter_section next_formal_parameter_se
 next_formal_parameter_section ::= SEMICOLON formal_parameter_section next_formal_parameter_section
                                 | /*vazio*/;
 formal_parameter_section ::= value_parameter_specification
-                           | variable_parameter_specification
-                           | conformant_array_parameter_specification;
+                           | variable_parameter_specification  //????
+                           | conformant_array_parameter_specification:mechanism {:RESULT = new ConformantArrayParameter(mechanism,id,):};
 
 /* Parameter and identifier Specification */
-value_parameter_specification::= id_list COLON type_id;
-variable_parameter_specification ::= VAR id_list COLON type_id;
-conformant_array_parameter_specification ::= value_conformant_array_specification
-                                           | variable_conformant_array_specification;
-value_conformant_array_specification::= id_list COLON conformant_array_schema;
-variable_conformant_array_specification ::= VAR id_list COLON conformant_array_schema;
+value_parameter_specification::= id_list:id COLON type_id:type_id {:RESULT = new FormalRef(id,type_id):}; 
+variable_parameter_specification ::= VAR id_list:il COLON type_id:type_id {:RESULT = new FormalVar(id,type_id):};
+conformant_array_parameter_specification ::= value_conformant_array_specification:value       {:RESULT = RefOrValue.val:}
+                                           | variable_conformant_array_specification:variable {:RESULT = RefOrValue.Ref:};
+value_conformant_array_specification::= id_list:il COLON conformant_array_schema:schema {::}; // ????
+variable_conformant_array_specification ::= VAR id_list:il COLON conformant_array_schema:schema // ????
 conformant_array_schema ::= ARRAY LBRA index_type_specification next_index_type_specification RBRA OF identifier_or_conformant_array_schema;
-identifier_or_conformant_array_schema ::= type_id
-                                        | conformant_array_schema;
-next_index_type_specification ::= SEMICOLON index_type_specification next_index_type_specification
+identifier_or_conformant_array_schema ::= type_id:id {:RESULT = new TypeId(id):}
+                                        | conformant_array_schema:schema{:RESULT = new ConformantArraySchema():}; // ????
+next_index_type_specification ::= SEMICOLON index_type_specification next_index_type_specification //????
                                 | /*vazio*/;
-index_type_specification ::= ID DOUBLEDOT ID COLON ID /*ordinal_type_identifier*/;
+index_type_specification ::= ID:id DOUBLEDOT ID:id COLON ID:id /*ordinal_type_identifier*/;
 
 /* Compound statement */
-compound_statement ::= BEGIN statement_sequence END;
-statement_sequence ::= statement next_statement;
-next_statement ::= SEMICOLON statement next_statement
-                 | /*vazio*/;
-statement ::= label COLON simple_or_structured_statement
-            | simple_or_structured_statement;
-simple_or_structured_statement ::= simple_statement
-                                 | structured_statement;
-
-/* Simple statement */
-simple_statement ::= empty_statement
-                   | assignment_statement
-                   | ID | ID actual_parameter_list /* function_or_procedure_statement here */
-                   | goto_statement;
-empty_statement ::= /*vazio*/;
-assignment_statement ::= variable_access ASSIGN expression;
-variable_access ::= ID
-                  | indexed_variable;
-indexed_variable ::= variable_access LBRA expression expression_aux RBRA;
-expression_aux ::= COMMA expression expression_aux
-                 | /*vazio*/;
-function_or_procedure_statement ::= ID
-                                  | ID actual_parameter_list;
-actual_parameter_list ::= LPAR expression actual_parameter_aux RPAR;
-actual_parameter_aux ::= COMMA expression actual_parameter_aux
-                       | /*vazio*/;
-goto_statement ::= GOTO label;
+compound_statement ::= BEGIN statement_sequence END {:RESULT = new CompoundStatement(stm_list):};
+statement_sequence ::= statement:stm next_statement:stm_list {:stm_list.add(stm);:};
+next_statement ::= SEMICOLON statement:stm next_statement:stm_list {:stm_list.add(stm);:}
+                 | /*vazio*/{:stm_list = new ArrayList<String>();stm_list.add(stm);:};
+statement ::= label:lbl COLON simple_or_structured_statement:simple_or_srtc_stm {:RESULT = new Statement();:}
+empty_statement ::= /*vazio*/; {:RESULT = new EmptyStatement();:}
+assignment_statement ::= variable_access:var_access ASSIGN expression:exp;
+variable_access ::= ID:id  {:RESULT = new TypeId(id):}
+                  | indexed_variable:index_variable {:RESULT = new IndexedVariable(var_access,exp_list):}; // ????
+indexed_variable ::= variable_access:var_access LBRA expression:exp expression_aux:exp_list RBRA{:exp_list.add(exp):};
+expression_aux ::= COMMA expression:exp expression_aux:exp_list{exp_list.add(exp)}
+                 | /*vazio*/;{:exp_list = new ArrayList<String>();exp_list.add(exp);:};
+function_or_procedure_statement ::= ID:id {:RESULT = new TypeId(id):}
+                                  | ID:id actual_parameter_list:actualP_list{:RESULT = new ProcedureStatement(id,actualP_list_aux);:};
+actual_parameter_list ::= LPAR expression:exp actual_parameter_aux:actualP_list_aux RPAR {:actualP_list_aux.add(exp):}
+actual_parameter_aux ::= COMMA expression:exp actual_parameter_aux:actualP_list_aux {:actualP_list_aux.add(exp):}
+                       | /*vazio*/{:actualP_list_aux = new ArrayList<String>();actualP_list_aux.add(exp);:};
+goto_statement ::= GOTO label:lbl{:RESULT = new GotoStatement(lbl):};
 
 /* Structured statement */
-structured_statement ::= compound_statement
-                       | if_statement
-                       | while_statement;
-if_statement ::= IF expression THEN statement
-               | IF expression THEN statement else_part;
-else_part ::= ELSE statement;
-while_statement ::= WHILE expression DO statement;
-
+structured_statement ::= compound_statement {:RESULT = new CompoundStatement(stm_list):}
+                       | if_statement:if_stm       {:RESULT = new IfStatement(exp_condition,if_stm,else_stm):} 
+                       | while_statement:while_stm;    {:RESULT = WhileStatement(exp,stm);:};
+if_statement ::= IF expression:exp_condition THEN statement:if_stm        {:RESULT = new Statement(if_stm):}
+               | IF expression:exp THEN statement:ifthen_stm else_part:else_part {:RESULT = new Statement(ifthen_stm):};
+else_part ::= ELSE statement:else_stm {:RESULT = new Statement(else_stm);:}; // ?????
+while_statement ::= WHILE expression:exp DO statement:stm; {:RESULT = WhileStatement(exp,stm);:};
 /* expression */
-expression ::= simple_expression
-             | expression relational_operator simple_expression;
-simple_expression ::= simple_expression adding_operator term
-                    | SIGN term
-                    | term;
-term ::= term multiplying_operator factor
-       | factor;
+expression ::= simple_expression:simple_exp // ?????
+             | expression:exp relational_operator:relational_oper simple_expression:simple_exp;
+simple_expression ::= simple_expression:simple_exp adding_operator:add_oper term:term
+                    | SIGN term:term
+                    | term:term;
+term ::= term:term multiplying_operator:mult_oper factor:fator
+       | factor:fator;
 
 factor ::= variable_access
          | unsigned_constant
@@ -248,6 +238,7 @@ multiplying_operator ::= MULTIPLY {:RESULT = BinaryArithmeticOperator.TIMES:}
                        | DIVIDE {:RESULT = BinaryArithmeticOperator.DIV:}
                        | MOD  {:RESULT = BinaryArithmeticOperator.MOD:}
                        | AND  {:RESULT = BinaryBooleanOperator.AND:};
+
 adding_operator ::= PLUS      {:RESULT = BinaryArithmeticOperator.PLUS:}
                   | MINUS     {:RESULT = BinaryArithmeticOperator.MINUS:}
                   | OR        {:RESULT = BinaryBooleanOperator.OR:};
@@ -258,6 +249,7 @@ relational_operator ::= LT    {:RESULT = RelationalOperator.LT:}
                       | GE    {:RESULT = RelationalOperator.GTE:}
                       | EQUAL {:RESULT = RelationalOperator.EQ:}
                       | DIFF; {:RESULT = RelationalOperator.NEQ:};
+
 unsigned_constant ::= NUMINT:num {:RESULT = new UnsignedNumber(num);:}
                     | string : str {:RESULT = Str:}
                     | char;  {:RESULT = PrimitiveType.CHAR:};
