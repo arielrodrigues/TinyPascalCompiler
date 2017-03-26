@@ -116,26 +116,26 @@ type_definition_part ::= TYPE type_definition SEMICOLON next_type_definition
 next_type_definition ::= type_definition SEMICOLON next_type_definition
                        | /*vazio*/ ;
 type_definition ::= ID EQUAL type_denoter;
-type ::= INTEGER
-       | CHAR
-       | STRING
-       | BOOLEAN;
-type_denoter ::= ID 
-               | type
-               | new_type;
-new_type ::= new_ordinal_type
-           | subRange_type
-           | array_type;
-array_type ::= ARRAY LBRA ordinal_type next_ordinal_type RBRA OF type_denoter;
+type ::= INTEGER {: RESULT = PrimitiveType.INTEGER; :}
+       | CHAR {: RESULT = PrimitiveType.CHAR; :}
+       | STRING {: RESULT = PrimitiveType.STRING; :}
+       | BOOLEAN {: RESULT = PrimitiveType.BOOLEAN; :};
+type_denoter ::= ID:id {: RESULT = new TypeId(id); :}
+               | type:type {: RESULT = type; :}
+               | new_type {: RESULT = type; :};
+new_type ::= new_ordinal_type:ordinalType {: RESULT = ordinalType; :}
+           | subRange_type:subRangeType {: RESULT = subRangeType; :}
+           | array_type:array {: RESULT = array; :};
+array_type ::= ARRAY LBRA ordinal_type:ord next_ordinal_type:ordList RBRA OF type_denoter:typeDen {:  :};
 next_ordinal_type ::= COMMA ordinal_type next_ordinal_type
                     | /*vazio*/;
 ordinal_type ::= new_ordinal_type
                | type
                | ID;
-new_ordinal_type ::= enumerated_type
-                   | subRange_type;
-enumerated_type ::= LPAR id_list RPAR;
-subRange_type ::= constant DOUBLEDOT constant;
+new_ordinal_type ::= enumerated_type:enumType {: RESULT = enumType; :}
+                   | subRange_type:subRangeType {: RESULT = subRangeType; :};
+enumerated_type ::= LPAR id_list:idList RPAR {: RESULT = new EnumeratedType(idList); :};
+subRange_type ::= constant:const1 DOUBLEDOT constant:const2 {: RESULT = new SubrangeType(const1, const2); :};
 constant ::= SIGN NUMINT
            | NUMINT
            | boolean
