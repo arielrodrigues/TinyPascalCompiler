@@ -1,6 +1,6 @@
-package abstractSyntax;
+package abstractSyntax.labelsAndTypes;
 
-public class PrimitiveType extends  TypeDenoter {
+public class PrimitiveType extends TypeDenoter {
 
 	public static PrimitiveType INTEGER = new PrimitiveType();
 	public static PrimitiveType CHAR = new PrimitiveType();

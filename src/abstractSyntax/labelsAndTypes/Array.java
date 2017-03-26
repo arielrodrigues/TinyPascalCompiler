@@ -1,6 +1,6 @@
-package abstractSyntax;
+package abstractSyntax.labelsAndTypes;
 
-public class Array extends  TypeDenoter {
+public class Array extends TypeDenoter {
 	TypeIdOrOrdinal range;
 	TypeDenoter elemTy;	
 	

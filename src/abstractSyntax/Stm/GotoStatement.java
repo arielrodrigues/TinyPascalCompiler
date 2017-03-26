@@ -1,6 +1,6 @@
 package abstractSyntax.Stm;
 
-import abstractSyntax.labelsAndTypes.UnsignedNumber;
+import abstractSyntax.Constant.UnsignedNumber;
 
 public class GotoStatement extends Statement {
 	public UnsignedNumber label;

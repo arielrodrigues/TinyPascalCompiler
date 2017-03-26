@@ -2,7 +2,7 @@ package abstractSyntax.procedureAndFunctionDeclaration;
 
 import abstractSyntax.Block;
 import abstractSyntax.FormalParameter;
-import abstractSyntax.TypeIdOrPrimitive;
+import abstractSyntax.labelsAndTypes.TypeIdOrPrimitive;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package abstractSyntax.programHeading;
+package abstractSyntax;
 
 import abstractSyntax.Block;
 import abstractSyntax.Node;

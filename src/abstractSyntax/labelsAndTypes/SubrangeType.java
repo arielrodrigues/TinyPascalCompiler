@@ -1,7 +1,6 @@
 package abstractSyntax.labelsAndTypes;
 
-import abstractSyntax.TypeIdOrOrdinal;
-import abstractSyntax.labelsAndTypes.Constant;
+import abstractSyntax.Constant.Constant;
 
 public class SubrangeType extends TypeIdOrOrdinal {
 	Constant low, high;

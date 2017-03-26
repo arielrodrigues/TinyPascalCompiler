@@ -1,3 +1,3 @@
 package abstractSyntax.labelsAndTypes;
 
-public abstract class Constant { }
+public abstract class TypeDenoter{}

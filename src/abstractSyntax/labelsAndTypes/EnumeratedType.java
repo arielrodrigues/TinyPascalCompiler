@@ -1,7 +1,5 @@
 package abstractSyntax.labelsAndTypes;
 
-import abstractSyntax.TypeIdOrOrdinal;
-
 import java.util.List;
 
 public class EnumeratedType extends TypeIdOrOrdinal {

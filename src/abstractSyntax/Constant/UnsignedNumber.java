@@ -1,6 +1,6 @@
-package abstractSyntax.labelsAndTypes;
+package abstractSyntax.Constant;
 
-import abstractSyntax.labelsAndTypes.Constant;
+import abstractSyntax.Constant.Constant;
 
 public class UnsignedNumber extends Constant {
   public int value;

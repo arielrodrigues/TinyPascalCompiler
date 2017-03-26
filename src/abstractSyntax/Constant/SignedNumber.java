@@ -1,8 +1,6 @@
-package abstractSyntax.Exp;
+package abstractSyntax.Constant;
 
 import abstractSyntax.Sign;
-import abstractSyntax.labelsAndTypes.UnsignedNumber;
-import abstractSyntax.labelsAndTypes.Constant;
 
 public class SignedNumber extends Constant {
 	Sign sign;

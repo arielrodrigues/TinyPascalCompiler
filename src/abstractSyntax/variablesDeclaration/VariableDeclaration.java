@@ -1,6 +1,6 @@
 package abstractSyntax.variablesDeclaration;
 
-import abstractSyntax.TypeDenoter;
+import abstractSyntax.labelsAndTypes.TypeDenoter;
 
 public class VariableDeclaration {
   public String id;

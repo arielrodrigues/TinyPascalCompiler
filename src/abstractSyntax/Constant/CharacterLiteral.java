@@ -1,4 +1,4 @@
-package abstractSyntax.labelsAndTypes;
+package abstractSyntax.Constant;
 
 public class CharacterLiteral extends Constant {
 	public char value;
