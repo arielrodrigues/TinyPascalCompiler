@@ -1,5 +1,10 @@
 package abstractSyntax.Stm;
 
-import abstractSyntax.Stm.Statement;
+import visitor.PasVisitor;
 
-public class EmptyStatement extends Statement { }
+public class EmptyStatement extends Statement {
+    @Override
+    public void accept(PasVisitor visitor) {
+        // nothing to do here
+    }
+}

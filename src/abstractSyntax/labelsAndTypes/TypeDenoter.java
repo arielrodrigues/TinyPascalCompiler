@@ -1,3 +1,7 @@
 package abstractSyntax.labelsAndTypes;
 
-public abstract class TypeDenoter{}
+import visitor.PasVisitor;
+
+public abstract class TypeDenoter{
+    public abstract void accept(PasVisitor visitor);
+}

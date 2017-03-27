@@ -2,16 +2,19 @@ package abstractSyntax.labelsAndTypes;
 
 import visitor.PasVisitor;
 
-public class TypeId extends TypeIdOrOrdinal {
+public class TypeDefinition {
+	
 	String id;
-
-	public TypeId(String id) {
+	TypeDenoter ty;
+	
+	public TypeDefinition(String id, TypeDenoter ty) {
 		super();
 		this.id = id;
+		this.ty = ty;
 	}
 
-	@Override
 	public void accept(PasVisitor visitor) {
-		// nothing to do here
+		ty.accept(visitor);
 	}
+	
 }

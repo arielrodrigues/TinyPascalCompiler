@@ -1,0 +1,23 @@
+package abstractSyntax.Node;
+
+import visitor.PasVisitor;
+
+import java.util.List;
+
+public class Program extends Node {
+	public String id;
+	public List<String> io;
+	public Block block;
+	
+	public Program(String id, List<String> io, Block block) {
+		super();
+		this.id = id;
+		this.io = io;
+		this.block = block;
+	}
+
+	@Override
+	public void accept(PasVisitor visitor) {
+		block.accept(visitor);
+	}
+}

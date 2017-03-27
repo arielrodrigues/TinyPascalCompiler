@@ -1,8 +1,9 @@
 package abstractSyntax.procedureAndFunctionDeclaration;
 
-import abstractSyntax.Block;
-import abstractSyntax.FormalParameter;
+import abstractSyntax.Node.Block;
+import abstractSyntax.FormalParameter.FormalParameter;
 import abstractSyntax.labelsAndTypes.TypeIdOrPrimitive;
+import visitor.PasVisitor;
 
 import java.util.List;
 
@@ -18,5 +19,12 @@ public class FunctionDeclaration extends ProcedureOrFunctionDeclaration {
 		this.formals = formals;
 		this.resultTy = resultTy;
 		this.body = body;
+	}
+
+	@Override
+	public void accept(PasVisitor visitor) {
+		for (FormalParameter formal : formals) formal.accept(visitor);
+		resultTy.accept(visitor);
+		body.accept(visitor);
 	}
 }

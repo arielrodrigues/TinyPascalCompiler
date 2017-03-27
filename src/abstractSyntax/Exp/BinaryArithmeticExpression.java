@@ -1,6 +1,7 @@
 package abstractSyntax.Exp;
 
 import abstractSyntax.Operator.BinaryArithmeticOperator;
+import visitor.PasVisitor;
 
 public class BinaryArithmeticExpression extends Expression {
 	public BinaryArithmeticOperator op;
@@ -11,5 +12,12 @@ public class BinaryArithmeticExpression extends Expression {
 		this.op = op;
 		this.left = left;
 		this.right = right;
+	}
+
+	@Override
+	public void accept(PasVisitor visitor) {
+		left.accept(visitor);
+		op.accept(visitor);
+		right.accept(visitor);
 	}
 }

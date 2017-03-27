@@ -1,6 +1,7 @@
 package abstractSyntax.Constant;
 
-import abstractSyntax.Sign;
+import abstractSyntax.Operator.Sign;
+import visitor.PasVisitor;
 
 public class SignedNumber extends Constant {
 	Sign sign;
@@ -10,6 +11,11 @@ public class SignedNumber extends Constant {
 		super();
 		this.sign = sign;
 		this.unsNum = unsNum;
-	}	
+	}
+
+	public void accept(PasVisitor visitor) {
+		sign.accept(visitor);
+		unsNum.accept(visitor);
+	}
 	
 }

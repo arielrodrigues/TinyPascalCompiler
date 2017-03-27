@@ -1,5 +1,7 @@
 package abstractSyntax.labelsAndTypes;
 
+import visitor.PasVisitor;
+
 public class PrimitiveType extends TypeDenoter {
 
 	public static PrimitiveType INTEGER = new PrimitiveType();
@@ -8,5 +10,9 @@ public class PrimitiveType extends TypeDenoter {
 	public static PrimitiveType BOOLEAN = new PrimitiveType();
 	
 	private PrimitiveType() {}
-	
+
+	@Override
+	public void accept(PasVisitor visitor) {
+		// nothing to do here (?)
+	}
 }
