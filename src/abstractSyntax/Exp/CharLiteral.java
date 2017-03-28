@@ -2,16 +2,16 @@ package abstractSyntax.Exp;
 
 import visitor.PascalVisitor;
 
-public class StringLiteral extends Expression {
-	public String value;
+public class CharLiteral extends Expression {
+	public char value;
 
-	public StringLiteral(String value) {
+	public CharLiteral(char value) {
 		super();
 		this.value = value;
 	}
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		// nothing to do here
+		visitor.VisitCharLiteral(this);
 	}
 }

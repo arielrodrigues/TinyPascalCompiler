@@ -1,3 +1,7 @@
 package abstractSyntax.procedureAndFunctionDeclaration;
 
-public abstract class ProcedureOrFunctionDeclaration { }
+import visitor.PascalVisitor;
+
+public abstract class ProcedureOrFunctionDeclaration {
+    public abstract void accept(PascalVisitor visitor);
+}

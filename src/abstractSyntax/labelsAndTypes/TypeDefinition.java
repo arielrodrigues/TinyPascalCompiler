@@ -2,16 +2,19 @@ package abstractSyntax.labelsAndTypes;
 
 import visitor.PascalVisitor;
 
-public class TypeId extends TypeIdOrOrdinal {
+public class TypeDefinition {
+	
 	public String id;
-
-	public TypeId(String id) {
+	public TypeDenoter ty;
+	
+	public TypeDefinition(String id, TypeDenoter ty) {
 		super();
 		this.id = id;
+		this.ty = ty;
 	}
 
-	@Override
 	public void accept(PascalVisitor visitor) {
-		visitor.VisitTypeId(this);
+		visitor.VisitTypeDefinition(this);
 	}
+	
 }

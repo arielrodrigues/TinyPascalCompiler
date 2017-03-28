@@ -1,6 +1,7 @@
 package abstractSyntax.procedureAndFunctionDeclaration;
 
 import abstractSyntax.Exp.Expression;
+import visitor.PascalVisitor;
 
 import java.util.List;
 
@@ -13,5 +14,9 @@ public class FunctionDesignator extends Expression {
 		this.name = name;
 		this.actuals = actuals;
 	}
-	
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		for (Expression exp : actuals) exp.accept(visitor);
+	}
 }

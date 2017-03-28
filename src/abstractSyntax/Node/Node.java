@@ -1,7 +1,7 @@
-package abstractSyntax.Stm;
+package abstractSyntax.Node;
 
 import visitor.PascalVisitor;
 
-public abstract class Statement {
+public abstract class Node {
     public abstract void accept(PascalVisitor visitor);
 }

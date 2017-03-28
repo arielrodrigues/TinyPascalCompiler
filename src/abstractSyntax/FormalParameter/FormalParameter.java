@@ -1,7 +1,7 @@
-package abstractSyntax.Stm;
+package abstractSyntax.FormalParameter;
 
 import visitor.PascalVisitor;
 
-public abstract class Statement {
+public abstract class FormalParameter {
     public abstract void accept(PascalVisitor visitor);
 }

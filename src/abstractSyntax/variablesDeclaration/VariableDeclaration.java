@@ -1,6 +1,7 @@
 package abstractSyntax.variablesDeclaration;
 
 import abstractSyntax.labelsAndTypes.TypeDenoter;
+import visitor.PascalVisitor;
 
 public class VariableDeclaration {
   public String id;
@@ -10,5 +11,9 @@ public class VariableDeclaration {
 	super();
 	this.id = id;
 	this.ty = ty;
-  } 
+  }
+
+  public void accept (PascalVisitor visitor) {
+       visitor.VisitVariableDeclaration(this);
+  }
 }
