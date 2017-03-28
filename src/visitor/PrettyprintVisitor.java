@@ -12,7 +12,6 @@ import abstractSyntax.Stm.*;
 import abstractSyntax.variablesDeclaration.*;
 import org.codehaus.plexus.util.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PrettyprintVisitor implements PascalVisitor {
@@ -215,7 +214,9 @@ public class PrettyprintVisitor implements PascalVisitor {
             }
             unindent();
         }
+        print("begin", true);
         block.body.accept(this);
+        print("end", true);
     }
 
     @Override
@@ -224,6 +225,7 @@ public class PrettyprintVisitor implements PascalVisitor {
         for (String id : program.io) System.out.print(id + ", ");
         System.out.print(")");
         program.block.accept(this);
+        print(".", false);
     }
 
     /* visit Operators */
