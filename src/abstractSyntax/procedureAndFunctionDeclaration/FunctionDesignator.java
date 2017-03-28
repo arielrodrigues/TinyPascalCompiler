@@ -1,7 +1,6 @@
 package abstractSyntax.procedureAndFunctionDeclaration;
 
 import abstractSyntax.Exp.Expression;
-import visitor.PasVisitor;
 
 import java.util.List;
 
@@ -14,9 +13,5 @@ public class FunctionDesignator extends Expression {
 		this.name = name;
 		this.actuals = actuals;
 	}
-
-	@Override
-	public void accept(PasVisitor visitor) {
-		for (Expression exp : actuals) exp.accept(visitor);
-	}
+	
 }

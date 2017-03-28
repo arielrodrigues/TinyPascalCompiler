@@ -1,7 +1,5 @@
 package abstractSyntax;
 
-import abstractSyntax.labelsAndTypes.TypeIdOrPrimitive;
-
 public class MultiDimensionConformant extends ConformantArraySchema {
 	public String lowId, highId;
 	public TypeIdOrPrimitive rangeTy;

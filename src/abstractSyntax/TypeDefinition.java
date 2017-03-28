@@ -1,7 +1,5 @@
 package abstractSyntax;
 
-import abstractSyntax.labelsAndTypes.TypeDenoter;
-
 public class TypeDefinition {
 	
 	String id;

@@ -1,7 +1,7 @@
 package abstractSyntax.Exp;
 
-import abstractSyntax.Operator.Sign;
-import visitor.PasVisitor;
+import abstractSyntax.Exp.Expression;
+import abstractSyntax.Sign;
 
 public class SignedExpression extends Expression {
 	public Sign sign;
@@ -11,11 +11,5 @@ public class SignedExpression extends Expression {
 		super();
 		this.sign = sign;
 		this.exp = exp;
-	}
-
-	@Override
-	public void accept(PasVisitor visitor) {
-		sign.accept(visitor);
-		exp.accept(visitor);
 	}
 }

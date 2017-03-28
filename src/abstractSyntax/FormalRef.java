@@ -1,7 +1,5 @@
 package abstractSyntax;
 
-import abstractSyntax.labelsAndTypes.TypeIdOrPrimitive;
-
 public class FormalRef extends FormalParameter {
 	public String name;
 	public TypeIdOrPrimitive type;

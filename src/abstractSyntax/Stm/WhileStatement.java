@@ -2,7 +2,7 @@ package abstractSyntax.Stm;
 
 import abstractSyntax.Exp.Expression;
 
-public class WhileStatement extends Statement {
+class WhileStatement extends Statement {
 	public Expression condition;
 	public Statement body;
 	

@@ -1,7 +1,6 @@
 package abstractSyntax.Exp;
 
 import abstractSyntax.Operator.RelationalOperator;
-import visitor.PasVisitor;
 
 public class RelationalExpression extends Expression {
 	public RelationalOperator op;
@@ -12,12 +11,5 @@ public class RelationalExpression extends Expression {
 		this.op = op;
 		this.left = left;
 		this.right = right;
-	}
-
-	@Override
-	public void accept(PasVisitor visitor) {
-		left.accept(visitor);
-		op.accept(visitor);
-		right.accept(visitor);
 	}
 }

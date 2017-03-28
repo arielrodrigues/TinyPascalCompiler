@@ -1,6 +1,6 @@
 package abstractSyntax.variablesDeclaration;
 
-import abstractSyntax.Exp.VariableAccess;
+import abstractSyntax.VariableAccess;
 
 public class Variable extends VariableAccess {
 	public String name;

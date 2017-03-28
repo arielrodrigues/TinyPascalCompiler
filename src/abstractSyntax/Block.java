@@ -1,7 +1,7 @@
 package abstractSyntax;
 
 import abstractSyntax.Stm.Statement;
-import abstractSyntax.Constant.UnsignedNumber;
+import abstractSyntax.labelsAndTypes.UnsignedNumber;
 import abstractSyntax.procedureAndFunctionDeclaration.ProcedureOrFunctionDeclaration;
 import abstractSyntax.variablesDeclaration.VariableDeclaration;
 

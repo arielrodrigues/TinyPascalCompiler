@@ -1,6 +1,6 @@
 package abstractSyntax.Exp;
 
-import visitor.PasVisitor;
+import abstractSyntax.Exp.Expression;
 
 public class NotExpression extends Expression {
 	public Expression exp;
@@ -8,10 +8,5 @@ public class NotExpression extends Expression {
 	public NotExpression(Expression exp) {
 		super();
 		this.exp = exp;
-	}
-
-	@Override
-	public void accept(PasVisitor visitor) {
-		exp.accept(visitor);
 	}
 }

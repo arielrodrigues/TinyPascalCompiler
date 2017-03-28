@@ -1,6 +1,6 @@
 package abstractSyntax.Exp;
 
-import visitor.PasVisitor;
+import abstractSyntax.Exp.Expression;
 
 public class StringLiteral extends Expression {
 	public String value;
@@ -8,10 +8,5 @@ public class StringLiteral extends Expression {
 	public StringLiteral(String value) {
 		super();
 		this.value = value;
-	}
-
-	@Override
-	public void accept(PasVisitor visitor) {
-		// nothing to do here
 	}
 }
