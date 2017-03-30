@@ -13,6 +13,6 @@ public class GotoStatement extends Statement {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		// nothing to do here
+		visitor.VisitGotoStatement(this);
 	}
 }

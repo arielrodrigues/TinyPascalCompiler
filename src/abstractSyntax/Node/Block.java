@@ -10,13 +10,13 @@ import visitor.PascalVisitor;
 import java.util.List;
 
 public class Block extends Node{
-	public List<UnsignedNumber> labels;
+	public List<Integer> labels;
 	public List<TypeDefinition> typeDefs;
 	public List<VariableDeclaration> varDecs;
 	public List<ProcedureOrFunctionDeclaration> subprogs;
 	public Statement body;
 	
-	public Block(List<UnsignedNumber> labels, List<TypeDefinition> typeDefs, List<VariableDeclaration> varDecs,
+	public Block(List<Integer> labels, List<TypeDefinition> typeDefs, List<VariableDeclaration> varDecs,
 			List<ProcedureOrFunctionDeclaration> subprogs, Statement body) {
 		super();
 		this.labels = labels;

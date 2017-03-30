@@ -2,7 +2,7 @@ package abstractSyntax.labelsAndTypes;
 
 import visitor.PascalVisitor;
 
-public class PrimitiveType extends TypeDenoter {
+public class PrimitiveType extends TypeDenoter implements TypeIdOrPrimitive {
 
 	public static PrimitiveType INTEGER = new PrimitiveType();
 	public static PrimitiveType CHAR = new PrimitiveType();

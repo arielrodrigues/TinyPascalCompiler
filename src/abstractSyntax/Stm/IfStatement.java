@@ -16,6 +16,6 @@ public class IfStatement extends Statement {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		condition.accept(visitor);
+		visitor.VisitIfStm(this);
 	}
 }

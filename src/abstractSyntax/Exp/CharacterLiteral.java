@@ -1,5 +1,6 @@
-package abstractSyntax.Constant;
+package abstractSyntax.Exp;
 
+import abstractSyntax.Constant.Constant;
 import visitor.PascalVisitor;
 
 public class CharacterLiteral extends Constant {

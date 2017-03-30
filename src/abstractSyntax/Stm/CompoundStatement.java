@@ -14,6 +14,6 @@ public class CompoundStatement extends Statement {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		for (Statement stm : stmts) stm.accept(visitor);
+		visitor.VisitCompStm(this);
 	}
 }

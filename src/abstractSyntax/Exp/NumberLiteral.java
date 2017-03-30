@@ -12,6 +12,6 @@ public class NumberLiteral extends Expression {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		// nothing to do here
+		visitor.VisitNumberLiteral(this);
 	}
 }

@@ -2,7 +2,7 @@ package lexicalAnalyzer;
 
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java_cup.runtime.Symbol;
 import java.lang.*;
 import syntacticAnalyzer.sym;

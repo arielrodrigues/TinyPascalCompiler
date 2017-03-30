@@ -8,5 +8,3 @@ public enum Sign{
 		visitor.VisitSign(this);
 	}
 }
-
-/* NÃO ESTAMOS UTILIZANDO, NOSSO SINAL É ENVIADO DIRETO DO ANALISADOR LÉXICO */

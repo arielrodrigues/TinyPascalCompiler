@@ -1,6 +1,7 @@
 package abstractSyntax.ConformantArray;
 
 import abstractSyntax.labelsAndTypes.TypeIdOrPrimitive;
+import visitor.PascalVisitor;
 import visitor.PrettyprintVisitor;
 
 public class MultiDimensionConformant extends ConformantArraySchema {
@@ -18,8 +19,7 @@ public class MultiDimensionConformant extends ConformantArraySchema {
 	}
 
 	@Override
-	public void prettyPrint(PrettyprintVisitor prettyprintVisitor) {
-		rangeTy.prettyPrint(prettyprintVisitor);
-		elemTy.prettyPrint(prettyprintVisitor);
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitMultiDimensionConformant(this);
 	}
 }

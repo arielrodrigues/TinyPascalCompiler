@@ -17,6 +17,6 @@ public class FunctionDesignator extends Expression {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		for (Expression exp : actuals) exp.accept(visitor);
+		visitor.VisitFunctionDesignator(this);
 	}
 }

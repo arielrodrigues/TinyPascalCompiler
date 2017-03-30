@@ -2,7 +2,7 @@ package abstractSyntax.labelsAndTypes;
 
 import visitor.PascalVisitor;
 
-public class TypeId extends TypeIdOrOrdinal {
+public class TypeId extends TypeIdOrOrdinal implements TypeIdOrPrimitive {
 	public String id;
 
 	public TypeId(String id) {

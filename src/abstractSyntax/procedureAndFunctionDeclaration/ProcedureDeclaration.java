@@ -20,7 +20,6 @@ public class ProcedureDeclaration extends ProcedureOrFunctionDeclaration {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		for (FormalParameter formal : formals) formal.accept(visitor);
-		body.accept(visitor);
+		visitor.VisitProcedureDeclaration(this);
 	}
 }

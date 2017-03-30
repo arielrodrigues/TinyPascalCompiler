@@ -1,7 +1,7 @@
 package abstractSyntax.Stm;
 
 import abstractSyntax.Exp.Expression;
-import abstractSyntax.Exp.VariableAccess;
+import abstractSyntax.variablesDeclaration.VariableAccess;
 import visitor.PascalVisitor;
 
 public class AssignmentStatement extends Statement {
@@ -16,7 +16,6 @@ public class AssignmentStatement extends Statement {
 
 	@Override
 	public void accept(PascalVisitor visitor) {
-		left.accept(visitor);
-		right.accept(visitor);
+		visitor.VisitAssignStm(this);
 	}
 }

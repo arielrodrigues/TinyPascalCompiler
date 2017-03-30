@@ -1,7 +1,8 @@
 package abstractSyntax.FormalParameter;
 
+import abstractSyntax.Node.Node;
 import visitor.PascalVisitor;
 
-public abstract class FormalParameter {
+public abstract class FormalParameter extends Node {
     public abstract void accept(PascalVisitor visitor);
 }

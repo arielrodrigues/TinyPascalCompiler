@@ -1,5 +1,6 @@
 package abstractSyntax.Exp;
 
+import abstractSyntax.variablesDeclaration.VariableAccess;
 import visitor.PascalVisitor;
 
 public class IndexedVariable extends VariableAccess {
