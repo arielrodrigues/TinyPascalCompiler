@@ -18,7 +18,8 @@ public interface PascalVisitor {
     void VisitOneDimensionConformant(OneDimensionConformant oneDimensionConformant);
 
     /* visit Constants */
-    void VisitCharacterLiteral(CharacterLiteral characterLiteral);
+    void VisitBooleanConstant(BooleanConstant booleanConstant);
+    void VisitCharacterConstant(CharacterConstant characterConstant);
     void VisitSignedNumber(SignedNumber signedNumber);
     void VisitUnsignedNumber(UnsignedNumber unsignedNumber);
 
@@ -26,6 +27,8 @@ public interface PascalVisitor {
     void VisitBinaryArithmeticExpression(BinaryArithmeticExpression binaryArithmeticExpression);
     void VisitBinaryBooleanExpression(BinaryBooleanExpression binaryBooleanExpression);
     void VisitCharLiteral(CharLiteral charLiteral);
+    void VisitBooleanLiteral(BooleanLiteral booleanLiteral);
+    void VisitCharacterLiteral(CharacterLiteral characterLiteral);
     void VisitIndexedVariable(IndexedVariable indexedVariable);
     void VisitNotExpression(NotExpression notExpression);
     void VisitNumberLiteral(NumberLiteral numberLiteral);
@@ -34,9 +37,9 @@ public interface PascalVisitor {
     void VisitStringLiteral(StringLiteral stringLiteral);
 
     /* visit Formal Parameters */
-    void VisitFormalRef(FormalRef formalRef);
-    void VisitFormalVar(FormalVar formalVar);
-    void VisitRefOrValue(RefOrValue refOrValue);
+    void visitFormalPar(FormalPar formalPar);
+    void VisitFormalRef(FormalPar formalRef);
+    void VisitFormalVar(FormalPar formalVar);
 
     /* visit Labels and Types */
     void VisitArray(Array array);
@@ -48,6 +51,7 @@ public interface PascalVisitor {
 
     /* visit Nodes */
     void VisitBlock(Block block);
+    void VisitIndexType(IndexType index);
     void VisitProgram(Program program);
 
     /* visit Operators */
@@ -67,7 +71,7 @@ public interface PascalVisitor {
     void VisitEmptyStm(EmptyStatement eStm);
     void VisitGotoStatement(GotoStatement gotoStatement);
     void VisitIfStm(IfStatement ifStm);
-    void VisitProcedureStm(ProcedureDeclaration procedureStm);
+    void VisitProcedureStm(ProcedureStatement procedureStm);
     void VisitWhileStm(WhileStatement whileStm);
 
     /* visit Variables Declarations */

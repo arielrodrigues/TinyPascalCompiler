@@ -10,8 +10,9 @@ import abstractSyntax.Operator.*;
 import abstractSyntax.procedureAndFunctionDeclaration.*;
 import abstractSyntax.Stm.*;
 import abstractSyntax.variablesDeclaration.*;
-import org.codehaus.plexus.util.StringUtils;
 
+
+import java.util.Collections;
 import java.util.List;
 
 public class PrettyprintVisitor implements PascalVisitor {
@@ -19,11 +20,15 @@ public class PrettyprintVisitor implements PascalVisitor {
     private int indentLevel = 0;
 
     private void indent() { indentLevel++; }
-    private void unindent() { indentLevel--; }
+    private void unindent() { --indentLevel; }
 
     private void print (Object str, boolean indent) {
-        String tabs = indent? StringUtils.repeat("\t", indentLevel): "";
+        String tabs = indent? String.join("", Collections.nCopies(indentLevel, "    ")): "";
         System.out.print(tabs + str);
+    }
+
+    public PrettyprintVisitor (Program program) {
+        VisitProgram(program);
     }
 
     private void PrettyPrintList (List<String> list, boolean parentheses) {
@@ -37,17 +42,27 @@ public class PrettyprintVisitor implements PascalVisitor {
     /* visit Conformant Array */
     @Override
     public void VisitConformantArrayParameter(ConformantArrayParameter conformantArrayParameter) {
-        ???????
+        //???????
     }
 
     @Override
     public void VisitMultiDimensionConformant(MultiDimensionConformant multiDimensionConformant) {
-        ??????
+        //??????
     }
 
     @Override
     public void VisitOneDimensionConformant(OneDimensionConformant oneDimensionConformant) {
-        ??????
+        //??????
+    }
+
+    @Override
+    public void VisitBooleanConstant(BooleanConstant booleanConstant) {
+
+    }
+
+    @Override
+    public void VisitCharacterConstant(CharacterConstant characterConstant) {
+
     }
 
     /* visit Constants */
@@ -64,7 +79,7 @@ public class PrettyprintVisitor implements PascalVisitor {
 
     @Override
     public void VisitUnsignedNumber(UnsignedNumber unsignedNumber) {
-        print(unsignedNumber, false);
+        print(unsignedNumber.value, false);
     }
 
     /* visit Expressions */
@@ -88,6 +103,11 @@ public class PrettyprintVisitor implements PascalVisitor {
     }
 
     @Override
+    public void VisitBooleanLiteral(BooleanLiteral booleanLiteral) {
+
+    }
+
+    @Override
     public void VisitIndexedVariable(IndexedVariable indexedVariable) {
         indexedVariable.var.accept(this);
         print(" = ", false);
@@ -96,7 +116,7 @@ public class PrettyprintVisitor implements PascalVisitor {
 
     @Override
     public void VisitNotExpression(NotExpression notExpression) {
-        ???????
+        //???????
     }
 
     @Override
@@ -123,19 +143,23 @@ public class PrettyprintVisitor implements PascalVisitor {
     }
 
     /* visit Formal Parameters */
+
     @Override
-    public void VisitFormalRef(FormalRef formalRef) {
-        ??????
+    public void visitFormalPar(FormalPar formalPar) {
+        if (formalPar.mechanism == RefOrValue.Ref) VisitFormalRef(formalPar);
+        else if (formalPar.mechanism == RefOrValue.Val) VisitFormalVar(formalPar);
     }
 
     @Override
-    public void VisitFormalVar(FormalVar formalVar) {
-        ??????
+    public void VisitFormalRef(FormalPar formalRef) {
+        print(formalRef.name+" : ", false);
+        formalRef.type.accept(this);
     }
 
     @Override
-    public void VisitRefOrValue(RefOrValue refOrValue) {
-        ??????
+    public void VisitFormalVar(FormalPar formalVar) {
+        print("Var "+formalVar.name+" : ", false);
+        formalVar.type.accept(this);
     }
 
     /* visit Labels and Types */
@@ -169,9 +193,9 @@ public class PrettyprintVisitor implements PascalVisitor {
 
     @Override
     public void VisitTypeDefinition(TypeDefinition typeDefinition) {
-        print(typeDefinition.id + " : ", false);
+        print(typeDefinition.id + " : ", true);
         typeDefinition.ty.accept(this);
-        print("; ", false);
+        print(";\n", false);
     }
 
     @Override
@@ -187,22 +211,20 @@ public class PrettyprintVisitor implements PascalVisitor {
             print("LABEL\n", true);
             indent();
             print(block.labels.get(0), true);
-            for (UnsignedNumber uNum : block.labels.subList(1, block.labels.size())) {
-                uNum.accept(this); print(", ", false);
+            for (Integer uNum : block.labels.subList(1, block.labels.size())) {
+                print(uNum + ", ", false);
             }
             unindent();
         }
         if (!block.typeDefs.isEmpty()) {
             print("TYPE\n", true);
             indent();
-            print("", true);
             for (TypeDefinition typeDef : block.typeDefs) typeDef.accept(this);
             unindent();
         }
         if (!block.varDecs.isEmpty()) {
             print ("VAR\n", true);
             indent();
-            print("", true);
             for (VariableDeclaration varDec : block.varDecs) varDec.accept(this);
             unindent();
         }
@@ -215,15 +237,22 @@ public class PrettyprintVisitor implements PascalVisitor {
             unindent();
         }
         print("begin", true);
+        indent();
         block.body.accept(this);
+        unindent();
         print("end", true);
+    }
+
+    @Override
+    public void VisitIndexType(IndexType index) {
+
     }
 
     @Override
     public void VisitProgram(Program program) {
         System.out.print("Program " + program.id + "(");
         for (String id : program.io) System.out.print(id + ", ");
-        System.out.print(")");
+        System.out.print(");\n");
         program.block.accept(this);
         print(".", false);
     }
@@ -231,112 +260,131 @@ public class PrettyprintVisitor implements PascalVisitor {
     /* visit Operators */
     @Override
     public void VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator) {
-
+        switch (binaryArithmeticOperator.hashCode()) {
+            case 0: print("DIV", false); break;
+            case 1: print("MOD", false); break;
+            case 2: print("PLUS", false); break;
+            case 3: print("TIMES", false); break;
+            case 4: print("MINUS", false); break;
+        }
     }
 
     @Override
     public void VisitBinaryBooleanOperator(BinaryBooleanOperator binaryBooleanOperator) {
-
+        switch (binaryBooleanOperator.hashCode()) {
+            case 0: print("AND", false); break;
+            case 1: print("OR", false); break;
+        }
     }
 
     @Override
     public void VisitRelationalOperator(RelationalOperator relationalOperator) {
-
+        switch (relationalOperator.hashCode()) {
+            case 0: print("EQ", false); break;
+            case 1: print("NEQ", false); break;
+            case 2: print("LT", false); break;
+            case 3: print("GT", false); break;
+            case 4: print("LTE", false); break;
+            case 5: print("GTE", false); break;
+        }
     }
 
     @Override
     public void VisitSign(Sign sign) {
-        char symbolSign = (sign == Sign.PLUS)? '+' : '-';
-        print(symbolSign, false);
+        char signSymbol = (sign.hashCode() == 0)? '+' : '-';
+        print(signSymbol, false);
     }
 
     /* visit Procedures and functions declarations */
     @Override
     public void VisitFunctionDeclaration(FunctionDeclaration functionDeclaration) {
-
+        print("Function "+functionDeclaration.nm+" (", true);
+        for (FormalParameter formal : functionDeclaration.formals) {
+            if (formal instanceof FormalPar) {
+                FormalPar par = (FormalPar) formal;
+                par.accept(this);
+            }
+        }
+        print(") : ", false);
+        functionDeclaration.resultTy.accept(this); print (';', false);
+        functionDeclaration.body.accept(this); print (';', false);
     }
 
     @Override
     public void VisitFunctionDesignator(FunctionDesignator functionDesignator) {
-
+        print(functionDesignator.name + "(", true);
+        for (Expression exp : functionDesignator.actuals) exp.accept(this);
+        print (")", false);
     }
 
     @Override
     public void VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration) {
-
+        print("Procedure "+procedureDeclaration.nm+" (", true);
+        for (FormalParameter formal : procedureDeclaration.formals) formal.accept(this);
+        print(") : ", false);
+        procedureDeclaration.body.accept(this); print (';', false);
     }
 
     /* visit Statements */
     @Override
     public void VisitAssignStm(AssignmentStatement assignStm) {
-        //assignStm.left.print(this);
+        print("", true);
+        assignStm.left.accept(this);
         System.out.println(" + ");
-        //assignStm.right.print(this);
-        System.out.println("");
+        assignStm.right.accept(this);
+        print(";\n", false);
     }
 
     @Override
     public void VisitCompStm(CompoundStatement compStm) {
-        for (Statement stm : compStm.stmts) {
-            //stm.print();
-        }
+        for (Statement stm : compStm.stmts) stm.accept(this);
     }
 
     @Override
     public void VisitEmptyStm(EmptyStatement eStm) {
-        System.out.println("");
+        print("", false);
     }
 
     @Override
     public void VisitGotoStatement(GotoStatement gotoStatement) {
-
+        print(gotoStatement.label+": ", true);
     }
 
     @Override
     public void VisitIfStm(IfStatement ifStm) {
-        // colocar uns testes p add begin end e parenteses
-        System.out.print("if ");
-        //ifStm.condition.print(this);
-        System.out.print(" then ");
-        //ifStm.thenPart.print(this);
-        System.out.print(" else ");
-        //ifStm.elsePart.print(this);
-        System.out.print('\n');
+        print("if ", true);
+        ifStm.condition.accept(this);
+        print(" then", false);
+        ifStm.thenPart.accept(this); print("\n", false);
+        print("else", true);
+        ifStm.elsePart.accept(this);
+        print("\n", false);
     }
 
     @Override
-    public void VisitProcedureStm(ProcedureDeclaration procedureStm) {
-        System.out.print("Procedure ");
-        //procedureStm.nm.print(this);
-        System.out.print("(");
-        for (FormalParameter fPar: procedureStm.formals) {
-            //fPar.print(this);
-            System.out.print(", ");
-        }
-        System.out.println(")\nbegin");
-        //procedureStm.body.print(this);
-        System.out.println("end;");
+    public void VisitProcedureStm(ProcedureStatement procedureStm) {
+        print(procedureStm.name+" (", true);
+        for (Expression exp : procedureStm.actuals) exp.accept(this);
+        print(");\n", false);
     }
 
     @Override
     public void VisitWhileStm(WhileStatement whileStm) {
         System.out.print("while ");
-        //whileStm.condition.print(this);
-        System.out.println("\nbegin");
-        //whileStm.body.visit();
-        System.out.println("end");
+        whileStm.condition.accept(this);
+        whileStm.body.accept(this);
     }
 
     /* visit Variables Declarations */
     @Override
     public void VisitVariable(Variable variable) {
-
+        print(variable.name, false);
     }
 
     @Override
     public void VisitVariableDeclaration(VariableDeclaration variableDeclaration) {
-        print(variableDeclaration.id + " : ", false);
+        print(variableDeclaration.id + " : ", true);
         variableDeclaration.ty.accept(this);
-        print("; ", false);
+        print(";\n", false);
     }
 }
