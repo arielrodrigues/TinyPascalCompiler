@@ -1,4 +1,4 @@
-<project name="TinyPascalCompiler" default="compile" basedir=".">
+<project name="marotagem" default="compile" basedir=".">
 
     <property name="java"     location="src"       />
     <property name="classes"  location="bin/cls"   />
@@ -11,12 +11,13 @@
     <taskdef name="cup"   classname="java_cup.anttask.CUPTask" classpath="${tools}/java-cup-11b.jar"  />
 
     <target name="generate">
-        <cup srcfile="${base}/src/syntacticAnalyzer/parser.cup" destdir="${java}"
+
+        <cup srcfile="${base}/src/syntacticAnalyzer/parser.cup"  destdir="${java}"
              parser="Parser"
              interface="true"
              locations="true"
              debugsymbols="true" />
-        <jflex file="${base}/src/lexicalAnalyzer/lexer.jflex" destdir="${java}" />
+        <jflex  file="${base}/src/lexicalAnalyzer/lexer.jflex" destdir="${java}" />
     </target>
 
     <path id="libraries">
@@ -33,9 +34,9 @@
     </target>
 
     <target name="clean">
-        <delete file="${base}/src/syntacticAnalyzer/Parser.java" />
-        <delete file="${base}/src/syntacticAnalyzer/sym.java" />
-        <delete file="${base}/src/lexicalAnalyzer/Lexer.java" />
+        <delete file="${java}/Parser.java" />
+        <delete file="${java}/sym.java" />
+        <delete file="${java}/Scanner.java" />
         <delete dir="${classes}" />
         <delete dir="${result}" />
     </target>
