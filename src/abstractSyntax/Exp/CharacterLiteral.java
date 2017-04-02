@@ -3,7 +3,7 @@ package abstractSyntax.Exp;
 import abstractSyntax.Constant.Constant;
 import visitor.PascalVisitor;
 
-public class CharacterLiteral extends Constant {
+public class CharacterLiteral extends Expression {
 	public char value;
 
 	public CharacterLiteral(char value) {

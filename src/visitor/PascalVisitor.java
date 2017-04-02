@@ -13,68 +13,67 @@ import abstractSyntax.variablesDeclaration.*;
 
 public interface PascalVisitor {
     /* visit Conformant Array */
-    void VisitConformantArrayParameter(ConformantArrayParameter conformantArrayParameter);
-    void VisitMultiDimensionConformant(MultiDimensionConformant multiDimensionConformant);
-    void VisitOneDimensionConformant(OneDimensionConformant oneDimensionConformant);
+    Object VisitConformantArrayParameter(ConformantArrayParameter conformantArrayParameter);
+    Object VisitMultiDimensionConformant(MultiDimensionConformant multiDimensionConformant);
+    Object VisitOneDimensionConformant(OneDimensionConformant oneDimensionConformant);
 
     /* visit Constants */
-    void VisitBooleanConstant(BooleanConstant booleanConstant);
-    void VisitCharacterConstant(CharacterConstant characterConstant);
-    void VisitSignedNumber(SignedNumber signedNumber);
-    void VisitUnsignedNumber(UnsignedNumber unsignedNumber);
+    Object VisitBooleanConstant(BooleanConstant booleanConstant);
+    Object VisitCharacterConstant(CharacterConstant characterConstant);
+    Object VisitSignedNumber(SignedNumber signedNumber);
+    Object VisitUnsignedNumber(UnsignedNumber unsignedNumber);
 
     /* visit Expressions */
-    void VisitBinaryArithmeticExpression(BinaryArithmeticExpression binaryArithmeticExpression);
-    void VisitBinaryBooleanExpression(BinaryBooleanExpression binaryBooleanExpression);
-    void VisitCharLiteral(CharLiteral charLiteral);
-    void VisitBooleanLiteral(BooleanLiteral booleanLiteral);
-    void VisitCharacterLiteral(CharacterLiteral characterLiteral);
-    void VisitIndexedVariable(IndexedVariable indexedVariable);
-    void VisitNotExpression(NotExpression notExpression);
-    void VisitNumberLiteral(NumberLiteral numberLiteral);
-    void VisitRelationalExpression(RelationalExpression relationalExpression);
-    void VisitSignedExpression(SignedExpression signedExpression);
-    void VisitStringLiteral(StringLiteral stringLiteral);
+    Object VisitBinaryArithmeticExpression(BinaryArithmeticExpression binaryArithmeticExpression);
+    Object VisitBinaryBooleanExpression(BinaryBooleanExpression binaryBooleanExpression);
+    Object VisitCharLiteral(CharLiteral charLiteral);
+    Object VisitBooleanLiteral(BooleanLiteral booleanLiteral);
+    Object VisitCharacterLiteral(CharacterLiteral characterLiteral);
+    Object VisitIndexedVariable(IndexedVariable indexedVariable);
+    Object VisitNotExpression(NotExpression notExpression);
+    Object VisitNumberLiteral(NumberLiteral numberLiteral);
+    Object VisitRelationalExpression(RelationalExpression relationalExpression);
+    Object VisitSignedExpression(SignedExpression signedExpression);
+    Object VisitStringLiteral(StringLiteral stringLiteral);
 
     /* visit Formal Parameters */
-    void visitFormalPar(FormalPar formalPar);
-    void VisitFormalRef(FormalPar formalRef);
-    void VisitFormalVar(FormalPar formalVar);
+    Object visitFormalPar(FormalPar formalPar);
 
     /* visit Labels and Types */
-    void VisitArray(Array array);
-    void VisitEnumeratedType(EnumeratedType enumeratedType);
-    void VisitPrimitiveType(PrimitiveType primitiveType);
-    void VisitSubRangeType(SubrangeType subrangeType);
-    void VisitTypeDefinition(TypeDefinition typeDefinition);
-    void VisitTypeId(TypeId typeId);
+    Object VisitArray(Array array);
+    Object VisitEnumeratedType(EnumeratedType enumeratedType);
+    Object VisitPrimitiveType(PrimitiveType primitiveType);
+    Object VisitSubRangeType(SubrangeType subrangeType);
+    Object VisitTypeDefinition(TypeDefinition typeDefinition);
+    Object VisitTypeId(TypeId typeId);
 
     /* visit Nodes */
-    void VisitBlock(Block block);
-    void VisitIndexType(IndexType index);
-    void VisitProgram(Program program);
+    Object VisitBlock(Block block);
+    Object VisitIndexType(IndexType index);
+    Object VisitProgram(Program program);
 
     /* visit Operators */
-    void VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator);
-    void VisitBinaryBooleanOperator(BinaryBooleanOperator binaryBooleanOperator);
-    void VisitRelationalOperator(RelationalOperator relationalOperator);
-    void VisitSign(Sign sign);
+    Object VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator);
+    Object VisitBinaryBooleanOperator(BinaryBooleanOperator binaryBooleanOperator);
+    Object VisitRelationalOperator(RelationalOperator relationalOperator);
+    Object VisitSign(Sign sign);
 
     /* visit Procedures and functions declarations */
-    void VisitFunctionDeclaration(FunctionDeclaration functionDeclaration);
-    void VisitFunctionDesignator(FunctionDesignator functionDesignator);
-    void VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration);
+    Object VisitFunctionDeclaration(FunctionDeclaration functionDeclaration);
+    Object VisitFunctionDesignator(FunctionDesignator functionDesignator);
+    Object VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration);
 
     /* visit Statements */
-    void VisitAssignStm(AssignmentStatement assignStm);
-    void VisitCompStm(CompoundStatement compStm);
-    void VisitEmptyStm(EmptyStatement eStm);
-    void VisitGotoStatement(GotoStatement gotoStatement);
-    void VisitIfStm(IfStatement ifStm);
-    void VisitProcedureStm(ProcedureStatement procedureStm);
-    void VisitWhileStm(WhileStatement whileStm);
+    Object VisitAssignStm(AssignmentStatement assignStm);
+    Object VisitCompStm(CompoundStatement compStm);
+    Object VisitEmptyStm(EmptyStatement eStm);
+    Object VisitGotoStatement(GotoStatement gotoStatement);
+    Object VisitIfStm(IfStatement ifStm);
+    Object VisitLabeledStm(LabeledStatement lblStm);
+    Object VisitProcedureStm(ProcedureStatement procedureStm);
+    Object VisitWhileStm(WhileStatement whileStm);
 
     /* visit Variables Declarations */
-    void VisitVariable(Variable variable);
-    void VisitVariableDeclaration(VariableDeclaration variableDeclaration);
+    Object VisitVariable(Variable variable);
+    Object VisitVariableDeclaration(VariableDeclaration variableDeclaration);
 }
