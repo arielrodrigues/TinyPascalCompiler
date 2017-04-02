@@ -1,6 +1,7 @@
-package abstractSyntax;
+package abstractSyntax.Exp;
 
-import abstractSyntax.Exp.Expression;
+import abstractSyntax.variablesDeclaration.VariableAccess;
+import visitor.PascalVisitor;
 
 public class IndexedVariable extends VariableAccess {
 	public VariableAccess var;
@@ -10,5 +11,10 @@ public class IndexedVariable extends VariableAccess {
 		super();
 		this.var = var;
 		this.index = index;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitIndexedVariable(this);
 	}
 }

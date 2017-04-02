@@ -1,69 +1,486 @@
 package visitor;
 
+import abstractSyntax.ConformantArray.*;
+import abstractSyntax.Constant.*;
 import abstractSyntax.Exp.*;
-import abstractSyntax.FormalParameter;
+import abstractSyntax.FormalParameter.*;
 import abstractSyntax.labelsAndTypes.*;
+import abstractSyntax.Node.*;
 import abstractSyntax.Operator.*;
 import abstractSyntax.procedureAndFunctionDeclaration.*;
-import abstractSyntax.programHeading.*;
 import abstractSyntax.Stm.*;
 import abstractSyntax.variablesDeclaration.*;
 
-public class PrettyprintVisitor implements PasVisitor {
+
+import java.util.Collections;
+
+public class PrettyprintVisitor implements PascalVisitor {
+
+    private int indentLevel = 0;
+
+    public PrettyprintVisitor(Program program) {
+        this.VisitProgram(program);
+    }
+
+    private void indent() { indentLevel++; }
+    private void unindent() { --indentLevel; }
+
+    private Object print (Object str, boolean indent) {
+        String tabs = indent? String.join("", Collections.nCopies(indentLevel, "   ")): "";
+        System.out.print(tabs + str);
+        return null;
+    }
+
+    /* visit Conformant Array */
+    @Override
+    public Object VisitConformantArrayParameter(ConformantArrayParameter conformantArrayParameter) {
+        if (conformantArrayParameter.mechanism.name() == "Ref") print("var ", false);
+        print(conformantArrayParameter.name+": array [", false);
+        conformantArrayParameter.schema.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitMultiDimensionConformant(MultiDimensionConformant multiDimensionConformant) {
+        print(multiDimensionConformant.lowId+".."+multiDimensionConformant.highId+": ", false);
+        multiDimensionConformant.rangeTy.accept(this);
+        print("] of array [", false);
+        multiDimensionConformant.elemTy.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitOneDimensionConformant(OneDimensionConformant oneDimensionConformant) {
+        print(oneDimensionConformant.lowId+".."+oneDimensionConformant.highId+": ", false);
+        oneDimensionConformant.rangeTy.accept(this);
+        print("] of ", false);
+        oneDimensionConformant.elemTy.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitBooleanConstant(BooleanConstant booleanConstant) {
+        if (booleanConstant == BooleanConstant.TRUE)
+            print("TRUE", false);
+        else print("FALSE", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitCharacterConstant(CharacterConstant characterConstant) {
+        print(characterConstant.value, false);
+        return null;
+    }
+
+    /* visit Constants */
+    @Override
+    public Object VisitCharacterLiteral(CharacterLiteral characterLiteral) {
+        print(characterLiteral.value, false);
+        return null;
+    }
+
+    @Override
+    public Object VisitSignedNumber(SignedNumber signedNumber) {
+        signedNumber.sign.accept(this);
+        signedNumber.unsNum.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitUnsignedNumber(UnsignedNumber unsignedNumber) {
+        print(unsignedNumber.value, false);
+        return null;
+    }
+
+    /* visit Expressions */
+    @Override
+    public Object VisitBinaryArithmeticExpression(BinaryArithmeticExpression binaryArithmeticExpression) {
+        binaryArithmeticExpression.left.accept(this);
+        binaryArithmeticExpression.op.accept(this);
+        binaryArithmeticExpression.right.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitBinaryBooleanExpression(BinaryBooleanExpression binaryBooleanExpression) {
+        print("(", false);
+        binaryBooleanExpression.left.accept(this);
+        binaryBooleanExpression.op.accept(this);
+        binaryBooleanExpression.right.accept(this);
+        print(")", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitCharLiteral(CharLiteral charLiteral) {
+        print(charLiteral.value, false);
+        return null;
+    }
+
+    @Override
+    public Object VisitBooleanLiteral(BooleanLiteral booleanLiteral) {
+        if (booleanLiteral == BooleanLiteral.TRUE)
+            print("TRUE", false);
+        else print("FALSE", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitIndexedVariable(IndexedVariable indexedVariable) {
+        indexedVariable.var.accept(this);
+        print(" = ", false);
+        indexedVariable.index.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitNotExpression(NotExpression notExpression) {
+        print("not (", false);
+        notExpression.exp.accept(this);
+        print(")", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitNumberLiteral(NumberLiteral numberLiteral) {
+        print(numberLiteral.value, false);
+        return null;
+    }
+
+    @Override
+    public Object VisitRelationalExpression(RelationalExpression relationalExpression) {
+        relationalExpression.left.accept(this);
+        relationalExpression.op.accept(this);
+        relationalExpression.right.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitSignedExpression(SignedExpression signedExpression) {
+        signedExpression.sign.accept(this);
+        signedExpression.exp.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitStringLiteral(StringLiteral stringLiteral) {
+        print(stringLiteral.value, false);
+        return null;
+    }
+
+    /* visit Formal Parameters */
+
+    @Override
+    public Object visitFormalPar(FormalPar formalPar) {
+        if (formalPar.mechanism == RefOrValue.Ref) print("var ", false);
+        print(formalPar.name+": ", false);
+        formalPar.type.accept(this);
+        return null;
+    }
+
+    /* visit Labels and Types */
+    @Override
+    public Object VisitArray(Array array) {
+        print("array [", false);
+        array.range.accept(this);
+        print("] of ", false);
+        array.elemTy.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitEnumeratedType(EnumeratedType enumeratedType) {
+        print(utils.ppStringList(enumeratedType.newConstants, true),false);
+        return null;
+    }
+
+    @Override
+    public Object VisitPrimitiveType(PrimitiveType primitiveType) {
+        if (primitiveType == PrimitiveType.INTEGER) print("integer", false);
+        else if (primitiveType == PrimitiveType.CHAR) print("char", false);
+        else if (primitiveType == PrimitiveType.STRING) print("string", false);
+        else if (primitiveType == PrimitiveType.BOOLEAN) print("boolean", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitSubRangeType(SubrangeType subrangeType) {
+        subrangeType.low.accept(this);
+        print("..", false);
+        subrangeType.high.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitTypeDefinition(TypeDefinition typeDefinition) {
+        print(typeDefinition.id + ": ", true);
+        typeDefinition.ty.accept(this);
+        print(";\n", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitTypeId(TypeId typeId) {
+        print(typeId.id, false);
+        return null;
+    }
+
+    /* visit Nodes */
+    @Override
+    public Object VisitBlock(Block block) {
+        indent();
+        if (!block.labels.isEmpty()) {
+            print("Label ", true);
+            print(utils.ppLabelsList(block.labels)+";\n", false);
+        }
+        if (!block.typeDefs.isEmpty()) {
+            print("Type\n", true);
+            indent();
+            for (TypeDefinition typeDef : block.typeDefs) typeDef.accept(this);
+            unindent();
+        }
+        if (!block.varDecs.isEmpty()) {
+            print ("Var\n", true);
+            indent();
+            for (VariableDeclaration varDec : block.varDecs) varDec.accept(this);
+            unindent();
+        }
+        if (!block.subprogs.isEmpty()) {
+            for (ProcedureOrFunctionDeclaration subprog : block.subprogs) subprog.accept(this);
+            unindent();
+        }
+        print("Begin\n", true);
+        indent();
+        block.body.accept(this);
+        unindent();
+        print("\n", false);
+        print("End", true);
+        unindent();
+        return null;
+    }
+
+    @Override
+    public Object VisitIndexType(IndexType index) {
+
+        return null;
+    }
+
+    @Override
+    public Object VisitProgram(Program program) {
+        System.out.print("Program " + program.id + "(");
+        for (String id : program.io) System.out.print(id + ", ");
+        System.out.print(");\n");
+        program.block.accept(this);
+        print(".", false);
+        return null;
+    }
+
+    /* visit Operators */
+    @Override
+    public Object VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator) {
+        switch (binaryArithmeticOperator.name()) {
+            case "DIV": print(" DIV ", false); break;
+            case "MOD": print(" MOD ", false); break;
+            case "PLUS": print(" + ", false); break;
+            case "TIMES": print(" * ", false); break;
+            case "MINUS": print(" - ", false); break;
+        }
+        return null;
+    }
+
+    @Override
+    public Object VisitBinaryBooleanOperator(BinaryBooleanOperator binaryBooleanOperator) {
+        switch (binaryBooleanOperator.name()) {
+            case "AND": print(") AND (", false); break;
+            case "OR": print(") OR (", false); break;
+        }
+        return null;
+    }
+
+    @Override
+    public Object VisitRelationalOperator(RelationalOperator relationalOperator) {
+        switch (relationalOperator.name()) {
+            case "EQ": print(" = ", false); break;
+            case "NEQ": print(" <> ", false); break;
+            case "LT": print(" < ", false); break;
+            case "GT": print(" > ", false); break;
+            case "LTE": print(" =< ", false); break;
+            case "GTE": print(" >= ", false); break;
+        }
+        return null;
+    }
+
+    @Override
+    public Object VisitSign(Sign sign) {
+        String signSymbol = (sign.name().matches("PLUS"))? " + " : " - ";
+        print(signSymbol, false);
+        return null;
+    }
+
+    /* visit Procedures and functions declarations */
+    @Override
+    public Object VisitFunctionDeclaration(FunctionDeclaration functionDeclaration) {
+        print("Function "+functionDeclaration.nm+"(", true);
+
+        functionDeclaration.formals.get(0).accept(this);
+        for (FormalParameter formal : functionDeclaration.formals.subList(1, functionDeclaration.formals.size())) {
+            print("; ", false);
+            if (formal instanceof FormalPar) {
+                FormalPar par = (FormalPar) formal;
+                par.accept(this);
+            }
+        }
+        print(") : ", false);
+        functionDeclaration.resultTy.accept(this); print (";\n", false);
+        functionDeclaration.body.accept(this); print (";\n", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitFunctionDesignator(FunctionDesignator functionDesignator) {
+        print(functionDesignator.name + "(", false);
+        functionDesignator.actuals.get(0).accept(this);
+        for (Expression exp : functionDesignator.actuals.subList(1, functionDesignator.actuals.size())) {
+            print(", ", false); exp.accept(this);
+        }
+        print (")", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration) {
+        print("Procedure "+procedureDeclaration.nm+" (", true);
+        for (FormalParameter formal : procedureDeclaration.formals) formal.accept(this);
+        print(");\n", false);
+        procedureDeclaration.body.accept(this); print (";\n", false);
+        return null;
+    }
 
     /* visit Statements */
     @Override
-    public void visitAssignStm(AssignmentStatement assignStm) {
-        //assignStm.left.accept(this);
-        System.out.println(" + ");
-        //assignStm.right.accept(this);
-        System.out.println("");
+    public Object VisitAssignStm(AssignmentStatement assignStm) {
+        assignStm.left.accept(this);
+        print(" := ", false);
+        assignStm.right.accept(this);
+        return null;
     }
 
     @Override
-    public void visitCompStm(CompoundStatement compStm) {
-        for (Statement stm : compStm.stmts) {
-            //stm.accept();
+    public Object VisitCompStm(CompoundStatement compStm) {
+        // we must remove all empty stmts before print
+        int i = 0;
+        Statement _stm = compStm.stmts.get(i++);
+        while (_stm instanceof EmptyStatement) _stm = compStm.stmts.get(i++);
+        print("", true); _stm.accept(this);
+
+        for (Statement stm : compStm.stmts.subList(i, compStm.stmts.size())) {
+            if (stm instanceof EmptyStatement) continue;
+            print(";\n", false);
+            print("", true);
+            stm.accept(this);
         }
+        return null;
     }
 
     @Override
-    public void visitEmptyStm(EmptyStatement eStm) {
-        System.out.println("");
+    public Object VisitEmptyStm(EmptyStatement eStm) {
+        return null;
     }
 
     @Override
-    public void visitIfStm(IfStatement ifStm) {
-        // colocar uns testes p add begin end e parenteses
-        System.out.print("if ");
-        //ifStm.condition.accept(this);
-        System.out.print(" then ");
-        //ifStm.thenPart.accept(this);
-        System.out.print(" else ");
-        //ifStm.elsePart.accept(this);
-        System.out.print('\n');
+    public Object VisitGotoStatement(GotoStatement gotoStatement) {
+        print("goto ", false);
+        gotoStatement.label.accept(this);
+        return null;
     }
 
     @Override
-    public void visitProcedureStm(ProcedureDeclaration procedureStm) {
-        System.out.print("Procedure ");
-        //procedureStm.nm.accept(this);
-        System.out.print("(");
-        for (FormalParameter fPar: procedureStm.formals) {
-            //fPar.accept(this);
-            System.out.print(", ");
+    public Object VisitIfStm(IfStatement ifStm) {
+        print("if (", false);
+        ifStm.condition.accept(this);
+        print(") then", false);
+        indent();
+        if (ifStm.thenPart instanceof CompoundStatement) {
+            print("\n", false);
+            print("begin\n", true);
+            indent();
+            ifStm.thenPart.accept(this);
+            print("\n", false);
+            unindent();
+            print("end", true);
+        } else {
+            print("\n", false);
+            print("", true);
+            ifStm.thenPart.accept(this);
         }
-        System.out.println(")\nbegin");
-        //procedureStm.body.accept(this);
-        System.out.println("end;");
+        unindent();
+        if (ifStm.elsePart != null) {
+            print("\n", false);
+            print("else\n", true);
+            indent();
+            print("", true);
+            ifStm.elsePart.accept(this);
+            unindent();
+        }
+        return null;
     }
 
     @Override
-    public void visitWhileStm(WhileStatement whileStm) {
-        System.out.print("while ");
-        //whileStm.condition.accept(this);
-        System.out.println("\nbegin");
-        //whileStm.body.visit();
-        System.out.println("end");
+    public Object VisitLabeledStm(LabeledStatement lblStm) {
+        print(lblStm.label +": ", false);
+        lblStm.stm.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitProcedureStm(ProcedureStatement procedureStm) {
+        print(procedureStm.name+"(", false);
+        if (!procedureStm.actuals.isEmpty()) {
+            procedureStm.actuals.get(0).accept(this);
+            for (Expression exp : procedureStm.actuals.subList(1, procedureStm.actuals.size())) {
+                print(", ", false);
+                exp.accept(this);
+            }
+        }
+        print(")", false);
+        return null;
+    }
+
+    @Override
+    public Object VisitWhileStm(WhileStatement whileStm) {
+        print("while (", false);
+        whileStm.condition.accept(this);
+        print(")", false);
+        indent();
+        if (whileStm.body instanceof CompoundStatement) {
+            print("\n", false);
+            print("begin\n", true);
+            indent();
+            whileStm.body.accept(this);
+            print("\n", false);
+            unindent();
+            print("end", true);
+        } else {
+            print("\n", false);
+            print("", true);
+            whileStm.body.accept(this);
+        }
+        unindent();
+        return null;
+    }
+
+    /* visit Variables Declarations */
+    @Override
+    public Object VisitVariable(Variable variable) {
+        print(variable.name, false);
+        return null;
+    }
+
+    @Override
+    public Object VisitVariableDeclaration(VariableDeclaration variableDeclaration) {
+        print(variableDeclaration.id + ": ", true);
+        variableDeclaration.ty.accept(this);
+        print(";\n", false);
+        return null;
     }
 }

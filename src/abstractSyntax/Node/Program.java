@@ -1,7 +1,6 @@
-package abstractSyntax;
+package abstractSyntax.Node;
 
-import abstractSyntax.Block;
-import abstractSyntax.Node;
+import visitor.PascalVisitor;
 
 import java.util.List;
 
@@ -15,5 +14,10 @@ public class Program extends Node {
 		this.id = id;
 		this.io = io;
 		this.block = block;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitProgram(this);
 	}
 }

@@ -1,5 +1,7 @@
 package abstractSyntax.labelsAndTypes;
 
+import visitor.PascalVisitor;
+
 import java.util.List;
 
 public class EnumeratedType extends TypeIdOrOrdinal {
@@ -8,5 +10,10 @@ public class EnumeratedType extends TypeIdOrOrdinal {
 	public EnumeratedType(List<String> newConstants) {
 		super();
 		this.newConstants = newConstants;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitEnumeratedType(this);
 	}
 }

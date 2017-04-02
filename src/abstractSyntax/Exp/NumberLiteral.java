@@ -1,6 +1,6 @@
 package abstractSyntax.Exp;
 
-import abstractSyntax.Exp.Expression;
+import visitor.PascalVisitor;
 
 public class NumberLiteral extends Expression {
 	public int value;
@@ -8,5 +8,10 @@ public class NumberLiteral extends Expression {
 	public NumberLiteral(int value) {
 		super();
 		this.value = value;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitNumberLiteral(this);
 	}
 }

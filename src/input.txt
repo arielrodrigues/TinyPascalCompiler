@@ -9,6 +9,11 @@ var
    message: char;
    Num1, Num2, Sum : Integer;
 
+Procedure MyProc(x: Array [x..y : integer] of Array [a..z : char] of Array [seg..dom : integer] of ariels);
+    begin
+        write('oi?')
+    end;
+
 procedure DrawLine;
 
 begin
@@ -21,15 +26,15 @@ begin
 	Writeln(Sum);
 	Readln;
 	greetings := 'Hello ';
-	if Sel = '3' then
+	if Sel = 3 then
 		begin
 			ClrScr;
 			Write('Are you sure?(Y/N)');
 			YN := Readkey;
-			if YN = 'y' then Halt
+			if YN = y then Halt
 			else
 				writeln('sorry, you"ve got it wrong!');
-			if YN = 'n' then goto 1;
+			if YN = n then goto 1;
 		end;
 	message := 'Good Day!';
 	writeln('Please Enter your Name');
@@ -37,11 +42,11 @@ begin
 	writeln('Please Enter the name of your Organisation');
 	readln(organisation);
 		YN := Readkey ;
-		if YN = 'y' then Halt;
-		if YN = 'n' then Writeln('Why not? Exiting...');
+		if YN = y then Halt;
+		if YN = n then Writeln('Why not? Exiting...');
 		Delay(1800);
 	writeln(greetings, name, ' from ', organisation);
-	while Ch <> 'q' do
+	while Ch <> q do
 		begin
 		Writeln('I told you press "q" to exit!!');
 		Ch := Readkey;
@@ -49,12 +54,12 @@ begin
 	while 10 < 9 do
 		writeln (a);
 	writeln(message);
-	if (n1 = '0') and (n2 = '0') then Halt(0);
+	if (n1 = 0) and (n2 = 0) then Halt(0);
 	Write('Input number 1:');
-	if (n1 = '1') or (n2 = '2') then Halt;
+	if (n1 = 1) or (n2 = 2) then Halt;
 	Readln(Num1);
 	Writeln('Input number 2:');
-	if not(n1 = '0') then Halt;
+	if not(n1 = 0) then Halt;
 	Readln(Num2);
 	Sum := Num1 + Num2;
 	Writeln(Sum);

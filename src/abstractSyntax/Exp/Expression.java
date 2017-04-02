@@ -1,3 +1,7 @@
 package abstractSyntax.Exp;
 
-public abstract class Expression { }
+import visitor.PascalVisitor;
+
+public abstract class Expression {
+    public abstract void accept(PascalVisitor visitor);
+}

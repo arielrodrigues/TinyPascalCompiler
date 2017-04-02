@@ -1,6 +1,6 @@
 package abstractSyntax.variablesDeclaration;
 
-import abstractSyntax.VariableAccess;
+import visitor.PascalVisitor;
 
 public class Variable extends VariableAccess {
 	public String name;
@@ -8,5 +8,10 @@ public class Variable extends VariableAccess {
 	public Variable(String name) {
 		super();
 		this.name = name;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitVariable(this);
 	}
 }

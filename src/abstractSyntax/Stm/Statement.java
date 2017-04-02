@@ -1,3 +1,7 @@
 package abstractSyntax.Stm;
 
-public abstract class Statement { }
+import visitor.PascalVisitor;
+
+public abstract class Statement {
+    public abstract void accept(PascalVisitor visitor);
+}

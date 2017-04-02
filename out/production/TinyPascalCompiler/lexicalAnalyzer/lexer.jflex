@@ -2,7 +2,7 @@ package lexicalAnalyzer;
 
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import java_cup.runtime.ComplexSymbolFactory;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java_cup.runtime.Symbol;
 import java.lang.*;
 import syntacticAnalyzer.sym;
@@ -102,7 +102,6 @@ LPar = "("
 RPar = ")"
 LBra = "["
 RBra = "]"
-Sign = [+|-]
 SingleQuote = \'
 DoubleQuote = \"
 NQUOTE = [^']
@@ -207,8 +206,7 @@ Id = {Letter}({Letter}|{Digit})*
     {Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
     {Integer}                    { return symbol("INTEGER", INTEGER); }
     {Chr}						 { return symbol("CHARACTER", CHARACTER); }
-    {Str}              			 { return symbol("STRINGCHARACTER", STRINGCHARACTER); }
-    {Sign}						 { return symbol("SIGN", SIGN); }
+    {Str}              			 { return symbol("STRINGCHARACTER", STRINGCHARACTER, yytext()); }
 
     {And}						 { return symbol("AND", AND); }
     {Array}						 { return symbol("ARRAY", ARRAY); }
@@ -263,8 +261,8 @@ Id = {Letter}({Letter}|{Digit})*
     {With}						 { return symbol("WITH", WITH); }
     {Xor}						 { return symbol("XOR", XOR); }
 
-    {Id}                         { return symbol("ID", ID); }
+    {Id}                         { return symbol("ID", ID, yytext()); }
 }
 
 // error warning
-.|\n						 { emit_warning("Caracter não reconhecido " + yytext() + " -- ignorado"); }
+.|\n						 { emit_warning("Caracter não reconhecido '" + yytext() + "' -- ignorado"); }

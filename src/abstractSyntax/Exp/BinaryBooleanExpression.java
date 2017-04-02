@@ -1,6 +1,7 @@
 package abstractSyntax.Exp;
 
 import abstractSyntax.Operator.BinaryBooleanOperator;
+import visitor.PascalVisitor;
 
 public class BinaryBooleanExpression extends Expression {
 	public BinaryBooleanOperator op;
@@ -11,5 +12,10 @@ public class BinaryBooleanExpression extends Expression {
 		this.op = op;
 		this.left = left;
 		this.right = right;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitBinaryBooleanExpression(this);
 	}
 }

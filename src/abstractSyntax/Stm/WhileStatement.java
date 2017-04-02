@@ -1,6 +1,7 @@
 package abstractSyntax.Stm;
 
 import abstractSyntax.Exp.Expression;
+import visitor.PascalVisitor;
 
 public class WhileStatement extends Statement {
 	public Expression condition;
@@ -10,5 +11,10 @@ public class WhileStatement extends Statement {
 		super();
 		this.condition = condition;
 		this.body = body;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitWhileStm(this);
 	}
 }

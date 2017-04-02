@@ -1,6 +1,7 @@
 package abstractSyntax.Stm;
 
 import abstractSyntax.Exp.Expression;
+import visitor.PascalVisitor;
 
 public class IfStatement extends Statement {
 	public Expression condition;
@@ -11,5 +12,10 @@ public class IfStatement extends Statement {
 		this.condition = condition;
 		this.thenPart = thenPart;
 		this.elsePart = elsePart;
+	}
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitIfStm(this);
 	}
 }

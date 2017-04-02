@@ -1,6 +1,8 @@
 package abstractSyntax.labelsAndTypes;
 
-public class PrimitiveType extends TypeDenoter {
+import visitor.PascalVisitor;
+
+public class PrimitiveType extends TypeDenoter implements TypeIdOrPrimitive {
 
 	public static PrimitiveType INTEGER = new PrimitiveType();
 	public static PrimitiveType CHAR = new PrimitiveType();
@@ -8,5 +10,9 @@ public class PrimitiveType extends TypeDenoter {
 	public static PrimitiveType BOOLEAN = new PrimitiveType();
 	
 	private PrimitiveType() {}
-	
+
+	@Override
+	public void accept(PascalVisitor visitor) {
+		visitor.VisitPrimitiveType(this);
+	}
 }
