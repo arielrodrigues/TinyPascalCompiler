@@ -15,7 +15,7 @@ public class IfStatement extends Statement {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitIfStm(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitIfStm(this);
 	}
 }

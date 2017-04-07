@@ -11,7 +11,7 @@ public class NotExpression extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitNotExpression(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitNotExpression(this);
 	}
 }

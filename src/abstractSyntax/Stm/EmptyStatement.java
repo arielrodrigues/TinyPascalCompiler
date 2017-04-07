@@ -4,7 +4,7 @@ import visitor.PascalVisitor;
 
 public class EmptyStatement extends Statement {
     @Override
-    public void accept(PascalVisitor visitor) {
-        visitor.VisitEmptyStm(this);
+    public Object accept(PascalVisitor visitor) {
+        return visitor.VisitEmptyStm(this);
     }
 }

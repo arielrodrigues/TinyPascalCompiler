@@ -13,7 +13,7 @@ public class BooleanLiteral extends Expression {
 		this.value = value;
 	}
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitBooleanLiteral(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitBooleanLiteral(this);
 	}	
 }

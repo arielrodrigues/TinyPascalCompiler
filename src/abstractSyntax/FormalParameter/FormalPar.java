@@ -16,7 +16,7 @@ public class FormalPar extends FormalParameter {
 	}
 
     @Override
-	public void accept(PascalVisitor visitor) {
-		visitor.visitFormalPar(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitFormalPar(this);
 	}
 }

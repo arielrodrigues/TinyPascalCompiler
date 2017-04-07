@@ -15,7 +15,7 @@ public class BinaryArithmeticExpression extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitBinaryArithmeticExpression(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitBinaryArithmeticExpression(this);
 	}
 }

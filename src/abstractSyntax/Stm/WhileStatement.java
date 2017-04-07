@@ -14,7 +14,7 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitWhileStm(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitWhileStm(this);
 	}
 }

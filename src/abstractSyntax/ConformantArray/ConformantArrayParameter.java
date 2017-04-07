@@ -3,7 +3,6 @@ package abstractSyntax.ConformantArray;
 import abstractSyntax.FormalParameter.FormalParameter;
 import abstractSyntax.FormalParameter.RefOrValue;
 import visitor.PascalVisitor;
-import visitor.PrettyprintVisitor;
 
 public class ConformantArrayParameter extends FormalParameter {
 	public RefOrValue mechanism;
@@ -17,7 +16,7 @@ public class ConformantArrayParameter extends FormalParameter {
 		this.schema = schema;
 	}
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitConformantArrayParameter(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitConformantArrayParameter(this);
 	}
 }

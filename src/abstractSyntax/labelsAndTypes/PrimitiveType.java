@@ -12,7 +12,7 @@ public class PrimitiveType extends TypeDenoter implements TypeIdOrPrimitive {
 	private PrimitiveType() {}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitPrimitiveType(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitPrimitiveType(this);
 	}
 }

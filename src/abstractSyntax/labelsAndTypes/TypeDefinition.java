@@ -13,8 +13,8 @@ public class TypeDefinition {
 		this.ty = ty;
 	}
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitTypeDefinition(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitTypeDefinition(this);
 	}
 	
 }

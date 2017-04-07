@@ -14,11 +14,11 @@ import abstractSyntax.variablesDeclaration.*;
 
 import java.util.Collections;
 
-public class PrettyprintVisitor implements PascalVisitor {
+public class PrettyPrint implements PascalVisitor {
 
     private int indentLevel = 0;
 
-    public PrettyprintVisitor(Program program) {
+    public PrettyPrint(Program program) {
         this.VisitProgram(program);
     }
 
@@ -171,7 +171,7 @@ public class PrettyprintVisitor implements PascalVisitor {
     /* visit Formal Parameters */
 
     @Override
-    public Object visitFormalPar(FormalPar formalPar) {
+    public Object VisitFormalPar(FormalPar formalPar) {
         if (formalPar.mechanism == RefOrValue.Ref) print("var ", false);
         print(formalPar.name+": ", false);
         formalPar.type.accept(this);
@@ -261,14 +261,15 @@ public class PrettyprintVisitor implements PascalVisitor {
 
     @Override
     public Object VisitIndexType(IndexType index) {
-
+        print(index.lowId+".."+index.highId+" :", false);
+        index.rangeTy.accept(this);
         return null;
     }
 
     @Override
     public Object VisitProgram(Program program) {
         System.out.print("Program " + program.id + "(");
-        for (String id : program.io) System.out.print(id + ", ");
+        if (!program.io.isEmpty()) print(utils.ppStringList(program.io, false), false);
         System.out.print(");\n");
         program.block.accept(this);
         print(".", false);
@@ -349,7 +350,7 @@ public class PrettyprintVisitor implements PascalVisitor {
 
     @Override
     public Object VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration) {
-        print("Procedure "+procedureDeclaration.nm+" (", true);
+        print("Procedure "+procedureDeclaration.nm+"(", true);
         for (FormalParameter formal : procedureDeclaration.formals) formal.accept(this);
         print(");\n", false);
         procedureDeclaration.body.accept(this); print (";\n", false);
@@ -398,10 +399,9 @@ public class PrettyprintVisitor implements PascalVisitor {
     public Object VisitIfStm(IfStatement ifStm) {
         print("if (", false);
         ifStm.condition.accept(this);
-        print(") then", false);
+        print(") then\n", false);
         indent();
         if (ifStm.thenPart instanceof CompoundStatement) {
-            print("\n", false);
             print("begin\n", true);
             indent();
             ifStm.thenPart.accept(this);
@@ -409,19 +409,29 @@ public class PrettyprintVisitor implements PascalVisitor {
             unindent();
             print("end", true);
         } else {
-            print("\n", false);
             print("", true);
             ifStm.thenPart.accept(this);
         }
         unindent();
+
         if (ifStm.elsePart != null) {
             print("\n", false);
             print("else\n", true);
             indent();
-            print("", true);
-            ifStm.elsePart.accept(this);
+            if (ifStm.elsePart instanceof CompoundStatement) {
+                print("begin\n", true);
+                indent();
+                ifStm.elsePart.accept(this);
+                print("\n", false);
+                unindent();
+                print("end", true);
+            } else {
+                print("", true);
+                ifStm.elsePart.accept(this);
+            }
             unindent();
         }
+
         return null;
     }
 

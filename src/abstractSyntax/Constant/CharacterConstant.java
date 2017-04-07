@@ -10,7 +10,7 @@ public class CharacterConstant extends Constant {
 		this.value = value;
 	}
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitCharacterConstant(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitCharacterConstant(this);
 	}
 }

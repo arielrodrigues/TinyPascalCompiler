@@ -15,7 +15,7 @@ public class AssignmentStatement extends Statement {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitAssignStm(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitAssignStm(this);
 	}
 }

@@ -1,7 +1,5 @@
 package visitor;
 
-import abstractSyntax.FormalParameter.FormalPar;
-
 import java.util.List;
 
 public class utils {

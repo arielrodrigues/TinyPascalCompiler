@@ -10,8 +10,8 @@ public class UnsignedNumber extends Constant {
 	this.value = value;
   }
 
-  public void accept(PascalVisitor visitor) {
-      visitor.VisitUnsignedNumber(this);
+  public Object accept(PascalVisitor visitor) {
+      return visitor.VisitUnsignedNumber(this);
   }
 
 }
