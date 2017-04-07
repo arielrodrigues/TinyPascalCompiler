@@ -171,7 +171,7 @@ public class PrettyprintVisitor implements PascalVisitor {
     /* visit Formal Parameters */
 
     @Override
-    public Object visitFormalPar(FormalPar formalPar) {
+    public Object VisitFormalPar(FormalPar formalPar) {
         if (formalPar.mechanism == RefOrValue.Ref) print("var ", false);
         print(formalPar.name+": ", false);
         formalPar.type.accept(this);
@@ -349,7 +349,7 @@ public class PrettyprintVisitor implements PascalVisitor {
 
     @Override
     public Object VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration) {
-        print("Procedure "+procedureDeclaration.nm+" (", true);
+        print("Procedure "+procedureDeclaration.nm+"(", true);
         for (FormalParameter formal : procedureDeclaration.formals) formal.accept(this);
         print(");\n", false);
         procedureDeclaration.body.accept(this); print (";\n", false);
