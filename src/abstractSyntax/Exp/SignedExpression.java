@@ -14,7 +14,7 @@ public class SignedExpression extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitSignedExpression(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitSignedExpression(this);
 	}
 }

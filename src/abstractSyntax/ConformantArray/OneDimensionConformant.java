@@ -2,7 +2,6 @@ package abstractSyntax.ConformantArray;
 
 import abstractSyntax.labelsAndTypes.TypeIdOrPrimitive;
 import visitor.PascalVisitor;
-import visitor.PrettyprintVisitor;
 
 public class OneDimensionConformant extends ConformantArraySchema {
 	public String lowId, highId;

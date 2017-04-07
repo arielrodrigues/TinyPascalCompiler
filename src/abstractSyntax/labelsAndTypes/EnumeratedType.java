@@ -13,7 +13,7 @@ public class EnumeratedType extends TypeIdOrOrdinal {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitEnumeratedType(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitEnumeratedType(this);
 	}
 }

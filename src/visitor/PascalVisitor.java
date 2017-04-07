@@ -37,7 +37,7 @@ public interface PascalVisitor {
     Object VisitStringLiteral(StringLiteral stringLiteral);
 
     /* visit Formal Parameters */
-    Object visitFormalPar(FormalPar formalPar);
+    Object VisitFormalPar(FormalPar formalPar);
 
     /* visit Labels and Types */
     Object VisitArray(Array array);

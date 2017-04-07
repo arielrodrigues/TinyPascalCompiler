@@ -12,7 +12,7 @@ public class GotoStatement extends Statement {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitGotoStatement(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitGotoStatement(this);
 	}
 }

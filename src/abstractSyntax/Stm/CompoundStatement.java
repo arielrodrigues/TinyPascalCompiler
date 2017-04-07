@@ -13,7 +13,7 @@ public class CompoundStatement extends Statement {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitCompStm(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitCompStm(this);
 	}
 }

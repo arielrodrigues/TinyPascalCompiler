@@ -16,7 +16,7 @@ public class ProcedureStatement extends Statement {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitProcedureStm(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitProcedureStm(this);
 	}
 }

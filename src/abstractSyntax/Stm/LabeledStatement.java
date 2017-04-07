@@ -12,7 +12,7 @@ public class LabeledStatement extends Statement {
     }
 
     @Override
-    public void accept(PascalVisitor visitor) {
-        visitor.VisitLabeledStm(this);
+    public Object accept(PascalVisitor visitor) {
+        return visitor.VisitLabeledStm(this);
     }
 }

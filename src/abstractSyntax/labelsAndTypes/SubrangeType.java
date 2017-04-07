@@ -13,7 +13,7 @@ public class SubrangeType extends TypeIdOrOrdinal {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitSubRangeType(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitSubRangeType(this);
 	}
 }

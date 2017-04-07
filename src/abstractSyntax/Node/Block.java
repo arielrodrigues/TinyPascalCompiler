@@ -27,7 +27,7 @@ public class Block extends Node{
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitBlock(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitBlock(this);
 	}
 }

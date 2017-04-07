@@ -13,8 +13,8 @@ public class SignedNumber extends Constant {
 		this.unsNum = unsNum;
 	}
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitSignedNumber(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitSignedNumber(this);
 	}
 	
 }

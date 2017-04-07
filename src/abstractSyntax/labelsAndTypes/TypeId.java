@@ -11,7 +11,7 @@ public class TypeId extends TypeIdOrOrdinal implements TypeIdOrPrimitive {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitTypeId(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitTypeId(this);
 	}
 }

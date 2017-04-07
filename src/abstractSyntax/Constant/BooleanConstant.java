@@ -13,7 +13,7 @@ public class BooleanConstant extends Constant {
 		this.value = value;
 	}
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitBooleanConstant(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitBooleanConstant(this);
 	}
 }

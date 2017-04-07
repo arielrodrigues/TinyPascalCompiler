@@ -15,7 +15,7 @@ public class RelationalExpression extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitRelationalExpression(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitRelationalExpression(this);
 	}
 }

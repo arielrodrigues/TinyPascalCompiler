@@ -13,7 +13,7 @@ public class Array extends TypeDenoter {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitArray(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitArray(this);
 	}
 }

@@ -11,7 +11,7 @@ public class CharLiteral extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitCharLiteral(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitCharLiteral(this);
 	}
 }

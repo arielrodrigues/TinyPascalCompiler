@@ -15,7 +15,7 @@ public class IndexType extends Node {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitIndexType(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitIndexType(this);
 	}
 }

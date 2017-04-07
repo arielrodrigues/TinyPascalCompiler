@@ -15,7 +15,7 @@ public class BinaryBooleanExpression extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitBinaryBooleanExpression(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitBinaryBooleanExpression(this);
 	}
 }

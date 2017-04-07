@@ -16,7 +16,7 @@ public class FunctionDesignator extends Expression {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitFunctionDesignator(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitFunctionDesignator(this);
 	}
 }

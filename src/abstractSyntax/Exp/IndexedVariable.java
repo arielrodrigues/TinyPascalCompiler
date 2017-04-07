@@ -14,7 +14,7 @@ public class IndexedVariable extends VariableAccess {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitIndexedVariable(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitIndexedVariable(this);
 	}
 }

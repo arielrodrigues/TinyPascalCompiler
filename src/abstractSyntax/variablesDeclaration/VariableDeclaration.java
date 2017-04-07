@@ -13,7 +13,7 @@ public class VariableDeclaration {
 	this.ty = ty;
   }
 
-  public void accept (PascalVisitor visitor) {
-       visitor.VisitVariableDeclaration(this);
+  public Object accept (PascalVisitor visitor) {
+       return visitor.VisitVariableDeclaration(this);
   }
 }

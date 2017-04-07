@@ -17,7 +17,7 @@ public class Program extends Node {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitProgram(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitProgram(this);
 	}
 }
