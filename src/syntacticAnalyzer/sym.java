@@ -10,27 +10,27 @@ public interface sym {
   /* terminals */
   public static final int DOUBLEDOT = 43;
   public static final int TIMES = 6;
-  public static final int REAL = 80;
+  public static final int REAL = 79;
   public static final int GT = 38;
   public static final int PACKED = 69;
   public static final int TYPE = 17;
   public static final int CONST = 66;
-  public static final int ASM = 76;
+  public static final int ASM = 75;
   public static final int GE = 41;
-  public static final int UNTIL = 54;
-  public static final int CONSTRUCTOR = 52;
+  public static final int UNTIL = 55;
+  public static final int CONSTRUCTOR = 53;
   public static final int COMMA = 14;
   public static final int LT = 39;
-  public static final int LITERALCHARACTER = 86;
-  public static final int INTEGER = 55;
+  public static final int LITERALCHARACTER = 85;
+  public static final int INTEGER = 56;
   public static final int LBRA = 11;
-  public static final int SHR = 74;
+  public static final int SHR = 73;
   public static final int FALSE = 29;
   public static final int NOT = 37;
-  public static final int NIL = 77;
+  public static final int NIL = 76;
   public static final int LE = 40;
   public static final int ARRAY = 18;
-  public static final int SHL = 73;
+  public static final int SHL = 72;
   public static final int OBJECT = 67;
   public static final int VAR = 20;
   public static final int INLINE = 62;
@@ -40,11 +40,10 @@ public interface sym {
   public static final int CHARACTER = 70;
   public static final int MOD = 46;
   public static final int RBRA = 12;
-  public static final int MULTIPLY = 56;
   public static final int TRUE = 30;
   public static final int PLUS = 4;
-  public static final int DIVIDE = 45;
-  public static final int UNIT = 82;
+  public static final int DIVIDE = 50;
+  public static final int UNIT = 81;
   public static final int LPAR = 7;
   public static final int WHILE = 34;
   public static final int EQUAL = 10;
@@ -53,9 +52,9 @@ public interface sym {
   public static final int INTERFACE = 57;
   public static final int CHAR = 47;
   public static final int BOOLEAN = 28;
-  public static final int FOR = 78;
+  public static final int FOR = 77;
   public static final int DO = 31;
-  public static final int DIV = 72;
+  public static final int DIV = 45;
   public static final int DOWNTO = 61;
   public static final int ELSE = 32;
   public static final int DOT = 9;
@@ -71,10 +70,10 @@ public interface sym {
   public static final int STRINGCHARACTER = 16;
   public static final int NUMINT = 27;
   public static final int SINGLEQUOTE = 58;
-  public static final int DESTRUCTOR = 53;
-  public static final int IN = 51;
+  public static final int DESTRUCTOR = 54;
+  public static final int IN = 52;
   public static final int OR = 35;
-  public static final int SET = 75;
+  public static final int SET = 74;
   public static final int error = 1;
   public static final int DIFF = 42;
   public static final int IF = 2;
@@ -82,19 +81,19 @@ public interface sym {
   public static final int OF = 19;
   public static final int END = 24;
   public static final int COLON = 44;
-  public static final int FILE = 83;
+  public static final int FILE = 82;
   public static final int NUMREAL = 71;
   public static final int CARET = 65;
-  public static final int CASE = 84;
+  public static final int CASE = 83;
   public static final int BEGIN = 23;
   public static final int STRING = 48;
   public static final int PROGRAM = 33;
   public static final int DOUBLEQUOTE = 59;
   public static final int AND = 36;
-  public static final int TO = 50;
-  public static final int WITH = 85;
-  public static final int USES = 81;
-  public static final int XOR = 79;
+  public static final int TO = 51;
+  public static final int WITH = 84;
+  public static final int USES = 80;
+  public static final int XOR = 78;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -141,18 +140,18 @@ public interface sym {
   "DIFF",
   "DOUBLEDOT",
   "COLON",
-  "DIVIDE",
+  "DIV",
   "MOD",
   "CHAR",
   "STRING",
   "ASSIGN",
+  "DIVIDE",
   "TO",
   "IN",
   "CONSTRUCTOR",
   "DESTRUCTOR",
   "UNTIL",
   "INTEGER",
-  "MULTIPLY",
   "INTERFACE",
   "SINGLEQUOTE",
   "DOUBLEQUOTE",
@@ -168,7 +167,6 @@ public interface sym {
   "PACKED",
   "CHARACTER",
   "NUMREAL",
-  "DIV",
   "SHL",
   "SHR",
   "SET",

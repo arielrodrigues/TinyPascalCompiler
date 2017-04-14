@@ -13,6 +13,7 @@ import abstractSyntax.variablesDeclaration.*;
 
 
 import java.util.Collections;
+import java.util.List;
 
 public class PrettyPrint implements PascalVisitor {
 
@@ -24,6 +25,14 @@ public class PrettyPrint implements PascalVisitor {
 
     private void indent() { indentLevel++; }
     private void unindent() { --indentLevel; }
+
+    private String printList(List<?> list, boolean parentheses) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(list.get(0));
+        for (Object item : list.subList(1, list.size())) sb.append(", " + item);
+        if (parentheses) {sb.insert(0, '('); sb.append(')');}
+        return sb.toString();
+    }
 
     private Object print (Object str, boolean indent) {
         String tabs = indent? String.join("", Collections.nCopies(indentLevel, "   ")): "";
@@ -55,6 +64,12 @@ public class PrettyPrint implements PascalVisitor {
         oneDimensionConformant.rangeTy.accept(this);
         print("] of ", false);
         oneDimensionConformant.elemTy.accept(this);
+        return null;
+    }
+
+    @Override
+    public Object VisitConstantId(IdConstant idConstant) {
+        print(idConstant.id, false);
         return null;
     }
 
@@ -95,9 +110,17 @@ public class PrettyPrint implements PascalVisitor {
     /* visit Expressions */
     @Override
     public Object VisitBinaryArithmeticExpression(BinaryArithmeticExpression binaryArithmeticExpression) {
+        boolean leftparentheses = binaryArithmeticExpression.left instanceof BinaryArithmeticExpression;
+        boolean rightparentheses = binaryArithmeticExpression.right instanceof BinaryArithmeticExpression;
+
+        if (leftparentheses) print("(", false);
         binaryArithmeticExpression.left.accept(this);
+        if (leftparentheses) print(")", false);
         binaryArithmeticExpression.op.accept(this);
+        if (rightparentheses) print("(", false);
         binaryArithmeticExpression.right.accept(this);
+        if (rightparentheses) print(")", false);
+
         return null;
     }
 
@@ -190,7 +213,7 @@ public class PrettyPrint implements PascalVisitor {
 
     @Override
     public Object VisitEnumeratedType(EnumeratedType enumeratedType) {
-        print(utils.ppStringList(enumeratedType.newConstants, true),false);
+        print(printList(enumeratedType.newConstants, true),false);
         return null;
     }
 
@@ -220,8 +243,8 @@ public class PrettyPrint implements PascalVisitor {
     }
 
     @Override
-    public Object VisitTypeId(TypeId typeId) {
-        print(typeId.id, false);
+    public Object VisitTypeId(IdType idType) {
+        print(idType.id, false);
         return null;
     }
 
@@ -231,7 +254,7 @@ public class PrettyPrint implements PascalVisitor {
         indent();
         if (!block.labels.isEmpty()) {
             print("Label ", true);
-            print(utils.ppLabelsList(block.labels)+";\n", false);
+            print(printList(block.labels, false)+";\n", false);
         }
         if (!block.typeDefs.isEmpty()) {
             print("Type\n", true);
@@ -260,19 +283,14 @@ public class PrettyPrint implements PascalVisitor {
     }
 
     @Override
-    public Object VisitIndexType(IndexType index) {
-        print(index.lowId+".."+index.highId+" :", false);
-        index.rangeTy.accept(this);
-        return null;
-    }
-
-    @Override
     public Object VisitProgram(Program program) {
         System.out.print("Program " + program.id + "(");
-        if (!program.io.isEmpty()) print(utils.ppStringList(program.io, false), false);
+        if (!program.io.isEmpty()) print(printList(program.io, false), false);
         System.out.print(");\n");
         program.block.accept(this);
         print(".", false);
+
+
         return null;
     }
 
@@ -280,9 +298,9 @@ public class PrettyPrint implements PascalVisitor {
     @Override
     public Object VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator) {
         switch (binaryArithmeticOperator.name()) {
-            case "DIV": print(" DIV ", false); break;
-            case "MOD": print(" MOD ", false); break;
-            case "PLUS": print(" + ", false); break;
+            case "DIV":   print(" DIV ", false); break;
+            case "MOD":   print(" MOD ", false); break;
+            case "PLUS":  print(" + ", false); break;
             case "TIMES": print(" * ", false); break;
             case "MINUS": print(" - ", false); break;
         }
@@ -481,8 +499,8 @@ public class PrettyPrint implements PascalVisitor {
 
     /* visit Variables Declarations */
     @Override
-    public Object VisitVariable(Variable variable) {
-        print(variable.name, false);
+    public Object VisitIdExpression(IdExpression idExpression) {
+        print(idExpression.name, false);
         return null;
     }
 

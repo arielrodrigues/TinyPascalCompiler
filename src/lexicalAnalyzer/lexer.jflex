@@ -187,7 +187,7 @@ Id = {Letter}({Letter}|{Digit})*
     {Assign}                     { return symbol("ASSIGN", ASSIGN); }
     {Plus}                       { return symbol("PLUS", PLUS); }
     {Minus}			             { return symbol("MINUS", MINUS); }
-    {Multiply}      		     { return symbol("MULTIPLY", MULTIPLY); }
+    {Multiply}      		     { return symbol("TIMES", TIMES); }
     {Divide}        		     { return symbol("DIVIDE", DIVIDE); }
     {LPar}	        		     { return symbol("LPAR", LPAR); }
     {RPar}	        		     { return symbol("RPAR", RPAR); }

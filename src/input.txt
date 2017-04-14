@@ -4,12 +4,15 @@ label 10, 53, 71;
 
 var
    greetings: string;
-   name: array [1..10] of char;
+   name: array [1..10, 0..15] of char;
    organisation: string;
    message: char;
    Num1, Num2, Sum : Integer;
 
-Procedure MyProc(x: Array [x..y : integer] of Array [a..z : char] of Array [seg..dom : integer] of ariels);
+Procedure MyProc(x: Array [x..y : integer]
+of Array [a..z : char; a..z : i]
+of Array [seg..dom : integer]
+of ariels);
     begin
         write('oi?')
     end;
@@ -22,7 +25,7 @@ begin
 	Readln(Num1);
 	Writeln('Input number 2:');
 	Readln(Num2);
-	Sum := Num1 + Num2;
+	Sum := Num1 +  Num2 * Num4 DIV Num3;
 	Writeln(Sum);
 	Readln;
 	greetings := 'Hello ';

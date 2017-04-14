@@ -3,7 +3,7 @@ package abstractSyntax.labelsAndTypes;
 import abstractSyntax.Constant.Constant;
 import visitor.PascalVisitor;
 
-public class SubrangeType extends TypeIdOrOrdinal {
+public class SubrangeType extends TypeDenoter {
 	public Constant low, high;
 
 	public SubrangeType(Constant low, Constant high) {

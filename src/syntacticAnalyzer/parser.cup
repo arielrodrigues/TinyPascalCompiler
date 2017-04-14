@@ -47,10 +47,10 @@ terminal TYPE, ARRAY, OF, VAR, PROCEDURE, FUNCTION, BEGIN, END, GOTO, THEN;
 terminal int NUMINT;
 
 terminal BOOLEAN, FALSE, TRUE, DO, ELSE, PROGRAM, WHILE, OR, AND, NOT, GT, LT, LE, GE, DIFF;
-terminal DOUBLEDOT, COLON, DIVIDE, MOD, CHAR, STRING, ASSIGN;
-terminal TO, IN, CONSTRUCTOR, DESTRUCTOR, UNTIL, INTEGER, MULTIPLY, INTERFACE, SINGLEQUOTE, DOUBLEQUOTE,
+terminal DOUBLEDOT, COLON, DIV, MOD, CHAR, STRING, ASSIGN, DIVIDE;
+terminal TO, IN, CONSTRUCTOR, DESTRUCTOR, UNTIL, INTEGER, INTERFACE, SINGLEQUOTE, DOUBLEQUOTE,
          FOWARD, DOWNTO, INLINE, REPEAT, RECORD, CARET, CONST, OBJECT, IMPLEMENTATION, PACKED, CHARACTER,
-         NUMREAL, DIV, SHL, SHR, SET, ASM, NIL, FOR, XOR, REAL, USES, UNIT, FILE, CASE, WITH;
+         NUMREAL, SHL, SHR, SET, ASM, NIL, FOR, XOR, REAL, USES, UNIT, FILE, CASE, WITH;
 terminal Character LITERALCHARACTER;
 
 
@@ -142,7 +142,7 @@ type_definition_sequence ::= type_definition_sequence:defs type_definition:typeD
 type_definition ::= ID:id EQUAL type_denoter:type_den SEMICOLON
                     {: RESULT = new TypeDefinition(id,type_den); :};
 
-type_denoter ::=  ID:id {: RESULT = new TypeId(id); :}
+type_denoter ::=  ID:id {: RESULT = new IdType(id); :}
                 | primitive_type:type {: RESULT = type; :}
                 | new_type:type {: RESULT = type; :};
 
@@ -158,8 +158,8 @@ new_type ::= enumerated_type:enumType {: RESULT = enumType; :}
 array_type ::= ARRAY LBRA ordinal_type_list:ords RBRA OF type_denoter:type
          {: TypeDenoter elemTy = type;
             for (int i=ords.size()-1; i>0; i--)
-              elemTy = new Array((TypeIdOrOrdinal) ords.get(i), elemTy);
-            RESULT = new Array((TypeIdOrOrdinal) ords.get(0), elemTy); :};
+              elemTy = new Array((TypeDenoter) ords.get(i), elemTy);
+            RESULT = new Array((TypeDenoter) ords.get(0), elemTy); :};
 
 
 ordinal_type_list ::= ordinal_type_list:ords COMMA ordinal_type:type
@@ -170,20 +170,21 @@ ordinal_type_list ::= ordinal_type_list:ords COMMA ordinal_type:type
 ordinal_type ::=  enumerated_type:type {: RESULT = type; :}
                 | subrange_type:type {: RESULT = type; :}
             	| type_id_or_primitive:type
-                {: RESULT = type instanceof TypeId ? (TypeId) type : (PrimitiveType) type; :};
+                {: RESULT = type instanceof IdType ? (IdType) type : (PrimitiveType) type; :};
 
 enumerated_type ::= LPAR id_list:idList RPAR {: RESULT = new EnumeratedType(idList); :};
 
 subrange_type ::= constant:const1 DOUBLEDOT constant:const2 {: RESULT = new SubrangeType(const1, const2); :};
 
-constant ::=  NUMINT:n           {: RESULT = new UnsignedNumber(n); :}
+constant ::=  ID:id              {: RESULT = new IdConstant(id); :}
+            | NUMINT:n           {: RESULT = new UnsignedNumber(n); :}
             | MINUS NUMINT:n     {: RESULT = new SignedNumber(Sign.MINUS, new UnsignedNumber(n)); :}
             | PLUS NUMINT:n      {: RESULT = new SignedNumber(Sign.PLUS, new UnsignedNumber(n)); :}
             | LITERALCHARACTER:c {: RESULT = new CharacterConstant(c); :}
             | TRUE               {: RESULT = BooleanConstant.TRUE; :}
             | FALSE              {: RESULT = BooleanConstant.FALSE; :};
 
-/* Variable Declaration */
+/* IdExpression Declaration */
 
 variable_declaration_part ::= VAR variable_declaration_sequence:varDecs {: RESULT = varDecs; :}
                              | {: RESULT = Collections.EMPTY_LIST; :};
@@ -222,7 +223,7 @@ function_heading ::= FUNCTION ID:nm COLON type_id_or_primitive:retType
                      {: RESULT = new FunctionDeclaration(nm, formals, retType, null); :};
 
 type_id_or_primitive ::= primitive_type:type {: RESULT = type; :}
-                        | ID:id {: RESULT = new TypeId(id); :};
+                        | ID:id {: RESULT = new IdType(id); :};
 
 /* Formals */
 formal_parameter_list ::= formal_parameter_list:fp_list SEMICOLON formal_parameter:fp
@@ -247,7 +248,7 @@ formal_parameter ::= id_list:ids COLON type_id_or_primitive:type  {: List<Formal
 
 /* Parameter and identifier Specification */
 conformant_array_schema ::=  ARRAY LBRA index_type_spec_list:indexList RBRA OF type_id_or_primitive:type {:
-                             TypeIdOrPrimitive type_ = (type instanceof TypeId)? (TypeId) type : (PrimitiveType) type;
+                             TypeIdOrPrimitive type_ = (type instanceof IdType)? (IdType) type : (PrimitiveType) type;
                              ConformantArraySchema elemTy = new OneDimensionConformant(
                                                                          indexList.get(indexList.size()-1).lowId,
                                                                          indexList.get(indexList.size()-1).highId,
@@ -317,11 +318,13 @@ factor ::= variable_access:var {: RESULT = var; :}
 		 | NUMINT:num {: RESULT = new NumberLiteral(num); :}
 		 | ID:id LPAR expression_list:expList RPAR {: RESULT = new FunctionDesignator(id, expList); :}
 		 | LPAR expression:exp RPAR {: RESULT = exp; :}
+		 | TRUE {: RESULT = BooleanLiteral.TRUE; :}
+		 | FALSE {: RESULT = BooleanLiteral.FALSE; :}
 		 | NOT factor:factor {: RESULT = new NotExpression(factor); :};
 
 /* Operator */
 arithmetic_operator ::= TIMES      {:RESULT = BinaryArithmeticOperator.TIMES;:}
-                       | DIVIDE    {:RESULT = BinaryArithmeticOperator.DIV;:}
+                       | DIV       {:RESULT = BinaryArithmeticOperator.DIV;:}
                        | MOD       {:RESULT = BinaryArithmeticOperator.MOD;:}
                        | PLUS      {:RESULT = BinaryArithmeticOperator.PLUS;:}
                        | MINUS     {:RESULT = BinaryArithmeticOperator.MINUS;:};
@@ -343,7 +346,7 @@ boolean_operator ::= AND       {:RESULT = BinaryBooleanOperator.AND;:}
 sign ::= MINUS {: RESULT = Sign.MINUS; :}
        | PLUS  {: RESULT = Sign.PLUS; :};
 
-variable_access ::= ID:id  {: RESULT = new Variable(id); :}
+variable_access ::= ID:id  {: RESULT = new IdExpression(id); :}
                   | variable_access:var_access LBRA expression_list:exp_list RBRA
                            {: IndexedVariable var = new IndexedVariable(var_access, exp_list.get(0));
                            for (Expression exp : exp_list.subList(1, exp_list.size())) var = new IndexedVariable(var, exp);

@@ -2,16 +2,16 @@ package abstractSyntax.variablesDeclaration;
 
 import visitor.PascalVisitor;
 
-public class Variable extends VariableAccess {
+public class IdExpression extends VariableAccess {
 	public String name;
 
-	public Variable(String name) {
+	public IdExpression(String name) {
 		super();
 		this.name = name;
 	}
 
 	@Override
 	public Object accept(PascalVisitor visitor) {
-		return visitor.VisitVariable(this);
+		return visitor.VisitIdExpression(this);
 	}
 }

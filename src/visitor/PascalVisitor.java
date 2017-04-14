@@ -18,6 +18,7 @@ public interface PascalVisitor {
     Object VisitOneDimensionConformant(OneDimensionConformant oneDimensionConformant);
 
     /* visit Constants */
+    Object VisitConstantId(IdConstant idConstant);
     Object VisitBooleanConstant(BooleanConstant booleanConstant);
     Object VisitCharacterConstant(CharacterConstant characterConstant);
     Object VisitSignedNumber(SignedNumber signedNumber);
@@ -45,11 +46,10 @@ public interface PascalVisitor {
     Object VisitPrimitiveType(PrimitiveType primitiveType);
     Object VisitSubRangeType(SubrangeType subrangeType);
     Object VisitTypeDefinition(TypeDefinition typeDefinition);
-    Object VisitTypeId(TypeId typeId);
+    Object VisitTypeId(IdType idType);
 
     /* visit Nodes */
     Object VisitBlock(Block block);
-    Object VisitIndexType(IndexType index);
     Object VisitProgram(Program program);
 
     /* visit Operators */
@@ -74,6 +74,6 @@ public interface PascalVisitor {
     Object VisitWhileStm(WhileStatement whileStm);
 
     /* visit Variables Declarations */
-    Object VisitVariable(Variable variable);
+    Object VisitIdExpression(IdExpression idExpression);
     Object VisitVariableDeclaration(VariableDeclaration variableDeclaration);
 }

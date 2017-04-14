@@ -2,10 +2,10 @@ package abstractSyntax.labelsAndTypes;
 
 import visitor.PascalVisitor;
 
-public class TypeId extends TypeIdOrOrdinal implements TypeIdOrPrimitive {
+public class IdType extends TypeDenoter implements TypeIdOrPrimitive {
 	public String id;
 
-	public TypeId(String id) {
+	public IdType(String id) {
 		super();
 		this.id = id;
 	}

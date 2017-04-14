@@ -4,7 +4,7 @@ import visitor.PascalVisitor;
 
 import java.util.List;
 
-public class EnumeratedType extends TypeIdOrOrdinal {
+public class EnumeratedType extends TypeDenoter {
 	public List<String> newConstants;
 
 	public EnumeratedType(List<String> newConstants) {
