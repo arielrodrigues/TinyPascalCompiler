@@ -18,7 +18,7 @@ public class MultiDimensionConformant extends ConformantArraySchema {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitMultiDimensionConformant(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitMultiDimensionConformant(this);
 	}
 }

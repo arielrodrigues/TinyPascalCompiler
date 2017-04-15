@@ -3,7 +3,7 @@ package semanticAnalyzer.Binding;
 import abstractSyntax.labelsAndTypes.TypeDenoter;
 
 public class Type implements Binding {
-	TypeDenoter type;
+	public TypeDenoter type;
 
 	public Type(TypeDenoter type) {
 		super();

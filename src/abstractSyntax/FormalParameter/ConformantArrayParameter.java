@@ -1,5 +1,6 @@
-package abstractSyntax.ConformantArray;
+package abstractSyntax.FormalParameter;
 
+import abstractSyntax.ConformantArray.ConformantArraySchema;
 import abstractSyntax.FormalParameter.FormalParameter;
 import abstractSyntax.FormalParameter.RefOrValue;
 import visitor.PascalVisitor;

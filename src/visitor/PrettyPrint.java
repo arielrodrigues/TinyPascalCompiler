@@ -389,7 +389,8 @@ public class PrettyPrint implements PascalVisitor {
         // we must remove all empty stmts before print
         int i = 0;
         Statement _stm = compStm.stmts.get(i++);
-        while (_stm instanceof EmptyStatement) _stm = compStm.stmts.get(i++);
+        while (_stm instanceof EmptyStatement)
+            if (compStm.stmts.size() > i+1) _stm = compStm.stmts.get(i++);
         print("", true); _stm.accept(this);
 
         for (Statement stm : compStm.stmts.subList(i, compStm.stmts.size())) {
