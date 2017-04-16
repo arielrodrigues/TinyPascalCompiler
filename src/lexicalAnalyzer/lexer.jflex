@@ -52,7 +52,11 @@ import java.io.FileInputStream;
               new Location(yyline+1, yycolumn +1, yychar),
               new Location(yyline+1,yycolumn+yylength(), yychar+yylength()), lexem);
     }
-
+    public Symbol symbol(String nome, int code, char lexem){
+      return symbolFactory.newSymbol(nome, code,
+              new Location(yyline+1, yycolumn +1, yychar),
+              new Location(yyline+1,yycolumn+yylength(), yychar+yylength()), lexem);
+    }
     protected void emit_warning(String message){
         System.out.println("lexicalAnalyzer warning: " + message + " at : 2 "+
     			(yyline+1) + " " + (yycolumn+1) + " " + yychar);
@@ -205,7 +209,7 @@ Id = {Letter}({Letter}|{Digit})*
     {Real}						 { return symbol("REAL", REAL); }
     {Boolean}                    { return symbol("BOOLEAN", BOOLEAN); }
     {Integer}                    { return symbol("INTEGER", INTEGER); }
-    {Chr}						 { return symbol("CHARACTER", CHARACTER); }
+    {Chr}						 { return symbol("LITERALCHARACTER", LITERALCHARACTER, yytext().charAt(1)); }
     {Str}              			 { return symbol("STRINGCHARACTER", STRINGCHARACTER, yytext()); }
 
     {And}						 { return symbol("AND", AND); }

@@ -83,14 +83,14 @@ public class PrettyPrint implements PascalVisitor {
 
     @Override
     public Object VisitCharacterConstant(CharacterConstant characterConstant) {
-        print(characterConstant.value, false);
+        print("\'"+characterConstant.value+"\'", false);
         return null;
     }
 
     /* visit Constants */
     @Override
     public Object VisitCharacterLiteral(CharacterLiteral characterLiteral) {
-        print(characterLiteral.value, false);
+        print("\'"+characterLiteral.value+"\'", false);
         return null;
     }
 
@@ -180,8 +180,10 @@ public class PrettyPrint implements PascalVisitor {
 
     @Override
     public Object VisitSignedExpression(SignedExpression signedExpression) {
+        print("(", false);
         signedExpression.sign.accept(this);
         signedExpression.exp.accept(this);
+        print(")", false);
         return null;
     }
 
@@ -369,7 +371,13 @@ public class PrettyPrint implements PascalVisitor {
     @Override
     public Object VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration) {
         print("Procedure "+procedureDeclaration.nm+"(", true);
-        for (FormalParameter formal : procedureDeclaration.formals) formal.accept(this);
+        if (procedureDeclaration.formals.size() > 0) {
+            procedureDeclaration.formals.get(0).accept(this);
+            for (FormalParameter formal : procedureDeclaration.formals.subList(1, procedureDeclaration.formals.size())) {
+                print("; ", false);
+                formal.accept(this);
+            }
+        }
         print(");\n", false);
         procedureDeclaration.body.accept(this); print (";\n", false);
         return null;

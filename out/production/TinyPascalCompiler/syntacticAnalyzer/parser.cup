@@ -305,6 +305,10 @@ expression ::= simple_expression:simple_exp {:RESULT = simple_exp;:}
 simple_expression ::= simple_expression:simple_exp arithmetic_operator:op term:term
                       {: RESULT =
                             new BinaryArithmeticExpression((BinaryArithmeticOperator) op, simple_exp, term); :}
+                    | simple_expression:simple_exp arithmetic_operator:op sign:sign term:term
+                      {: RESULT =
+                            new BinaryArithmeticExpression((BinaryArithmeticOperator) op, simple_exp,
+                                                                        new SignedExpression(sign, term)); :}
                     | sign:sign term:term {: RESULT = new SignedExpression(sign, term); :}
                     | term:term {: RESULT = term; :};
 
@@ -323,7 +327,7 @@ factor ::= variable_access:var {: RESULT = var; :}
 		 | NOT factor:factor {: RESULT = new NotExpression(factor); :};
 
 /* Operator */
-arithmetic_operator ::= TIMES      {:RESULT = BinaryArithmeticOperator.TIMES;:}
+arithmetic_operator ::=  TIMES     {:RESULT = BinaryArithmeticOperator.TIMES;:}
                        | DIV       {:RESULT = BinaryArithmeticOperator.DIV;:}
                        | MOD       {:RESULT = BinaryArithmeticOperator.MOD;:}
                        | PLUS      {:RESULT = BinaryArithmeticOperator.PLUS;:}

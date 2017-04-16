@@ -46,10 +46,12 @@ public class SymbolTable<T> {
 			Stack<String> changes = allchanges.pop();
 			changes.forEach(id -> {
 				LinkedList<Tuple<T, Integer>> itens = uniqueMap.get(id);
-				if (itens.getLast().getLevel() == currentLevel +1) {
-					itens.removeLast();
-					uniqueMap.put(id, itens);
-				} else System.out.println("EITA LÊLÊ");
+				if (itens != null  && itens.size() > 1) {
+					if (itens.getLast().getLevel() == currentLevel + 1) {
+						itens.removeLast();
+						uniqueMap.put(id, itens);
+					} else System.out.println("EITA LÊLÊ");
+				} else uniqueMap.remove(id);
 			});
 		} else throw new InvalidLevelException(times++);
 	}

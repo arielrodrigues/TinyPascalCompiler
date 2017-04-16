@@ -7,24 +7,36 @@ var
    name: array [1..10, 0..15] of char;
    organisation: string;
    message: char;
-   Num1, Num2, Sum : Integer;
+   Num2, Num3, Sum : Integer;
+   Num1 : integer;
 
 Procedure MyProc;
     begin
-        Num1 := Num2;
+        Num1 := 2;
         write('oi?')
     end;
 
 Procedure DrawLine(a: integer; b: char);
+    var
+        Num1 : string;
+        Num3 : integer;
     begin
-        a := b;
+        Num1 := 'aaaa';
+        Num3 := -5 + -13 * 12;
+    end;
+
+Function Draw(a: integer; b: string) : Integer;
+    begin
+        Num1 := a;
+        Draw := Num1;
+    if (a = 'a') then
+	    DrawLine(10,5);
     end;
 
 begin
-	DrawLine(10,5);
 	DrawLine(10,6);
 	DrawLine(10,7);
 	DrawLine(10,10);
+    Num2 := Draw(3, 's');
 	Readkey;
-
 end.

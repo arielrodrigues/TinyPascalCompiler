@@ -30,7 +30,7 @@ public class TypeChecker implements PascalVisitor {
 
     public TypeChecker (Program program) {
         VisitProgram(program);
-        System.out.println(errorLog.toString());
+        System.out.println("\n\nErros:\n"+errorLog.toString());
     }
 
     private void error(String msg) {
@@ -48,18 +48,32 @@ public class TypeChecker implements PascalVisitor {
         return ty instanceof PrimitiveType;
     }
 
-    List<Parameter> FormalsToParameterList(List<FormalParameter> formals) {
+    List<Parameter> FormalsListHandler(List<FormalParameter> formals) {
         List<Parameter> parameters = new ArrayList<>();
-        for (FormalParameter formal : formals) {
-            if (formal instanceof FormalPar) {
-                RefOrValue mechanism = ((FormalPar) formal).mechanism;
-                TypeDenoter type = (TypeDenoter) ((FormalPar) formal).type.accept(this);
-                parameters.add(new NormalParameter(mechanism, type));
-            } else if (formal instanceof ConformantArrayParameter) {
-                RefOrValue mechanism = ((ConformantArrayParameter) formal).mechanism;
-                Array type = (Array) formal.accept(this);
-                parameters.add(new ConformantParameter(mechanism, type));
+        String name = "";
+        Var var = null;
+        try {
+            for (FormalParameter formal : formals) {
+                if (formal instanceof FormalPar) {
+                    RefOrValue mechanism = ((FormalPar) formal).mechanism;
+                    TypeDenoter type = (TypeDenoter) ((FormalPar) formal).type.accept(this);
+
+                    parameters.add(new NormalParameter(mechanism, type));
+                    name = ((FormalPar) formal).name;
+                    var = new Var(type);
+                } else if (formal instanceof ConformantArrayParameter) {
+                    RefOrValue mechanism = ((ConformantArrayParameter) formal).mechanism;
+                    Array type = (Array) formal.accept(this);
+
+                    parameters.add(new ConformantParameter(mechanism, type));
+                    name = ((ConformantArrayParameter) formal).name;
+                    var = new Var(type);
+                }
+                if (var != null)
+                    env.put(name, var);
             }
+        } catch (AlreadyBoundException e) {
+            error(name + e.log);
         }
         return parameters;
     }
@@ -69,9 +83,9 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitProgram(Program prog) {
+        env.beginScope();
+        prog.block.accept(this);
         try {
-            env.beginScope();
-            prog.block.accept(this);
             env.endScope();
         } catch (InvalidLevelException e) {
             error(e.msg);
@@ -113,6 +127,7 @@ public class TypeChecker implements PascalVisitor {
             pfDec.accept(this);
         blck.body.accept(this);
         labelEnv.pop();
+
         return null;
     }
 
@@ -327,7 +342,7 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitSignedExpression(SignedExpression exp) {
-        return exp.accept(this);
+        return exp.exp.accept(this);
     }
 
     @Override
@@ -366,14 +381,15 @@ public class TypeChecker implements PascalVisitor {
             return ((Var) bnd).type;
         else if ( bnd instanceof Cons )
             return ((Cons) bnd).type;
+        else if (bnd instanceof Function)
+            return ((Function) bnd).retTy;
         else
-            error(exp.name + "is not a variável");
+            error(exp.name + " is not a variable");
         return null;
     }
 
     @Override
     public Object VisitIndexedVariable(IndexedVariable exp) {
-
         TypeDenoter indexType = (TypeDenoter) exp.index.accept(this);
 
         if (!isOrdinal(indexType)) error ("In "+exp.toString()+": index expression must result an ordinal");
@@ -417,27 +433,38 @@ public class TypeChecker implements PascalVisitor {
         return null;
     }
 
-
     //*************** Subprograms
     @Override
     public Object VisitProcedureDeclaration(ProcedureDeclaration dec) {
         try {
-            env.put(dec.nm, new Procedure(FormalsToParameterList(dec.formals)));
+            env.beginScope();
+            List<Parameter> parameters = FormalsListHandler(dec.formals);
+            dec.body.accept(this);
+            env.endScope();
+
+            env.put(dec.nm, new Procedure(parameters));
         } catch (AlreadyBoundException e) {
             error(dec.nm + e.log);
+        } catch (InvalidLevelException e) {
+            error(e.msg);
         }
-        dec.body.accept(this);
         return null;
     }
 
     @Override
     public Object VisitFunctionDeclaration(FunctionDeclaration dec) {
         try {
-            env.put(dec.nm, new Function(FormalsToParameterList(dec.formals), dec.resultTy));
+            env.beginScope();
+            List<Parameter> parameters = FormalsListHandler(dec.formals);
+            env.put(dec.nm, new Function(parameters, dec.resultTy));
+            dec.body.accept(this);
+            env.endScope();
+            env.put(dec.nm, new Function(parameters, dec.resultTy));
         } catch (AlreadyBoundException e) {
             error(dec.nm + e.log);
+        } catch (InvalidLevelException e) {
+            error(e.msg);
         }
-        dec.body.accept(this);
         return null;
     }
 
@@ -455,7 +482,7 @@ public class TypeChecker implements PascalVisitor {
         else {
             TypeDenoter ty = (TypeDenoter) assignStm.right.accept(this);
             if (assignStm.left instanceof IdExpression) {
-                if (assignStm.left.accept(this) == null || assignStm.left.accept(this) != ty) {
+                if (assignStm.left.accept(this) != null && assignStm.left.accept(this) != ty) {
                     error("you cant assign expressions MELHORE ESSE TEXTO!!!!!");
                     return env.get(((IdExpression) assignStm.left).name);
                 }
