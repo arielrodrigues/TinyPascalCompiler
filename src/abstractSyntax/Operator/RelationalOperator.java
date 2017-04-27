@@ -5,7 +5,7 @@ import visitor.PascalVisitor;
 public enum RelationalOperator {
 	EQ, NEQ, LT, GT, LTE, GTE;
 
-	public void accept (PascalVisitor visitor) {
-		visitor.VisitRelationalOperator(this);
+	public Object accept (PascalVisitor visitor) {
+		return visitor.VisitRelationalOperator(this);
 	}
 }

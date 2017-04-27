@@ -4,7 +4,7 @@ import visitor.PascalVisitor;
 
 public enum Sign{
 	PLUS, MINUS;
-	public void accept (PascalVisitor visitor) {
-		visitor.VisitSign(this);
+	public Object accept (PascalVisitor visitor) {
+		return visitor.VisitSign(this);
 	}
 }

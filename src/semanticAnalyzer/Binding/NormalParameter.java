@@ -4,7 +4,7 @@ import abstractSyntax.FormalParameter.RefOrValue;
 import abstractSyntax.labelsAndTypes.TypeDenoter;
 
 public class NormalParameter extends Parameter {
-    TypeDenoter type;
+    public TypeDenoter type;
 
     public NormalParameter(RefOrValue mechanism, TypeDenoter type) {
         super(mechanism);

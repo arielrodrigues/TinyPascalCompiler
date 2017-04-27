@@ -22,7 +22,7 @@ public class FunctionDeclaration extends ProcedureOrFunctionDeclaration {
 	}
 
 	@Override
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitFunctionDeclaration(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitFunctionDeclaration(this);
 	}
 }

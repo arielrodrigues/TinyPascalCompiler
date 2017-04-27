@@ -7,6 +7,7 @@ var
    name: array [1..10, 0..15] of char;
    organisation: string;
    message: char;
+   b: integer;
    Num2, Num3, Sum : Integer;
    Num1 : integer;
 
@@ -21,8 +22,9 @@ Procedure DrawLine(a: integer; b: char);
         Num1 : string;
         Num3 : integer;
     begin
-        Num1 := 'aaaa';
+        Num1 := 'aaaa'+b;
         Num3 := -5 + -13 * 12;
+        DrawLine(a, b);
     end;
 
 Function Draw(a: integer; b: string) : Integer;
@@ -34,9 +36,13 @@ Function Draw(a: integer; b: string) : Integer;
     end;
 
 begin
+    NUm2 := 3 + 5;
+    organisation := '3' + '55';
+    organisation := '33' + message;
+    goto 43;
 	DrawLine(10,6);
 	DrawLine(10,7);
 	DrawLine(10,10);
-    Num2 := Draw(3, 's');
+    Num2 := Draw(3, 'as');
 	Readkey;
 end.

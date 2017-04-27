@@ -27,10 +27,11 @@ public class TypeChecker implements PascalVisitor {
     SymbolTable<Binding> env = new SymbolTable<>();
     StringBuilder errorLog = new StringBuilder();
     Stack<List<Integer>> labelEnv = new Stack<>();
+    static PrettyPrint prettyPrint = new PrettyPrint();
 
     public TypeChecker (Program program) {
         VisitProgram(program);
-        System.out.println("\n\nErros:\n"+errorLog.toString());
+        System.out.println("\n\nSemantic Errors:\n"+errorLog.toString());
     }
 
     private void error(String msg) {
@@ -44,8 +45,20 @@ public class TypeChecker implements PascalVisitor {
                 ty instanceof EnumeratedType;
     }
 
-    boolean isPrimitiveType (TypeDenoter ty) {
-        return ty instanceof PrimitiveType;
+    private int getValue (Constant constant) {
+
+        if (constant instanceof BooleanConstant)
+            return ((BooleanConstant) constant).value? 1 : 0;
+        if (constant instanceof CharacterConstant)
+            return ((CharacterConstant) constant).value;
+        if (constant instanceof IdConstant)
+            return ((Cons) env.get(((IdConstant) constant).id)).value;
+        if (constant instanceof SignedNumber)
+            return ((SignedNumber) constant).sign == Sign.PLUS?
+                        ((SignedNumber) constant).unsNum.value : -((SignedNumber) constant).unsNum.value;
+        else // instance of UnsignedNumber
+            return ((UnsignedNumber) constant).value;
+
     }
 
     List<Parameter> FormalsListHandler(List<FormalParameter> formals) {
@@ -144,7 +157,7 @@ public class TypeChecker implements PascalVisitor {
     public Object VisitTypeId(IdType type) {
         Binding ty = env.get(type.id);
         if (ty == null) {
-            error(type.id + " is not a declared type");
+            error(type.id + " was not a declared type");
             return null;
         }
         else if ( !(ty instanceof Type) ) {
@@ -158,15 +171,19 @@ public class TypeChecker implements PascalVisitor {
     public Object VisitArray(Array arrayType) {
         arrayType.range = (TypeDenoter) arrayType.range.accept(this);
         if (!isOrdinal(arrayType.range))
-            error(arrayType + " is required to be ordinal");
+            error("In " + arrayType.accept(prettyPrint) + ": "
+                    + arrayType.range.accept(prettyPrint) + " is required to be ordinal");
+
         arrayType.elemTy = (TypeDenoter) arrayType.elemTy.accept(this);
+
         return arrayType;
     }
 
     @Override
     public Object VisitEnumeratedType(EnumeratedType type) {
+        int i = 0;
         for (String c: type.newConstants)
-            declareConstant(c, type);
+            declareConstant(c, type, i++);
         return type;
     }
 
@@ -176,25 +193,31 @@ public class TypeChecker implements PascalVisitor {
         if (cH instanceof IdConstant) {
             String nmH = ((IdConstant) cH).id;
             if ( !(env.get(nmH) instanceof Cons) )
-                error(nmH + " must be constant");
+                error("In " +type.accept(prettyPrint) + ": " +nmH + " must be constant");
         }
 
         Constant cL = type.low;
         if (cL instanceof IdConstant) {
             String nmL = ((IdConstant) cL).id;
             if ( !(env.get(nmL) instanceof Cons) )
-                error(nmL + " must be constant");
+                error("In " +type.accept(prettyPrint) + ": " + nmL + " must be constant");
         }
 
         TypeDenoter tyH = (TypeDenoter) cH.accept(this);
         TypeDenoter tyL = (TypeDenoter) cL.accept(this);
+
+        // test if lowConst < highConst
+        if (getValue(type.low) >= getValue(type.high))
+            error("In " + type.accept(prettyPrint) + ": low constant in subrange must be less than high constant");
+
+
         if (isOrdinal(tyH) && tyH == tyL)
             return tyH;
         else {
-            error("subrange limits must be ordinals and have the same type");
+            error("In "+ type.accept(prettyPrint) +": subrange limits must be ordinals and have the same type");
             return null;
         }
-        //*** falta verificar que low � menor ou igual que high
+
     }
 
 
@@ -243,9 +266,9 @@ public class TypeChecker implements PascalVisitor {
 
 //*************** IdExpression Declaration
 
-    void declareConstant(String c, TypeDenoter type) {
+    void declareConstant(String c, TypeDenoter type, int value) {
         try {
-            env.put(c, new Cons(type));
+            env.put(c, new Cons(type, value));
         } catch (AlreadyBoundException e) {
             error(c + e.log);
         }
@@ -268,7 +291,7 @@ public class TypeChecker implements PascalVisitor {
     public Object VisitNotExpression(NotExpression exp) {
         TypeDenoter ty = (TypeDenoter) exp.exp.accept(this);
         if (ty != PrimitiveType.BOOLEAN)
-            error("operand of not must be boolean");
+            error("In " + exp.accept(prettyPrint) + ": operand of not must be boolean");
         return PrimitiveType.BOOLEAN;
     }
 
@@ -279,15 +302,13 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitBinaryBooleanExpression(BinaryBooleanExpression exp) {
-        //@TO-DO
-        // Adaptar o pretty print para retornar Strings, utilizar nessas expressões
         if (exp.left.accept(this) != PrimitiveType.BOOLEAN && exp.right.accept(this) != PrimitiveType.BOOLEAN) {
-            error("In: "+exp.toString()+" - left and right operands must result booleans.");
+            error("In "+exp.accept(prettyPrint)+": left and right operands must be booleans");
             return null;
         } else if (exp.left.accept(this) != PrimitiveType.BOOLEAN)
-            error("In: "+exp.toString()+" - left operand must be boolean.");
-        else if (exp.left.accept(this) != PrimitiveType.BOOLEAN)
-            error("In: "+exp.toString()+" - operand must be boolean.");
+            error("In "+exp.accept(prettyPrint)+": left operand must be boolean");
+        else if (exp.right.accept(this) != PrimitiveType.BOOLEAN)
+            error("In "+exp.accept(prettyPrint)+": right operand must be boolean");
         return PrimitiveType.BOOLEAN;
     }
 
@@ -301,17 +322,34 @@ public class TypeChecker implements PascalVisitor {
         TypeDenoter typeLeft = (TypeDenoter) exp.left.accept(this);
         TypeDenoter typeRight = (TypeDenoter) exp.right.accept(this);
 
-        if (typeLeft == PrimitiveType.STRING || typeRight == PrimitiveType.STRING)
+        if (typeLeft == PrimitiveType.STRING) {
+            if (typeRight != null && (typeRight == PrimitiveType.BOOLEAN || typeRight == PrimitiveType.INTEGER))
+                error("In " + exp.accept(prettyPrint) + ": " +
+                        exp.right.accept(prettyPrint) + " must be character or string");
             return PrimitiveType.STRING;
-        else {
-            //@TO-DO
-            // Adaptar o pretty print para retornar Strings, utilizar nessas expressões
-            if (!isPrimitiveType(typeLeft)) error("In: " + exp.toString() + " - \"" + exp.left.toString() +
-                    "\" must be a Primitive type");
-            if (!isPrimitiveType(typeLeft)) error("In: " + exp.toString() + " - \"" + exp.right.toString() +
-                    "\" must be a Primitive type");
+        } else if (typeRight == PrimitiveType.STRING) {
+            if (typeLeft != null && (typeLeft == PrimitiveType.BOOLEAN || typeLeft == PrimitiveType.INTEGER))
+                error("In " + exp.accept(prettyPrint) + ": " +
+                        exp.left.accept(prettyPrint) + " must be character or string");
+            return PrimitiveType.STRING;
+        }
+
+        if (typeLeft == PrimitiveType.INTEGER) {
+            if (typeRight != null && typeRight != PrimitiveType.INTEGER)
+                error("In " + exp.accept(prettyPrint) + ": " +
+                        exp.right.accept(prettyPrint) + " must be integer");
+            return PrimitiveType.INTEGER;
+        } else if (typeRight == PrimitiveType.INTEGER) {
+            if (typeLeft != null && typeLeft != PrimitiveType.INTEGER)
+                error("In " + exp.accept(prettyPrint) + ": " +
+                        exp.left.accept(prettyPrint) + " must be integer");
             return PrimitiveType.INTEGER;
         }
+
+        if (typeLeft != null || typeRight != null)
+            error("In " + exp.accept(prettyPrint) + ": operands must be integer or string");
+
+        return null;
     }
 
     @Override
@@ -326,17 +364,18 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitRelationalExpression(RelationalExpression exp) {
-        //@TO-DO
-        // Adaptar o pretty print para retornar Strings, utilizar nessas expressões
 
         TypeDenoter typeLeft = (TypeDenoter) exp.left.accept(this),
                     typeRight = (TypeDenoter) exp.right.accept(this);
-        if (!isOrdinal(typeLeft) && !isOrdinal(typeRight)) {
-            error("In: " + exp.toString() + " - left and right operands must be Ordinals");
+
+        if (typeLeft != null && typeRight != null && !isOrdinal(typeLeft) && !isOrdinal(typeRight)) {
+            error("In " + exp.accept(prettyPrint) + ": left and right operands must be Ordinals");
             return null;
         }
-        if (!isOrdinal(typeLeft)) error("In: " + exp.toString() + " - left operand must be Ordinal");
-        if (!isOrdinal(typeRight)) error("In: " + exp.toString() + " - right operand must be Ordinal");
+        if (typeLeft != null && !isOrdinal(typeLeft))
+            error("In " + exp.accept(prettyPrint) + ": left operand must be Ordinal");
+        if (typeRight != null && !isOrdinal(typeRight))
+            error("In " + exp.accept(prettyPrint) + ": right operand must be Ordinal");
         return PrimitiveType.BOOLEAN;
     }
 
@@ -353,20 +392,28 @@ public class TypeChecker implements PascalVisitor {
     @Override
     public Object VisitFunctionDesignator(FunctionDesignator exp) {
         Binding function = env.get(exp.name);
-        int limit = 0;
+        int limit = exp.actuals.size();
+
         if (function instanceof Function) {
             if (exp.actuals.size() > ((Function) function).parameters.size()) {
-                error("In " + exp.toString() + ": the function is receiving more arguments than expected");
+                error("In " + exp.accept(prettyPrint) + ": the function is receiving more arguments than expected");
                 limit = ((Function) function).parameters.size();
             } else if (exp.actuals.size() < ((Function) function).parameters.size()) {
-                error("In " + exp.toString() + ": the function is receiving less arguments than expected");
+                error("In " + exp.accept(prettyPrint) + ": the function is receiving less arguments than expected");
                 limit = exp.actuals.size();
             }
             for (int i = 0; i < limit; i++) {
-                if (exp.actuals.get(i).accept(this) != ((Function) function).parameters.get(i))
-                    error("In " + exp.toString() + ": The " + i + "º argument has a wrong type");
+                if (((Function) function).parameters.get(i) instanceof NormalParameter)
+                    if (exp.actuals.get(i).accept(this) !=
+                            ((NormalParameter) ((Function) function).parameters.get(i)).type.accept(this))
+                            error("In " + exp.accept(prettyPrint) + ": The " + i + "º argument has a wrong type");
+                else if (((Function) function).parameters.get(i) instanceof ConformantParameter);
+                        /*if (exp.actuals.get(i).accept(this) !=
+                                ((ConformantParameter) ((Function) function).parameters.get(i)).type.accept(this))
+                            error("In " + exp.accept(prettyPrint) + ": The " + i + "º argument has a wrong type");*/
             }
             return ((Function) function).retTy;
+
         }
         error(exp.name + " is not declared as a function.");
         return null;
@@ -390,19 +437,45 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitIndexedVariable(IndexedVariable exp) {
+        TypeDenoter varType = (TypeDenoter) exp.var.accept(this);
         TypeDenoter indexType = (TypeDenoter) exp.index.accept(this);
 
-        if (!isOrdinal(indexType)) error ("In "+exp.toString()+": index expression must result an ordinal");
+        if (varType == null) return null;
+        if (!(varType instanceof Array)) {
+            error("In " + exp.accept(prettyPrint) + ": " + exp.var.accept(prettyPrint) + " must be an array");
+            return null;
+        }
 
-        // TODO
-		/* 	var[index] est� bem tipado sse
-		 * 	1. var est� bem tipada
-		 *  2. index est� bem tipado
-		 *  3. O tipo de var � array[t1] of ty2, para algum ty1,ty2.
-		 *	4. index � do tipo ty1
-		 *  O tipo retornado ao concluir a Visita � ty2.
-		*/
-        return exp.var.accept(this);
+        if (!isOrdinal(indexType))
+            error ("In " + exp.toString() + ": " + exp.index.accept(prettyPrint) + "expression must be ordinal");
+
+        if (exp.var instanceof IdExpression) {
+            String varName = ((IdExpression) exp.var).name;
+            Binding var = env.get(varName);
+
+            if (var instanceof Var) {
+                if (((Var) var).type instanceof Array)
+                if (indexType != ((Array) ((Var) var).type).range)
+                    error("In " + exp.toString() + ": "+exp.index.accept(prettyPrint)+" has unexpected type");
+
+                if (((Array) varType).range instanceof SubrangeType) {
+                    int indexedLowValue = getValue(((SubrangeType) ((Array) varType).range).low),
+                        bindingLowValue = getValue(((SubrangeType) (((Array) ((Var) var).type).range)).low),
+                        indexedHighValue = getValue(((SubrangeType) ((Array) varType).range).high),
+                        bindingHighValue = getValue(((SubrangeType) (((Array) ((Var) var).type).range)).high);
+
+                    if (indexedLowValue < bindingLowValue || indexedHighValue > bindingHighValue)
+                        error("In " + exp.accept(prettyPrint) + ": " + exp.index.accept(prettyPrint) + " is an invalid value");
+                }
+                return ((Var) var).type;
+            } else {
+                error("In " + exp.accept(prettyPrint) + ": " + ((IdExpression) exp.var).name + " is not a variable");
+                return null;
+            }
+        } else
+            error("In " + exp.accept(prettyPrint) + ": " + ((IdExpression) exp.var).name + " is not a variable");
+
+        return null;
     }
 
 
@@ -439,9 +512,9 @@ public class TypeChecker implements PascalVisitor {
         try {
             env.beginScope();
             List<Parameter> parameters = FormalsListHandler(dec.formals);
+            env.put(dec.nm, new Procedure(parameters));
             dec.body.accept(this);
             env.endScope();
-
             env.put(dec.nm, new Procedure(parameters));
         } catch (AlreadyBoundException e) {
             error(dec.nm + e.log);
@@ -493,6 +566,8 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitGotoStatement(GotoStatement stm) {
+        if (!labelEnv.contains(stm.label))
+            error("Label "+prettyPrint.VisitUnsignedNumber(stm.label)+" was not declared");
         return null;
     }
 

@@ -5,7 +5,7 @@ import visitor.PascalVisitor;
 public enum BinaryBooleanOperator{
 	AND, OR;
 
-	public void accept(PascalVisitor visitor) {
-		visitor.VisitBinaryBooleanOperator(this);
+	public Object accept(PascalVisitor visitor) {
+		return visitor.VisitBinaryBooleanOperator(this);
 	}
 }

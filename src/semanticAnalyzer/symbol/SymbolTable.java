@@ -58,10 +58,12 @@ public class SymbolTable<T> {
 
 	//returns null if there is no a binding for id
 	public T get(String id) {
+		id = id.toUpperCase();
 		return (uniqueMap.containsKey(id))? uniqueMap.get(id).getLast().getBinding() : null;
 	}
 
 	public void put(String id, T bnd) throws AlreadyBoundException {
+		id = id.toUpperCase();
 		if (uniqueMap.containsKey(id)) {
 			if (uniqueMap.get(id).getLast().getLevel() == currentLevel)
 				throw new AlreadyBoundException();
