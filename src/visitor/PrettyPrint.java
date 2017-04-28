@@ -155,9 +155,8 @@ public class PrettyPrint implements PascalVisitor {
     @Override
     public Object VisitIndexedVariable(IndexedVariable indexedVariable) {
         StringBuilder result = new StringBuilder();
-        result.append(indexedVariable.var.accept(this));
-        result.append(print(" = ", false));
-        result.append(indexedVariable.index.accept(this));
+        result.append(indexedVariable.var.accept(this))
+                .append("[").append(indexedVariable.index.accept(this)).append("]");
         return result.toString();
     }
 

@@ -1,7 +1,7 @@
-package semanticAnalyzer.symbol;
+package utils.symbol;
 
 import java.util.*;
-import semanticAnalyzer.symbol.Exceptions.*;
+import utils.symbol.Exceptions.*;
 
 class Tuple<B, L> {
 	public final B binding;
@@ -81,6 +81,6 @@ public class SymbolTable<T> {
 		}
 	}
 
-	//Não foi tratado o caso de choque de Bindings diferentes na mesma posição do hashmap
+	//Não foi tratado o caso de choque de Binding diferentes na mesma posição do hashmap
 }
 

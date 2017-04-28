@@ -1,5 +1,6 @@
-package abstractSyntax.Exp;
+package abstractSyntax.variablesDeclaration;
 
+import abstractSyntax.Exp.Expression;
 import abstractSyntax.variablesDeclaration.VariableAccess;
 import visitor.PascalVisitor;
 

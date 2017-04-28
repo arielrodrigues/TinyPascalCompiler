@@ -23,7 +23,6 @@ import java_cup.runtime.*;
 import java.io.File;
 import java.util.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20141204 (SVN rev 60) generated parser.
   */

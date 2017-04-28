@@ -1,4 +1,4 @@
-package semanticAnalyzer.symbol.Exceptions;
+package utils.symbol.Exceptions;
 
 public class AlreadyBoundException extends Exception {
     public String log;

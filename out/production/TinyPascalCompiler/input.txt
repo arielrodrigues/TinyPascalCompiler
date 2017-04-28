@@ -5,6 +5,7 @@ label 10, 53, 71;
 var
    greetings: string;
    name: array [1..10, 0..15] of char;
+   teste: array[1..5] of char;
    organisation: string;
    message: char;
    b: integer;
@@ -28,21 +29,25 @@ Procedure DrawLine(a: integer; b: char);
     end;
 
 Function Draw(a: integer; b: string) : Integer;
+    var
+        x : char;
     begin
         Num1 := a;
         Draw := Num1;
     if (a = 'a') then
-	    DrawLine(10,5);
+	    DrawLine(10, x);
     end;
 
 begin
+    teste[1] := 's';
+    name[3][3] := teste[0];
     NUm2 := 3 + 5;
     organisation := '3' + '55';
     organisation := '33' + message;
     goto 43;
-	DrawLine(10,6);
-	DrawLine(10,7);
-	DrawLine(10,10);
+	DrawLine(10,'a');
+	DrawLine(10,'s');
+	organisation := Draw(10,5,5);
     Num2 := Draw(3, 'as');
 	Readkey;
 end.

@@ -19,19 +19,24 @@ import abstractSyntax.Stm.*;
 import abstractSyntax.variablesDeclaration.*;
 
 import semanticAnalyzer.Binding.*;
-import semanticAnalyzer.symbol.*;
-import semanticAnalyzer.symbol.Exceptions.*;
+import utils.symbol.Exceptions.*;
+import utils.symbol.*;
 
 public class TypeChecker implements PascalVisitor {
 
     SymbolTable<Binding> env = new SymbolTable<>();
-    StringBuilder errorLog = new StringBuilder();
+    public StringBuilder errorLog = new StringBuilder();
     Stack<List<Integer>> labelEnv = new Stack<>();
-    static PrettyPrint prettyPrint = new PrettyPrint();
+    PrettyPrint prettyPrint = new PrettyPrint();
 
     public TypeChecker (Program program) {
         VisitProgram(program);
-        System.out.println("\n\nSemantic Errors:\n"+errorLog.toString());
+        if (errorLog.length() > 0) {
+            System.out.println("\n\nSemantic Errors:");
+            for (String line : errorLog.toString().split("\n"))
+                System.out.println("\t" + line);
+            System.out.println("\n");
+        } else System.out.println("No semantic erros found, go on\n");
     }
 
     private void error(String msg) {
@@ -55,7 +60,7 @@ public class TypeChecker implements PascalVisitor {
             return ((Cons) env.get(((IdConstant) constant).id)).value;
         if (constant instanceof SignedNumber)
             return ((SignedNumber) constant).sign == Sign.PLUS?
-                        ((SignedNumber) constant).unsNum.value : -((SignedNumber) constant).unsNum.value;
+                    ((SignedNumber) constant).unsNum.value : -((SignedNumber) constant).unsNum.value;
         else // instance of UnsignedNumber
             return ((UnsignedNumber) constant).value;
 
@@ -89,6 +94,32 @@ public class TypeChecker implements PascalVisitor {
             error(name + e.log);
         }
         return parameters;
+    }
+
+    private void checkParameter (Binding bindingPar, TypeDenoter stmParType, int i, String name) {
+        if (bindingPar instanceof NormalParameter) { // if is a normal parameter
+            if (((NormalParameter) bindingPar).type instanceof Array) { // if parameter is an array
+                if (!(stmParType instanceof Array))
+                    error("In " + name + ": " + i + "º argument has a unexpected type");
+                else {
+                    if (((Array) stmParType).elemTy != ((Array) bindingPar).elemTy)
+                        error("In " + name + ": " + i + "º argument has a unexpected type");
+                    if (((Array) stmParType).range != ((Array) bindingPar).range)
+                        error("In " + name + ": " + i + "º argument has a unexpected range type");
+                }
+            } else if (stmParType !=
+                    ((NormalParameter) bindingPar).type.accept(this))
+                error("In " + name + ": The " + i + "º argument has a unexpected type");
+        } else if (bindingPar instanceof ConformantParameter) {
+            if (!(stmParType instanceof Array))
+                error("In " + name + ": " + i + "º argument has a unexpected type");
+            else {
+                if (((Array) stmParType).elemTy != ((ConformantParameter) bindingPar).type.elemTy)
+                    error("In " + name + ": " + i + "º argument has a unexpected type");
+                if (((Array) stmParType).range != ((ConformantParameter) bindingPar).type.range)
+                    error("In " + name + ": " + i + "º argument has a unexpected range type");
+            }
+        }
     }
 
 
@@ -366,7 +397,7 @@ public class TypeChecker implements PascalVisitor {
     public Object VisitRelationalExpression(RelationalExpression exp) {
 
         TypeDenoter typeLeft = (TypeDenoter) exp.left.accept(this),
-                    typeRight = (TypeDenoter) exp.right.accept(this);
+                typeRight = (TypeDenoter) exp.right.accept(this);
 
         if (typeLeft != null && typeRight != null && !isOrdinal(typeLeft) && !isOrdinal(typeRight)) {
             error("In " + exp.accept(prettyPrint) + ": left and right operands must be Ordinals");
@@ -395,6 +426,7 @@ public class TypeChecker implements PascalVisitor {
         int limit = exp.actuals.size();
 
         if (function instanceof Function) {
+            // check number of parameters
             if (exp.actuals.size() > ((Function) function).parameters.size()) {
                 error("In " + exp.accept(prettyPrint) + ": the function is receiving more arguments than expected");
                 limit = ((Function) function).parameters.size();
@@ -402,15 +434,16 @@ public class TypeChecker implements PascalVisitor {
                 error("In " + exp.accept(prettyPrint) + ": the function is receiving less arguments than expected");
                 limit = exp.actuals.size();
             }
+            // check type of parameters
             for (int i = 0; i < limit; i++) {
-                if (((Function) function).parameters.get(i) instanceof NormalParameter)
-                    if (exp.actuals.get(i).accept(this) !=
-                            ((NormalParameter) ((Function) function).parameters.get(i)).type.accept(this))
-                            error("In " + exp.accept(prettyPrint) + ": The " + i + "º argument has a wrong type");
-                else if (((Function) function).parameters.get(i) instanceof ConformantParameter);
-                        /*if (exp.actuals.get(i).accept(this) !=
-                                ((ConformantParameter) ((Function) function).parameters.get(i)).type.accept(this))
-                            error("In " + exp.accept(prettyPrint) + ": The " + i + "º argument has a wrong type");*/
+                Binding bindingPar = ((Function) function).parameters.get(i);
+                TypeDenoter expParType = (TypeDenoter) exp.actuals.get(i).accept(this);
+
+                if (((Parameter) bindingPar).mechanism == RefOrValue.Ref &&
+                        !((exp.actuals.get(i) instanceof IndexedVariable) || (exp.actuals.get(i) instanceof IdExpression)))
+                    error("In " + exp.accept(prettyPrint) + ": " + i + "º argument can't be constant");
+
+                checkParameter(bindingPar, expParType, i, (String) exp.accept(prettyPrint));
             }
             return ((Function) function).retTy;
 
@@ -437,45 +470,80 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitIndexedVariable(IndexedVariable exp) {
-        TypeDenoter varType = (TypeDenoter) exp.var.accept(this);
-        TypeDenoter indexType = (TypeDenoter) exp.index.accept(this);
+        String varName = "";
+        Binding bindingVar;
 
-        if (varType == null) return null;
-        if (!(varType instanceof Array)) {
-            error("In " + exp.accept(prettyPrint) + ": " + exp.var.accept(prettyPrint) + " must be an array");
-            return null;
-        }
+        if (exp.var instanceof IndexedVariable) {
+            VariableAccess var = exp.var;
+            TypeDenoter bindingType;
 
-        if (!isOrdinal(indexType))
-            error ("In " + exp.toString() + ": " + exp.index.accept(prettyPrint) + "expression must be ordinal");
-
-        if (exp.var instanceof IdExpression) {
-            String varName = ((IdExpression) exp.var).name;
-            Binding var = env.get(varName);
-
-            if (var instanceof Var) {
-                if (((Var) var).type instanceof Array)
-                if (indexType != ((Array) ((Var) var).type).range)
-                    error("In " + exp.toString() + ": "+exp.index.accept(prettyPrint)+" has unexpected type");
-
-                if (((Array) varType).range instanceof SubrangeType) {
-                    int indexedLowValue = getValue(((SubrangeType) ((Array) varType).range).low),
-                        bindingLowValue = getValue(((SubrangeType) (((Array) ((Var) var).type).range)).low),
-                        indexedHighValue = getValue(((SubrangeType) ((Array) varType).range).high),
-                        bindingHighValue = getValue(((SubrangeType) (((Array) ((Var) var).type).range)).high);
-
-                    if (indexedLowValue < bindingLowValue || indexedHighValue > bindingHighValue)
-                        error("In " + exp.accept(prettyPrint) + ": " + exp.index.accept(prettyPrint) + " is an invalid value");
-                }
-                return ((Var) var).type;
-            } else {
-                error("In " + exp.accept(prettyPrint) + ": " + ((IdExpression) exp.var).name + " is not a variable");
+            while (var instanceof IndexedVariable) var = ((IndexedVariable) var).var; // loop to get variable name
+            if (var instanceof IdExpression) varName = ((IdExpression) var).name;
+            var = exp;
+            bindingVar = env.get(varName);
+            // if was not declared
+            if (bindingVar == null) {
+                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not declared");
                 return null;
             }
-        } else
-            error("In " + exp.accept(prettyPrint) + ": " + ((IdExpression) exp.var).name + " is not a variable");
 
-        return null;
+            // if was not declared as a variable
+            if (!(bindingVar instanceof Var)) {
+                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not a variable");
+                return null;
+            }
+
+            bindingType = ((Var) bindingVar).type;
+
+            // if was not declared as an array
+            if (!(bindingType instanceof Array)) {
+                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not an array");
+                return null;
+            }
+
+            TypeDenoter ty;
+            // check type of elements and indexes
+            while (var instanceof IndexedVariable && bindingType instanceof Array) {
+                ty = (TypeDenoter) ((Array) bindingType).range.accept(this);
+                if (ty != ((IndexedVariable) var).index.accept(this) && ty != null) {
+                    error("In " + exp.accept(prettyPrint) + ": " + ((IndexedVariable) var).index.accept(prettyPrint) + " has a unexpected type");
+                    return ((Array) bindingType).elemTy.accept(this);
+                }
+                var = ((IndexedVariable) var).var;
+                bindingType = ((Array) bindingType).elemTy;
+            }
+            if (var instanceof IndexedVariable)
+                error("In " + exp.accept(prettyPrint) + ": trying to access a invalid position");
+
+            return bindingType.accept(this);
+        } else {
+            varName = ((IdExpression) exp.var).name;
+            bindingVar = env.get(varName);
+            // if was not declared
+            if (bindingVar == null) {
+                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not declared");
+                return null;
+            }
+
+            // if was not declared as a variable
+            if (!(bindingVar instanceof Var)) {
+                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not a variable");
+                return null;
+            }
+
+            TypeDenoter bindingType = ((Var) bindingVar).type;
+
+            // if was not declared as an array
+            if (!(bindingType instanceof Array)) {
+                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not an array");
+                return null;
+            } else {
+                TypeDenoter ty = (TypeDenoter) ((Array) bindingType).range;
+                if (ty != exp.index.accept(this) && ty != null)
+                    error("In " + exp.accept(prettyPrint) + ": " + exp.index.accept(prettyPrint) + " has a unexpected type");
+            }
+            return ((Array) bindingType).elemTy;
+        }
     }
 
 
@@ -551,15 +619,22 @@ public class TypeChecker implements PascalVisitor {
     @Override
     public Object VisitAssignStm(AssignmentStatement assignStm) {
         if (assignStm.left.accept(this) instanceof semanticAnalyzer.Binding.Cons)
-            error("You cant change the value of a constant");
+            error("In "+assignStm.accept(prettyPrint)+": constant value can't be modified");
         else {
             TypeDenoter ty = (TypeDenoter) assignStm.right.accept(this);
-            if (assignStm.left instanceof IdExpression) {
+            TypeDenoter ty1 = (TypeDenoter) assignStm.left.accept(this);
+            if (assignStm.left instanceof IdExpression || assignStm.left instanceof IndexedVariable) {
                 if (assignStm.left.accept(this) != null && assignStm.left.accept(this) != ty) {
-                    error("you cant assign expressions MELHORE ESSE TEXTO!!!!!");
+                    error("In "+assignStm.accept(prettyPrint)+": "+assignStm.right.accept(prettyPrint)+" has an unexpected type");
+                    if (!(assignStm.left instanceof IdExpression)) {
+                        VariableAccess stm = assignStm.left;
+                        while (!(stm instanceof IdExpression))
+                            stm = ((IndexedVariable) stm).var;
+                        return env.get(((IdExpression) stm).name);
+                    }
                     return env.get(((IdExpression) assignStm.left).name);
                 }
-            } else error("The right side isn't a variable.");
+            } else error("In "+assignStm.accept(prettyPrint)+": "+assignStm.left.accept(prettyPrint)+" can't be modified");
         }
         return null;
     }
@@ -567,29 +642,37 @@ public class TypeChecker implements PascalVisitor {
     @Override
     public Object VisitGotoStatement(GotoStatement stm) {
         if (!labelEnv.contains(stm.label))
-            error("Label "+prettyPrint.VisitUnsignedNumber(stm.label)+" was not declared");
+            error("In "+stm.accept(prettyPrint)+": label "+prettyPrint.VisitUnsignedNumber(stm.label)+" was not declared");
         return null;
     }
 
     @Override
     public Object VisitProcedureStm(ProcedureStatement stm) {
         Binding procedure = env.get(stm.name);
-        int limit = 0;
+        int limit = stm.actuals.size();
 
         if (procedure instanceof Procedure) {
+            // check number of parameters
             if (stm.actuals.size() > ((Procedure) procedure).parameters.size()) {
-                error("In " + stm.toString() + ": the procedure is receiving more arguments than expected");
+                error("In " + stm.accept(prettyPrint) + ": the procedure is receiving more arguments than expected");
                 limit = ((Procedure) procedure).parameters.size();
             } else if (stm.actuals.size() < ((Procedure) procedure).parameters.size()) {
-                error("In " + stm.toString() + ": the procedure is receiving less arguments than expected");
+                error("In " + stm.accept(prettyPrint) + ": the procedure is receiving less arguments than expected");
                 limit = stm.actuals.size();
             }
+            // check type of parameters
             for (int i = 0; i < limit; i++) {
-                if (stm.actuals.get(i).accept(this) != ((Procedure) procedure).parameters.get(i))
-                    error("In " + stm.toString() + ": The " + i + "º argument has a wrong type");
-            }
-        } else error(stm.name + " is not declared as a procedure.");
+                Binding bindingPar = ((Procedure) procedure).parameters.get(i);
+                TypeDenoter stmParType = (TypeDenoter) stm.actuals.get(i).accept(this);
 
+                if (((Parameter) bindingPar).mechanism == RefOrValue.Ref &&
+                        !((stm.actuals.get(i) instanceof IndexedVariable) || (stm.actuals.get(i) instanceof IdExpression)))
+                    error("In " + stm.accept(prettyPrint) + ": " + i + "º argument can't be constant");
+
+                checkParameter(bindingPar, stmParType, i, (String) stm.accept(prettyPrint));
+            }
+        } else if (procedure instanceof Function)
+            error ("In " + stm.accept(prettyPrint) + ": returned value by a function must be used");
         return null;
     }
 
@@ -602,7 +685,7 @@ public class TypeChecker implements PascalVisitor {
     @Override
     public Object VisitIfStm(IfStatement stm) {
         if (stm.condition.accept(this) != PrimitiveType.BOOLEAN)
-            error("If condition must be boolean");
+            error("In "+stm.condition.accept(prettyPrint)+": if condition must be boolean");
         stm.thenPart.accept(this);
         if (stm.elsePart != null) stm.elsePart.accept(this);
         return null;
@@ -617,7 +700,7 @@ public class TypeChecker implements PascalVisitor {
     @Override
     public Object VisitWhileStm(WhileStatement stm) {
         if (stm.condition.accept(this) != PrimitiveType.BOOLEAN)
-            error("While condition must be boolean");
+            error("In "+stm.condition.accept(prettyPrint)+": while condition must be boolean");
         stm.body.accept(this);
         return null;
     }

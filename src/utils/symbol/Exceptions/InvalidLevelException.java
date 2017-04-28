@@ -1,4 +1,4 @@
-package semanticAnalyzer.symbol.Exceptions;
+package utils.symbol.Exceptions;
 
 public class InvalidLevelException extends Exception {
     public String msg;
