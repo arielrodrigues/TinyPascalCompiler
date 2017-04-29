@@ -1,10 +1,12 @@
-package IntermediateRepresentation.Tree;
+package IntermediateRepresentation;
 
-public class Print {
+import IntermediateRepresentation.Tree.*;
+
+public class PrettyPrint {
 
   java.io.PrintStream out;
 
-  public Print(java.io.PrintStream o) {out=o;}
+  public PrettyPrint(java.io.PrintStream o) {out=o;}
 
   void indent(int d) {
       for(int i=0; i<d; i++) 
@@ -46,7 +48,7 @@ public class Print {
         case CJUMP.UGT: say("UGT"); break;
         case CJUMP.UGE: say("UGE"); break;
 	default:
-         throw new Error("Print.prStm.CJUMP");
+         throw new Error("PrettyPrint.prStm.CJUMP");
        }
        sayln(","); prExp(s.left,d+1); sayln(",");
        prExp(s.right,d+1); sayln(",");
@@ -70,7 +72,7 @@ public class Print {
    else if (s instanceof CJUMP) prStm((CJUMP)s, d);
    else if (s instanceof MOVE) prStm((MOVE)s, d);
    else if (s instanceof EXP) prStm((EXP)s, d);
-   else throw new Error("Print.prStm");
+   else throw new Error("PrettyPrint.prStm");
   }
 
   void prExp(BINOP e, int d) {
@@ -87,7 +89,7 @@ public class Print {
 	case BINOP.ARSHIFT: say("ARSHIFT"); break;
 	case BINOP.XOR: say("XOR"); break;
 	default:
-         throw new Error("Print.prExp.BINOP");
+         throw new Error("PrettyPrint.prExp.BINOP");
        }
       sayln(",");
       prExp(e.left,d+1); sayln(","); prExp(e.right,d+1); say(")");
@@ -134,7 +136,7 @@ public class Print {
    else if (e instanceof NAME) prExp((NAME)e, d);
    else if (e instanceof CONST) prExp((CONST)e, d);
    else if (e instanceof CALL) prExp((CALL)e, d);
-   else throw new Error("Print.prExp");
+   else throw new Error("PrettyPrint.prExp");
   }
 
   public void prStm(Stm s) {prStm(s,0); say("\n");}
