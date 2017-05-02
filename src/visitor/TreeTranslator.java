@@ -1,6 +1,8 @@
 package visitor;
 
+import IntermediateRepresentation.*;
 import IntermediateRepresentation.Binding.*;
+import IntermediateRepresentation.PrettyPrint;
 import IntermediateRepresentation.Temp.*;
 import IntermediateRepresentation.Tree.*;
 import abstractSyntax.ConformantArray.*;
@@ -16,9 +18,30 @@ import abstractSyntax.variablesDeclaration.*;
 import utils.symbol.*;
 import utils.symbol.Exceptions.*;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
+// print frames assistent
+class frameTuple<B, L> {
+    public final B stm;
+    public final L label;
+    public final int size;
+    public frameTuple(B stm, L label, int size) {
+        this.stm = stm;
+        this.label = label;
+        this.size = size;
+    }
+    public B getSubp() {
+        return stm;
+    }
+    public L getLabel() {
+        return label;
+    }
+    public int getSize() { return size; }
+}
 
 //Each function and procedure is translated into a SubprogramSegment, thus
 //the visit to a Program returns the correspondent List<SubprogramSegment>
@@ -29,15 +52,34 @@ public class TreeTranslator implements PascalVisitor {
 
     int currentLevel;
     Frame currentFrame;
+    Stack<Frame> framesStack = new Stack<>();
+    LinkedList<frameTuple<Stm, LABEL>> subprogs = new LinkedList<>();
 
     SymbolTable<Binding> env = new SymbolTable<>();
-    IntermediateRepresentation.PrettyPrint prettyPrint = new IntermediateRepresentation.PrettyPrint(System.out);
+    IntermediateRepresentation.PrettyPrint prettyPrint;
 
     public TreeTranslator (Program prog) {
-        prettyPrint.prStm((SEQ) VisitProgram(prog));
+        try {
+            prettyPrint = new PrettyPrint(new PrintStream(new File(System.getProperty("user.dir") + "/program.tree")));
+
+            prettyPrint.prStm((SEQ) VisitProgram(prog));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println(e.getClass().getName());
+        }
+        // print just subprograms: labels, frame size, and stms
+        prettyPrint = new PrettyPrint(System.out);
+
+        subprogs.descendingIterator().forEachRemaining( f -> {
+            prettyPrint.prStm(f.getLabel());
+            System.out.println("FrameSize: " + f.size);
+            prettyPrint.prStm(f.getSubp());
+            System.out.println();
+        });
+
     }
 
-    public Stm StmListToSEQ (List<?> stms) {
+    private Stm StmListToSEQ (List<?> stms) {
         Stm seq = null;
         seq = (Stm) stms.get(stms.size() - 1);
         if (stms.size() > 2)
@@ -132,7 +174,7 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitCharLiteral(CharLiteral charLiteral) {
-        return null;
+        return new CONST((int) charLiteral.value);
     }
 
     @Override
@@ -194,6 +236,13 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitFormalPar(FormalPar formalPar) {
+        Rep rep = (Rep) formalPar.type.accept(this);
+        int loc = currentFrame.alloc(rep.size());
+        try {
+            env.put(formalPar.name, new Var(loc, rep, currentLevel));
+        } catch (AlreadyBoundException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -259,6 +308,7 @@ public class TreeTranslator implements PascalVisitor {
         for (ProcedureOrFunctionDeclaration pfDec: block.subprogs) {
             SubprogramSegment subp = (SubprogramSegment) pfDec.accept(this);
             seqs.add(new SEQ(new LABEL(subp.label), subp.body));
+            subprogs.add(new frameTuple<>(subp.body, new LABEL(subp.label), subp.frame.size())); // aux to print
         }
 
         return (seqs.size() > 0)?  new SEQ((Stm) block.body.accept(this), StmListToSEQ(seqs)) :
@@ -272,6 +322,8 @@ public class TreeTranslator implements PascalVisitor {
         currentLevel++;
         LABEL l = new LABEL(new Label("$"+"Program__"+program.id));
         SEQ prog = new SEQ(l, (Stm) program.block.accept(this));
+        subprogs.add(new frameTuple<>((Stm) program.block.body.accept(this),
+                                                                        l, currentFrame.size())); // aux to print
         try {
             env.endScope();
         } catch (InvalidLevelException e) {
@@ -302,27 +354,24 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitProcedureDeclaration(ProcedureDeclaration procedureDeclaration) {
-        Frame callerFrame = currentFrame;
+        SubprogramSegment subp = null;
+        framesStack.push(currentFrame);
         Label procLabel = new Label("$" + procedureDeclaration.nm + "_" + currentLevel);
         try {
             env.put(procedureDeclaration.nm, new SubprogramLabel(procLabel));
-        } catch (AlreadyBoundException e) {
-            e.printStackTrace();
-        }
-        currentLevel++;
-        env.beginScope();
-        currentFrame = new Frame();
-        for (FormalParameter formal: procedureDeclaration.formals )
-            formal.accept(this);
-        Stm bdExp = (Stm) procedureDeclaration.body.accept(this);
-        SubprogramSegment subp = new SubprogramSegment(procLabel, currentFrame, bdExp);
-        try {
+            currentLevel++;
+            env.beginScope();
+            currentFrame = new Frame();
+            for (FormalParameter formal: procedureDeclaration.formals )
+                formal.accept(this);
+            Stm bdExp = (Stm) procedureDeclaration.body.accept(this);
+            subp = new SubprogramSegment(procLabel, currentFrame, bdExp);
             env.endScope();
-        } catch (InvalidLevelException e) {
+        } catch (InvalidLevelException | AlreadyBoundException e) {
             e.printStackTrace();
         }
         currentLevel--;
-        currentFrame = callerFrame;
+        currentFrame = framesStack.pop();
         return subp;
     }
 
@@ -353,14 +402,24 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitIfStm(IfStatement ifStm) {
-        LABEL if_label = new LABEL(new Label()), else_label = new LABEL(new Label());
-        CJUMP if_jmp = new CJUMP(CJUMP.EQ, ((Ex) ifStm.condition.accept(this)).unEx(),
-                                                new CONST(1), if_label.label, else_label.label);
-        return new SEQ(if_jmp,
-                        new SEQ(if_label,
-                                new SEQ((Stm) ifStm.thenPart.accept(this),
-                                        new SEQ(else_label,
-                                                (Stm) ifStm.elsePart.accept(this)) ) ) );
+        LABEL if_label = new LABEL(new Label()), else_label = new LABEL(new Label()),
+              done = new LABEL(new Label());
+        if (ifStm.elsePart != null) {
+            CJUMP if_jmp = new CJUMP(CJUMP.EQ, ((Ex) ifStm.condition.accept(this)).unEx(),
+                    new CONST(1), if_label.label, else_label.label);
+            return new SEQ(if_jmp,
+                    new SEQ(if_label,
+                            new SEQ((Stm) ifStm.thenPart.accept(this),
+                                    new SEQ(else_label,
+                                            (Stm) ifStm.elsePart.accept(this)))));
+        } else {
+            CJUMP if_jmp = new CJUMP(CJUMP.EQ, ((Ex) ifStm.condition.accept(this)).unEx(),
+                            new CONST(1), if_label.label, done.label);
+            return new SEQ(if_jmp,
+                    new SEQ(if_label,
+                            new SEQ((Stm) ifStm.thenPart.accept(this),
+                                    done) ) );
+        }
     }
 
     @Override
@@ -373,7 +432,7 @@ public class TreeTranslator implements PascalVisitor {
     @Override
     public Object VisitProcedureStm(ProcedureStatement procedureStm) {
         List<Expr> exprList = new ArrayList<>();
-        Label nm = ((SubprogramSegment) env.get(procedureStm.name)).label;
+        Label nm = ((SubprogramLabel) env.get(procedureStm.name)).label;
         exprList.add(new CONST(0)); // Static Link is always in loc 0 of frame
         for (Expression exp : procedureStm.actuals) {
             if (exp.accept(this) instanceof Ex)
@@ -393,13 +452,25 @@ public class TreeTranslator implements PascalVisitor {
         return new SEQ(start,
                 new SEQ(cond_jmp,
                         new SEQ(body,
-                                new SEQ(jmp_start,
-                                        done))));
+                                new SEQ((Stm) whileStm.body.accept(this),
+                                        new SEQ(jmp_start, done)))));
     }
 
     @Override
     public Object VisitIdExpression(IdExpression idExpression) {
-        return env.get(idExpression.name);
+        Binding var =  env.get(idExpression.name);
+        if (((Var) var).nestingLevel == currentLevel)
+            return new MEM(new BINOP(BINOP.PLUS,
+                                new CONST(currentLevel), // frame point?
+                                                new CONST(((Var) var).frameLoc)));
+        else {
+            int diff = ((Var) var).nestingLevel - currentLevel;
+            BINOP level = new BINOP(BINOP.PLUS, new CONST(currentLevel), new CONST((((Var) var)).frameLoc));
+            for (int i = 1; i <= diff; i++)
+                level = new BINOP(BINOP.PLUS, new CONST(framesStack.get(framesStack.size()-i).size()), level);
+            return new MEM(level);
+        }
+
     }
 
     @Override

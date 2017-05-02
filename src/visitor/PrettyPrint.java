@@ -363,7 +363,7 @@ public class PrettyPrint implements PascalVisitor {
         result.append(functionDeclaration.resultTy.accept(this));
         result.append(print (";\n", false));
         result.append(functionDeclaration.body.accept(this));
-        result.append(print (";\n", false));
+        result.append(print (";\n\n", false));
 
         return result.toString();
     }
@@ -394,7 +394,7 @@ public class PrettyPrint implements PascalVisitor {
         }
         result.append(print(");\n", false));
         result.append(procedureDeclaration.body.accept(this));
-        result.append(print (";\n", false));
+        result.append(print (";\n\n", false));
         return result.toString();
     }
 

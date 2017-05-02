@@ -36,8 +36,8 @@ public class TypeChecker implements PascalVisitor {
             System.out.println("\n\nSemantic Errors:");
             for (String line : errorLog.toString().split("\n"))
                 System.out.println("\t" + line);
-            System.out.println("\n");
-        } else System.out.println("No semantic erros found, go on\n");
+            System.out.println("\nSEMANTIC ERROS FOUND, NO CODE GENERATED.");
+        } else System.out.println("\nNO SEMANTIC ERROS FOUND, GO ON!\n");
     }
 
     private void error(String msg) {
@@ -642,7 +642,7 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitGotoStatement(GotoStatement stm) {
-        if (!labelEnv.contains(stm.label))
+        if (!labelEnv.get(labelEnv.size()-1).contains(stm.label.value))
             error("In "+stm.accept(prettyPrint)+": label "+prettyPrint.VisitUnsignedNumber(stm.label)+" was not declared");
         return null;
     }
@@ -694,6 +694,8 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitLabeledStm(LabeledStatement lblStm) {
+        if (!labelEnv.get(labelEnv.size()-1).contains(lblStm.label))
+            error("In \""+lblStm.accept(prettyPrint)+"\": label "+lblStm.label+" was not declared");
         lblStm.stm.accept(this);
         return null;
     }

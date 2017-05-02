@@ -10,6 +10,6 @@ public class Main {
 		TypeChecker typeChecker = new TypeChecker(pasProgram);
 		if (typeChecker.errorLog.length() <= 0) {
 			TreeTranslator translator = new TreeTranslator(pasProgram);
-		} else System.out.println("Semantic erros found, no code generated.");
+		}
 	}	
 }
