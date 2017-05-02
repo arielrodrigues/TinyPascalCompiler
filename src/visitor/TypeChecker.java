@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import IntermediateRepresentation.Tree.SEQ;
 import abstractSyntax.ConformantArray.*;
 import abstractSyntax.Constant.*;
 import abstractSyntax.Exp.*;

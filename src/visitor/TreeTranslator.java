@@ -19,20 +19,31 @@ import utils.symbol.Exceptions.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+//Each function and procedure is translated into a SubprogramSegment, thus
+//the visit to a Program returns the correspondent List<SubprogramSegment>
+//For the sake of simplicity, we assume that the main program has a frame
+//which hosts the global variables.
+
 public class TreeTranslator implements PascalVisitor {
 
     int currentLevel;
     Frame currentFrame;
 
     SymbolTable<Binding> env = new SymbolTable<>();
-
-    //Each function and procedure is translated into a SubprogramSegment, thus
-    //the visit to a Program returns the correspondent List<SubprogramSegment>
-    //For the sake of simplicity, we assume that the main program has a frame
-    //which hosts the global variables.
+    IntermediateRepresentation.PrettyPrint prettyPrint = new IntermediateRepresentation.PrettyPrint(System.out);
 
     public TreeTranslator (Program prog) {
-        VisitProgram(prog);
+        prettyPrint.prStm((SEQ) VisitProgram(prog));
+    }
+
+    public Stm StmListToSEQ (List<?> stms) {
+        Stm seq = null;
+        seq = (Stm) stms.get(stms.size() - 1);
+        if (stms.size() > 2)
+            for (Object stm : stms.subList(0, stms.size() - 2))
+                seq = new SEQ((Stm) stm, seq);
+        return seq;
     }
 
     @Override
@@ -156,6 +167,17 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitRelationalExpression(RelationalExpression relationalExpression) {
+        /*switch (relationalExpression.op) {
+            case EQ: Ex left = (Ex) relationalExpression.left.accept(this),
+                        right = (Ex) relationalExpression.right.accept(this);
+                    return new Cx() {
+                        @Override
+                        public Stm unCx(Label t, Label f) {
+                            Temp t1 = new Temp();
+                            return new ESEQ();
+                        }
+                    }
+        }*/
         return null;
     }
 
@@ -238,15 +260,17 @@ public class TreeTranslator implements PascalVisitor {
             SubprogramSegment subp = (SubprogramSegment) pfDec.accept(this);
             seqs.add(new SEQ(new LABEL(subp.label), subp.body));
         }
-        //TODO RETURN SEQS IN A SEQUENCIAL WAY, ADD BODY ACCEPT TO LIST AND ADD LABEL OF PROGRAM TOO - SHOW SHOW
-        block.body.accept(this);
-        return null;
+
+        return (seqs.size() > 0)?  new SEQ((Stm) block.body.accept(this), StmListToSEQ(seqs)) :
+                                                                                (Stm) block.body.accept(this);
     }
 
     @Override
     public Object VisitProgram(Program program) {
-        LABEL l = new LABEL(new Label("$"+"Program__"+program.id));
         env.beginScope();
+        currentFrame = new Frame();
+        currentLevel++;
+        LABEL l = new LABEL(new Label("$"+"Program__"+program.id));
         SEQ prog = new SEQ(l, (Stm) program.block.accept(this));
         try {
             env.endScope();
@@ -258,33 +282,22 @@ public class TreeTranslator implements PascalVisitor {
     }
 
     @Override
-    public Object VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator) {
-        return null;
-    }
-
-    @Override
-    public Object VisitBinaryBooleanOperator(BinaryBooleanOperator binaryBooleanOperator) {
-        return null;
-    }
-
-    @Override
-    public Object VisitRelationalOperator(RelationalOperator relationalOperator) {
-        return null;
-    }
-
-    @Override
-    public Object VisitSign(Sign sign) {
-        return null;
-    }
-
-    @Override
     public Object VisitFunctionDeclaration(FunctionDeclaration functionDeclaration) {
         return null;
     }
 
     @Override
     public Object VisitFunctionDesignator(FunctionDesignator functionDesignator) {
-        return null;
+        List<Expr> exprList = new ArrayList<>();
+        Label nm = ((SubprogramSegment) env.get(functionDesignator.name)).label;
+        exprList.add(new CONST(0)); // Static Link is always in loc 0 of frame
+        for (Expression exp : functionDesignator.actuals) {
+            if (exp.accept(this) instanceof Ex)
+                exprList.add(((Ex) exp.accept(this)).unEx());
+            else
+                exprList.add((Expr) exp.accept(this));
+        }
+        return new CALL(new NAME(nm),exprList);
     }
 
     @Override
@@ -320,23 +333,34 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitCompStm(CompoundStatement compStm) {
-        return null;
-    }
-
-    @Override
-    public Object VisitEmptyStm(EmptyStatement eStm) {
-        return null;
+        Stm stm_;
+        List<Stm> seqs = new ArrayList<>();
+        for (Statement stm : compStm.stmts) {
+            stm_ = (Stm) stm.accept(this);
+            if (stm_ != null) seqs.add(stm_);
+        }
+        if (seqs.size() > 1)
+            return StmListToSEQ(seqs);
+        else
+            return seqs.get(seqs.size()-1);
     }
 
     @Override
     public Object VisitGotoStatement(GotoStatement gotoStatement) {
-        return null;
+        LABEL l = new LABEL(new Label("Label " + gotoStatement.label + "_" + currentLevel));
+        return new JUMP(l.label);
     }
 
     @Override
     public Object VisitIfStm(IfStatement ifStm) {
-
-        return null;
+        LABEL if_label = new LABEL(new Label()), else_label = new LABEL(new Label());
+        CJUMP if_jmp = new CJUMP(CJUMP.EQ, ((Ex) ifStm.condition.accept(this)).unEx(),
+                                                new CONST(1), if_label.label, else_label.label);
+        return new SEQ(if_jmp,
+                        new SEQ(if_label,
+                                new SEQ((Stm) ifStm.thenPart.accept(this),
+                                        new SEQ(else_label,
+                                                (Stm) ifStm.elsePart.accept(this)) ) ) );
     }
 
     @Override
@@ -363,7 +387,7 @@ public class TreeTranslator implements PascalVisitor {
     @Override
     public Object VisitWhileStm(WhileStatement whileStm) {
         LABEL start = new LABEL(new Label()), body = new LABEL(new Label()), done = new LABEL(new Label());
-        CJUMP cond_jmp = new CJUMP(CJUMP.EQ, (Expr) whileStm.condition.accept(this),
+        CJUMP cond_jmp = new CJUMP(CJUMP.EQ, ((Cx) whileStm.condition.accept(this)).unEx(),
                                                                         new CONST(1), body.label, done.label);
         JUMP jmp_start = new JUMP(start.label);
         return new SEQ(start,
@@ -387,6 +411,33 @@ public class TreeTranslator implements PascalVisitor {
         } catch (AlreadyBoundException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    // nop
+
+    @Override
+    public Object VisitBinaryArithmeticOperator(BinaryArithmeticOperator binaryArithmeticOperator) {
+        return null;
+    }
+
+    @Override
+    public Object VisitBinaryBooleanOperator(BinaryBooleanOperator binaryBooleanOperator) {
+        return null;
+    }
+
+    @Override
+    public Object VisitRelationalOperator(RelationalOperator relationalOperator) {
+        return null;
+    }
+
+    @Override
+    public Object VisitSign(Sign sign) {
+        return null;
+    }
+
+    @Override
+    public Object VisitEmptyStm(EmptyStatement eStm) {
         return null;
     }
 }

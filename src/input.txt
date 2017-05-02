@@ -1,4 +1,4 @@
-program exString;
+(*program exString;
 
 label 10, 53, 71;
 
@@ -50,4 +50,28 @@ begin
 	organisation := Draw(10,5,5);
     Num2 := Draw(3, 'as');
 	Readkey;
+end. *)
+
+program exString;
+
+label 10, 53, 71;
+
+var
+    ar : boolean;
+    b: integer;
+    abc: string;
+    Num1, Num2, Num3, Sum : Integer;
+
+Procedure Draw(a: integer; b: string);
+    var
+        x : char;
+        bo : boolean;
+    begin
+        While (not false) do
+        Draw(a, b);
+    end;
+
+begin
+    while (not true) do
+    Draw(Num1, abc);
 end.
