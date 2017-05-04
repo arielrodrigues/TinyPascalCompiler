@@ -6,12 +6,12 @@ this version still with bugs in intermediate code generate (TreeTranslate.java) 
 
 This version contains:
   
-* [Lexical Analysis w/ JFLEX
-* [Syntactic Analysis w/ CUP
-* [using Visitor Pattern:
-* [Pretty Printer
-* [Type Checker - Not bug-free
-* [Intermediate Code Generator (Translate into TREEs) - Not bug-free
+* Lexical Analysis w/ JFLEX
+* Syntactic Analysis w/ CUP
+* using Visitor Pattern:
+* Pretty Printer
+* Type Checker - Not bug-free
+* Intermediate Code Generator (Translate into TREEs) - Not bug-free
 
 
 # I am gratefull to Giovanny Lucero (UFS), compiler's class was extremely interesting and fun.
