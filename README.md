@@ -6,7 +6,7 @@ this version still with bugs in intermediate code generate (TreeTranslate.java) 
   
 * Lexical Analysis w/ JFLEX
 * Syntactic Analysis w/ CUP
-==> using Visitor Pattern:
+* using Visitor Pattern:
 * Pretty Printer
 * Type Checker - Not bug-free
 * Intermediate Code Generator (Translate into TREEs) - Not bug-free
