@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_tinypascalcompiler" default="compile.module.tinypascalcompiler">
+  <dirname property="module.tinypascalcompiler.basedir" file="${ant.file.module_tinypascalcompiler}"/>
+  
+  <property name="module.jdk.home.tinypascalcompiler" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.tinypascalcompiler" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.tinypascalcompiler" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.tinypascalcompiler" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="tinypascalcompiler.output.dir" value="${module.tinypascalcompiler.basedir}/out/production/TinyPascalCompiler"/>
+  <property name="tinypascalcompiler.testoutput.dir" value="${module.tinypascalcompiler.basedir}/out/test/TinyPascalCompiler"/>
+  
+  <path id="tinypascalcompiler.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="tinypascalcompiler.module.production.classpath">
+    <path refid="${module.jdk.classpath.tinypascalcompiler}"/>
+    <path refid="library.com.github.vbmacher:java-cup-runtime:11b-20160615.classpath"/>
+    <path refid="library.de.jflex:jflex-maven-plugin:1.6.1.classpath"/>
+  </path>
+  
+  <path id="tinypascalcompiler.runtime.production.module.classpath">
+    <pathelement location="${tinypascalcompiler.output.dir}"/>
+    <path refid="library.com.github.vbmacher:java-cup-runtime:11b-20160615.classpath"/>
+    <path refid="library.de.jflex:jflex-maven-plugin:1.6.1.classpath"/>
+  </path>
+  
+  <path id="tinypascalcompiler.module.classpath">
+    <path refid="${module.jdk.classpath.tinypascalcompiler}"/>
+    <pathelement location="${tinypascalcompiler.output.dir}"/>
+    <path refid="library.com.github.vbmacher:java-cup-runtime:11b-20160615.classpath"/>
+    <path refid="library.de.jflex:jflex-maven-plugin:1.6.1.classpath"/>
+  </path>
+  
+  <path id="tinypascalcompiler.runtime.module.classpath">
+    <pathelement location="${tinypascalcompiler.testoutput.dir}"/>
+    <pathelement location="${tinypascalcompiler.output.dir}"/>
+    <path refid="library.com.github.vbmacher:java-cup-runtime:11b-20160615.classpath"/>
+    <path refid="library.de.jflex:jflex-maven-plugin:1.6.1.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.tinypascalcompiler">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.tinypascalcompiler">
+    <patternset refid="excluded.from.module.tinypascalcompiler"/>
+  </patternset>
+  
+  <path id="tinypascalcompiler.module.sourcepath">
+    <dirset dir="${module.tinypascalcompiler.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.tinypascalcompiler" depends="compile.module.tinypascalcompiler.production,compile.module.tinypascalcompiler.tests" description="Compile module TinyPascalCompiler"/>
+  
+  <target name="compile.module.tinypascalcompiler.production" depends="register.custom.compilers" description="Compile module TinyPascalCompiler; production classes">
+    <mkdir dir="${tinypascalcompiler.output.dir}"/>
+    <javac2 destdir="${tinypascalcompiler.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.tinypascalcompiler}/javac">
+      <compilerarg line="${compiler.args.tinypascalcompiler}"/>
+      <bootclasspath refid="tinypascalcompiler.module.bootclasspath"/>
+      <classpath refid="tinypascalcompiler.module.production.classpath"/>
+      <src refid="tinypascalcompiler.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.tinypascalcompiler"/>
+    </javac2>
+    
+    <copy todir="${tinypascalcompiler.output.dir}">
+      <fileset dir="${module.tinypascalcompiler.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.tinypascalcompiler.tests" depends="register.custom.compilers,compile.module.tinypascalcompiler.production" description="compile module TinyPascalCompiler; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.tinypascalcompiler" description="cleanup module">
+    <delete dir="${tinypascalcompiler.output.dir}"/>
+    <delete dir="${tinypascalcompiler.testoutput.dir}"/>
+  </target>
+</project>

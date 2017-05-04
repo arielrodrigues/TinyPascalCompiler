@@ -23,6 +23,7 @@ import java_cup.runtime.*;
 import java.io.File;
 import java.util.*;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20141204 (SVN rev 60) generated parser.
   */
@@ -489,7 +490,7 @@ public class Parser extends java_cup.runtime.lr_parser {
 
     ComplexSymbolFactory f = new ComplexSymbolFactory();
     symbolFactory = f;
-    File file = new File(Paths.get("").toAbsolutePath().toString() + "/src/" + "input.txt");
+    File file = new File(Paths.get("").toAbsolutePath().toString() + "/Files4Test/" + "entrada-translator.pas");
     FileInputStream fis = null;
     try {
         fis = new FileInputStream(file);
@@ -1587,7 +1588,7 @@ class CUP$Parser$actions {
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
 		Location expListxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).xleft;
 		Location expListxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).xright;
-		List<Expression> expList = (List<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		LinkedList<Expression> expList = (LinkedList<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		//@@CUPDBG73
  RESULT = new ProcedureStatement(id, expList); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("statement_",33, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1922,7 +1923,7 @@ RESULT = simple_exp;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
 		Location expListxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).xleft;
 		Location expListxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).xright;
-		List<Expression> expList = (List<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		LinkedList<Expression> expList = (LinkedList<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		//@@CUPDBG95
  RESULT = new FunctionDesignator(id, expList); 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("factor",40, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -2186,7 +2187,7 @@ RESULT = BinaryBooleanOperator.OR;
 		VariableAccess var_access = (VariableAccess)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
 		Location exp_listxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).xleft;
 		Location exp_listxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).xright;
-		List<Expression> exp_list = (List<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		LinkedList<Expression> exp_list = (LinkedList<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		//@@CUPDBG119
  IndexedVariable var = new IndexedVariable(var_access, exp_list.get(0));
                            for (Expression exp : exp_list.subList(1, exp_list.size())) var = new IndexedVariable(var, exp);
@@ -2198,12 +2199,12 @@ RESULT = BinaryBooleanOperator.OR;
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 118: // expression_list ::= expression 
             {
-              List<Expression> RESULT =null;
+              LinkedList<Expression> RESULT =null;
 		Location expxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.peek()).xleft;
 		Location expxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.peek()).xright;
 		Expression exp = (Expression)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		//@@CUPDBG120
- List<Expression> list = new ArrayList<Expression>();
+ LinkedList<Expression> list = new LinkedList<Expression>();
                               	       list.add(exp); RESULT = list; 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expression_list",41, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -2212,15 +2213,15 @@ RESULT = BinaryBooleanOperator.OR;
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 119: // expression_list ::= expression_list COMMA expression 
             {
-              List<Expression> RESULT =null;
+              LinkedList<Expression> RESULT =null;
 		Location expListxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).xleft;
 		Location expListxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).xright;
-		List<Expression> expList = (List<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
+		LinkedList<Expression> expList = (LinkedList<Expression>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
 		Location expxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.peek()).xleft;
 		Location expxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$Parser$stack.peek()).xright;
 		Expression exp = (Expression)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		//@@CUPDBG121
- expList.add(exp); RESULT = expList; 
+ expList.addFirst(exp); RESULT = expList; 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expression_list",41, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

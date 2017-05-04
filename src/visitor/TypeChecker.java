@@ -1,6 +1,7 @@
 package visitor;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -82,7 +83,7 @@ public class TypeChecker implements PascalVisitor {
                     var = new Var(type);
                 } else if (formal instanceof ConformantArrayParameter) {
                     RefOrValue mechanism = ((ConformantArrayParameter) formal).mechanism;
-                    Array type = (Array) formal.accept(this);
+                    Array type = (Array) ((ConformantArrayParameter) formal).schema.accept(this);
 
                     parameters.add(new ConformantParameter(mechanism, type));
                     name = ((ConformantArrayParameter) formal).name;
@@ -240,7 +241,7 @@ public class TypeChecker implements PascalVisitor {
 
         // test if lowConst < highConst
         if (getValue(type.low) >= getValue(type.high))
-            error("In " + type.accept(prettyPrint) + ": low constant in subrange must be less than high constant");
+            error("In " + type.accept(prettyPrint) + ": low constant in subrange must have less value    than high constant");
 
 
         if (isOrdinal(tyH) && tyH == tyL)
@@ -471,43 +472,30 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitIndexedVariable(IndexedVariable exp) {
-        String varName = "";
+        String varName;
         Binding bindingVar;
 
         if (exp.var instanceof IndexedVariable) {
             VariableAccess var = exp.var;
             TypeDenoter bindingType;
 
-            while (var instanceof IndexedVariable) var = ((IndexedVariable) var).var; // loop to get variable name
-            if (var instanceof IdExpression) varName = ((IdExpression) var).name;
-            var = exp;
+            // loop to get variable name
+            while (var instanceof IndexedVariable) var = ((IndexedVariable) var).var;
+            varName = ((IdExpression) var).name;
+            // get binding
             bindingVar = env.get(varName);
-            // if was not declared
-            if (bindingVar == null) {
-                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not declared");
-                return null;
-            }
-
-            // if was not declared as a variable
-            if (!(bindingVar instanceof Var)) {
-                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not a variable");
-                return null;
-            }
-
             bindingType = ((Var) bindingVar).type;
 
-            // if was not declared as an array
-            if (!(bindingType instanceof Array)) {
-                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not an array");
-                return null;
-            }
+            var = exp;
+            TypeDenoter bindingRange, expRange;
 
-            TypeDenoter ty;
             // check type of elements and indexes
             while (var instanceof IndexedVariable && bindingType instanceof Array) {
-                ty = (TypeDenoter) ((Array) bindingType).range.accept(this);
-                if (ty != ((IndexedVariable) var).index.accept(this) && ty != null) {
-                    error("In " + exp.accept(prettyPrint) + ": " + ((IndexedVariable) var).index.accept(prettyPrint) + " has a unexpected type");
+                bindingRange = (TypeDenoter) ((Array) bindingType).range.accept(this);
+                expRange = (TypeDenoter) ((IndexedVariable) var).index.accept(this);
+                if (bindingRange != expRange && expRange != null) {
+                    error("In " + exp.accept(prettyPrint) + ": " +
+                            ((IndexedVariable) var).index.accept(prettyPrint)  + " has a unexpected type");
                     return ((Array) bindingType).elemTy.accept(this);
                 }
                 var = ((IndexedVariable) var).var;
@@ -520,17 +508,6 @@ public class TypeChecker implements PascalVisitor {
         } else {
             varName = ((IdExpression) exp.var).name;
             bindingVar = env.get(varName);
-            // if was not declared
-            if (bindingVar == null) {
-                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not declared");
-                return null;
-            }
-
-            // if was not declared as a variable
-            if (!(bindingVar instanceof Var)) {
-                error("In " + exp.accept(prettyPrint) + ": " + varName + " is not a variable");
-                return null;
-            }
 
             TypeDenoter bindingType = ((Var) bindingVar).type;
 
@@ -539,14 +516,13 @@ public class TypeChecker implements PascalVisitor {
                 error("In " + exp.accept(prettyPrint) + ": " + varName + " is not an array");
                 return null;
             } else {
-                TypeDenoter ty = (TypeDenoter) ((Array) bindingType).range;
+                TypeDenoter ty = ((Array) bindingType).range;
                 if (ty != exp.index.accept(this) && ty != null)
                     error("In " + exp.accept(prettyPrint) + ": " + exp.index.accept(prettyPrint) + " has a unexpected type");
             }
             return ((Array) bindingType).elemTy;
         }
     }
-
 
 //********************** Formal Parameters
 
@@ -642,7 +618,7 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitGotoStatement(GotoStatement stm) {
-        if (!labelEnv.get(labelEnv.size()-1).contains(stm.label.value))
+        if (!labelEnv.firstElement().contains(stm.label.value))
             error("In "+stm.accept(prettyPrint)+": label "+prettyPrint.VisitUnsignedNumber(stm.label)+" was not declared");
         return null;
     }
@@ -694,7 +670,7 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitLabeledStm(LabeledStatement lblStm) {
-        if (!labelEnv.get(labelEnv.size()-1).contains(lblStm.label))
+        if (!labelEnv.firstElement().contains(lblStm.label))
             error("In \""+lblStm.accept(prettyPrint)+"\": label "+lblStm.label+" was not declared");
         lblStm.stm.accept(this);
         return null;

@@ -25,7 +25,7 @@ parser code {:
 init with {:
     ComplexSymbolFactory f = new ComplexSymbolFactory();
     symbolFactory = f;
-    File file = new File(Paths.get("").toAbsolutePath().toString() + "/src/" + "input.txt");
+    File file = new File(Paths.get("").toAbsolutePath().toString() + "/Files4Test/" + "entrada-translator.pas");
     FileInputStream fis = null;
     try {
         fis = new FileInputStream(file);
@@ -86,7 +86,7 @@ non terminal Statement statement, statement_, compound_statement;
 non terminal List<Statement> statement_sequence;
 non terminal VariableAccess variable_access;
 non terminal Expression expression, simple_expression, term, factor;
-non terminal List<Expression> expression_list;
+non terminal LinkedList<Expression> expression_list;
 non terminal RelationalOperator relational_operator;
 non terminal BinaryArithmeticOperator arithmetic_operator;
 non terminal BinaryBooleanOperator boolean_operator;
@@ -356,6 +356,6 @@ variable_access ::= ID:id  {: RESULT = new IdExpression(id); :}
                            for (Expression exp : exp_list.subList(1, exp_list.size())) var = new IndexedVariable(var, exp);
                            RESULT = var; :};
 
-expression_list ::= expression:exp	{: List<Expression> list = new ArrayList<Expression>();
+expression_list ::= expression:exp	{: LinkedList<Expression> list = new LinkedList<Expression>();
                               	       list.add(exp); RESULT = list; :}
-				  | expression_list:expList COMMA expression:exp {: expList.add(exp); RESULT = expList; :};
+				  | expression_list:expList COMMA expression:exp {: expList.addFirst(exp); RESULT = expList; :};

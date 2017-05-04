@@ -1,6 +1,5 @@
 package visitor;
 
-import IntermediateRepresentation.*;
 import IntermediateRepresentation.Binding.*;
 import IntermediateRepresentation.PrettyPrint;
 import IntermediateRepresentation.Temp.*;
@@ -52,13 +51,22 @@ public class TreeTranslator implements PascalVisitor {
 
     int currentLevel;
     Frame currentFrame;
-    Stack<Frame> framesStack = new Stack<>();
-    LinkedList<frameTuple<Stm, LABEL>> subprogs = new LinkedList<>();
+    Temp functionReturn, framePointer; // default reg to functionReturn and framePointer
 
-    SymbolTable<Binding> env = new SymbolTable<>();
+    Stack<Frame> framesStack;
+    LinkedList<frameTuple<Stm, LABEL>> subprogs;
+
+    SymbolTable<Binding> env;
     IntermediateRepresentation.PrettyPrint prettyPrint;
 
     public TreeTranslator (Program prog) {
+        framesStack = new Stack<>();
+        subprogs = new LinkedList<>();
+        env = new SymbolTable<>();
+
+        functionReturn = new Temp();
+        framePointer = new Temp();
+
         try {
             prettyPrint = new PrettyPrint(new PrintStream(new File(System.getProperty("user.dir") + "/program.tree")));
 
@@ -108,30 +116,29 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitConstantId(IdConstant idConstant) {
-        // TODO Auto-generated method stub
-        return null;
+        return ((Cons) env.get(idConstant.id)).ord;
     }
 
     @Override
     public Object VisitBooleanConstant(BooleanConstant booleanConstant) {
-        return booleanConstant.value? new CONST(1) : new CONST(0);
+        return booleanConstant.value? 1 : 0;
     }
 
     @Override
     public Object VisitCharacterConstant(CharacterConstant characterConstant) {
-        return new CONST((int) characterConstant.value);
+        return (int) characterConstant.value;
     }
 
     @Override
     public Object VisitSignedNumber(SignedNumber signedNumber) {
         return signedNumber.sign == Sign.PLUS?
-                new CONST(signedNumber.unsNum.value) :
-                    new CONST(-signedNumber.unsNum.value);
+                signedNumber.unsNum.value :
+                    -signedNumber.unsNum.value;
     }
 
     @Override
     public Object VisitUnsignedNumber(UnsignedNumber unsignedNumber) {
-        return new CONST(unsignedNumber.value);
+        return unsignedNumber.value;
     }
 
     @Override
@@ -140,11 +147,19 @@ public class TreeTranslator implements PascalVisitor {
         Exp lf = (Exp) binaryArithmeticExpression.left.accept(this);
         Exp rt = (Exp) binaryArithmeticExpression.right.accept(this);
 
-        if (binaryArithmeticExpression.op == BinaryArithmeticOperator.PLUS) {
-            //return new BINOP(lf.unEx(), rt.unEx(), BINOP.PLUS);
+        if (binaryArithmeticExpression.op == BinaryArithmeticOperator.PLUS)
+            return new Ex(new BINOP(BINOP.PLUS, lf.unEx(), rt.unEx()));
+        else if (binaryArithmeticExpression.op == BinaryArithmeticOperator.MINUS)
+            return new Ex(new BINOP(BINOP.MINUS, lf.unEx(), rt.unEx()));
+        else if (binaryArithmeticExpression.op == BinaryArithmeticOperator.TIMES)
+            return new Ex(new BINOP(BINOP.MUL, lf.unEx(), rt.unEx()));
+        else if (binaryArithmeticExpression.op == BinaryArithmeticOperator.DIV)
+            return new Ex(new BINOP(BINOP.DIV, lf.unEx(), rt.unEx()));
+        else {
+            List<Expr> exprs = new ArrayList<Expr>();
+            exprs.add(lf.unEx()); exprs.add(rt.unEx());
+            return new Ex(new CALL(new NAME(new Label("$CalcMOD_0")), exprs));
         }
-
-        return null;
     }
 
     @Override
@@ -174,7 +189,7 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitCharLiteral(CharLiteral charLiteral) {
-        return new CONST((int) charLiteral.value);
+        return new Ex(new CONST((int) charLiteral.value));
     }
 
     @Override
@@ -184,11 +199,12 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitCharacterLiteral(CharacterLiteral characterLiteral) {
-        return null;
+        return new Ex(new CONST((int) characterLiteral.value));
     }
 
     @Override
     public Object VisitIndexedVariable(IndexedVariable indexedVariable) {
+        // TODO
         return null;
     }
 
@@ -204,34 +220,65 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitNumberLiteral(NumberLiteral numberLiteral) {
-        return null;
+        return new Ex(new CONST(numberLiteral.value));
     }
 
     @Override
     public Object VisitRelationalExpression(RelationalExpression relationalExpression) {
-        /*switch (relationalExpression.op) {
-            case EQ: Ex left = (Ex) relationalExpression.left.accept(this),
-                        right = (Ex) relationalExpression.right.accept(this);
-                    return new Cx() {
-                        @Override
-                        public Stm unCx(Label t, Label f) {
-                            Temp t1 = new Temp();
-                            return new ESEQ();
-                        }
+        Exp left = (Exp) relationalExpression.left.accept(this),
+            right = (Exp) relationalExpression.right.accept(this);
+        switch (relationalExpression.op) {
+            case EQ:
+                return new Cx() {
+                    @Override
+                    public Stm unCx(Label t, Label f) {
+                        return new CJUMP(CJUMP.EQ, left.unEx(), right.unEx(), t, f);
                     }
-        }*/
-        return null;
+                };
+            case NEQ:
+                return new Cx() {
+                    @Override
+                    public Stm unCx(Label t, Label f) {
+                        return new CJUMP(CJUMP.NE, left.unEx(), right.unEx(), t, f);
+                    }
+                };
+            case LT:
+                return new Cx() {
+                    @Override
+                    public Stm unCx(Label t, Label f) {
+                        return new CJUMP(CJUMP.LT, left.unEx(), right.unEx(), t, f);
+                    }
+                };
+            case GT:
+                return new Cx() {
+                    @Override
+                    public Stm unCx(Label t, Label f) {
+                        return new CJUMP(CJUMP.GT, left.unEx(), right.unEx(), t, f);
+                    }
+                };
+            case LTE:
+                return new Cx() {
+                    @Override
+                    public Stm unCx(Label t, Label f) {
+                        return new CJUMP(CJUMP.LE, left.unEx(), right.unEx(), t, f);
+                    }
+                };
+            case GTE:
+                return new Cx() {
+                    @Override
+                    public Stm unCx(Label t, Label f) {
+                        return new CJUMP(CJUMP.GE, left.unEx(), right.unEx(), t, f);
+                    }
+                };
+            default: return null;
+        }
     }
 
     @Override
     public Object VisitSignedExpression(SignedExpression signedExpression) {
-        return null;
-    }
-
-    @Override
-    public Object VisitStringLiteral(StringLiteral stringLiteral) {
-        // TODO Auto-generated method stub
-        return null;
+        /*return (signedExpression.sign == Sign.PLUS)? signedExpression.exp.accept(this) :
+                            new BINOP(BINOP.MINUS, new CONST(0), ((Ex) signedExpression.exp.accept(this)).unEx());*/
+        return signedExpression.exp.accept(this);
     }
 
     @Override
@@ -335,7 +382,25 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitFunctionDeclaration(FunctionDeclaration functionDeclaration) {
-        return null;
+        SubprogramSegment subp = null;
+        framesStack.push(currentFrame);
+        Label procLabel = new Label("$" + functionDeclaration.nm + "_" + currentLevel);
+        try {
+            env.put(functionDeclaration.nm, new SubprogramLabel(procLabel));
+            currentLevel++;
+            env.beginScope();
+            currentFrame = new Frame();
+            for (FormalParameter formal: functionDeclaration.formals )
+                formal.accept(this);
+            Stm bdExp = (Stm) functionDeclaration.body.accept(this);
+            subp = new SubprogramSegment(procLabel, currentFrame, bdExp);
+            env.endScope();
+        } catch (InvalidLevelException | AlreadyBoundException e) {
+            e.printStackTrace();
+        }
+        currentLevel--;
+        currentFrame = framesStack.pop();
+        return subp;
     }
 
     @Override
@@ -349,7 +414,7 @@ public class TreeTranslator implements PascalVisitor {
             else
                 exprList.add((Expr) exp.accept(this));
         }
-        return new CALL(new NAME(nm),exprList);
+        return new EXP(new CALL(new NAME(nm),exprList));
     }
 
     @Override
@@ -377,7 +442,10 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitAssignStm(AssignmentStatement assignStm) {
-        return null;
+        Exp left = (Exp) assignStm.left.accept(this),
+            right = (Exp) assignStm.right.accept(this);
+
+        return new MOVE(left.unEx(), right.unEx());
     }
 
     @Override
@@ -402,21 +470,19 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitIfStm(IfStatement ifStm) {
-        LABEL if_label = new LABEL(new Label()), else_label = new LABEL(new Label()),
+        LABEL then_label = new LABEL(new Label()), else_label = new LABEL(new Label()),
               done = new LABEL(new Label());
         if (ifStm.elsePart != null) {
-            CJUMP if_jmp = new CJUMP(CJUMP.EQ, ((Ex) ifStm.condition.accept(this)).unEx(),
-                    new CONST(1), if_label.label, else_label.label);
-            return new SEQ(if_jmp,
-                    new SEQ(if_label,
+            Stm condition_eval = ((Exp) ifStm.condition.accept(this)).unCx(then_label.label, else_label.label);
+            return new SEQ(condition_eval,
+                    new SEQ(then_label,
                             new SEQ((Stm) ifStm.thenPart.accept(this),
                                     new SEQ(else_label,
                                             (Stm) ifStm.elsePart.accept(this)))));
         } else {
-            CJUMP if_jmp = new CJUMP(CJUMP.EQ, ((Ex) ifStm.condition.accept(this)).unEx(),
-                            new CONST(1), if_label.label, done.label);
-            return new SEQ(if_jmp,
-                    new SEQ(if_label,
+            Stm condition_eval = ((Exp) ifStm.condition.accept(this)).unCx(then_label.label, done.label);
+            return new SEQ(condition_eval,
+                    new SEQ(then_label,
                             new SEQ((Stm) ifStm.thenPart.accept(this),
                                     done) ) );
         }
@@ -440,7 +506,7 @@ public class TreeTranslator implements PascalVisitor {
             else
                 exprList.add((Expr) exp.accept(this));
         }
-        return new CALL(new NAME(nm),exprList);
+        return new EXP(new CALL(new NAME(nm),exprList));
     }
 
     @Override
@@ -459,16 +525,22 @@ public class TreeTranslator implements PascalVisitor {
     @Override
     public Object VisitIdExpression(IdExpression idExpression) {
         Binding var =  env.get(idExpression.name);
-        if (((Var) var).nestingLevel == currentLevel)
-            return new MEM(new BINOP(BINOP.PLUS,
-                                new CONST(currentLevel), // frame point?
-                                                new CONST(((Var) var).frameLoc)));
-        else {
-            int diff = ((Var) var).nestingLevel - currentLevel;
-            BINOP level = new BINOP(BINOP.PLUS, new CONST(currentLevel), new CONST((((Var) var)).frameLoc));
-            for (int i = 1; i <= diff; i++)
-                level = new BINOP(BINOP.PLUS, new CONST(framesStack.get(framesStack.size()-i).size()), level);
-            return new MEM(level);
+        if (var instanceof Var) {
+            if (((Var) var).nestingLevel == currentLevel)
+                return new Ex(new MEM(new BINOP(BINOP.PLUS,
+                        new TEMP(framePointer),
+                        new CONST(((Var) var).frameLoc))));
+            else {
+                int diff = ((Var) var).nestingLevel - currentLevel;
+                BINOP level = new BINOP(BINOP.PLUS, new TEMP(framePointer), new CONST((((Var) var)).frameLoc));
+                for (int i = 1; i <= diff; i++)
+                    level = new BINOP(BINOP.PLUS, new CONST(framesStack.get(framesStack.size() - i).size()), level);
+                return new Ex(new MEM(level));
+            }
+        } else if (var instanceof Cons) {
+            return new Ex(new CONST(((Cons) var).ord));
+        } else { // instance of subprogram, function return
+            return new Ex(new TEMP(this.functionReturn));
         }
 
     }
@@ -509,6 +581,12 @@ public class TreeTranslator implements PascalVisitor {
 
     @Override
     public Object VisitEmptyStm(EmptyStatement eStm) {
+        return null;
+    }
+
+    @Override
+    public Object VisitStringLiteral(StringLiteral stringLiteral) {
+        // TODO Auto-generated method stub
         return null;
     }
 }
