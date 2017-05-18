@@ -25,7 +25,7 @@ parser code {:
 init with {:
     ComplexSymbolFactory f = new ComplexSymbolFactory();
     symbolFactory = f;
-    File file = new File(Paths.get("").toAbsolutePath().toString() + "/Files4Test/" + "entrada-translator.pas");
+    File file = new File(Paths.get("").toAbsolutePath().toString() + "/Files4Test/" + "entrada-completa.pas");
     FileInputStream fis = null;
     try {
         fis = new FileInputStream(file);
@@ -86,7 +86,7 @@ non terminal Statement statement, statement_, compound_statement;
 non terminal List<Statement> statement_sequence;
 non terminal VariableAccess variable_access;
 non terminal Expression expression, simple_expression, term, factor;
-non terminal LinkedList<Expression> expression_list;
+non terminal LinkedList<Expression> expression_list, indexed_parameters_list, indexed_aux;
 non terminal RelationalOperator relational_operator;
 non terminal BinaryArithmeticOperator arithmetic_operator;
 non terminal BinaryBooleanOperator boolean_operator;
@@ -95,6 +95,7 @@ non terminal unsigned_constant;
 
 
 /* Precedences */
+precedence nonassoc LBRA;	// Inserted by Eclipse plugin
 precedence nonassoc ELSE;
 
 /* @@@@@@@@@@@@ Grammar rules and syntatic evaluation @@@@@@@@@@@@ */
@@ -351,10 +352,14 @@ sign ::= MINUS {: RESULT = Sign.MINUS; :}
        | PLUS  {: RESULT = Sign.PLUS; :};
 
 variable_access ::= ID:id  {: RESULT = new IdExpression(id); :}
-                  | variable_access:var_access LBRA expression_list:exp_list RBRA
-                           {: IndexedVariable var = new IndexedVariable(var_access, exp_list.get(0));
-                           for (Expression exp : exp_list.subList(1, exp_list.size())) var = new IndexedVariable(var, exp);
-                           RESULT = var; :};
+                  | variable_access:var_access LBRA indexed_parameters_list:exp_list RBRA
+	               {: IndexedVariable var = new IndexedVariable(var_access, exp_list.get(0));
+                      for (Expression exp : exp_list.subList(1, exp_list.size())) var = new IndexedVariable(var, exp);
+                      RESULT = var; :};
+
+indexed_parameters_list ::= expression_list:exp {: RESULT = exp; :}
+						  | indexed_parameters_list:expList LBRA expression:exp RBRA
+						  	{: expList.addLast(exp); RESULT = expList; :};
 
 expression_list ::= expression:exp	{: LinkedList<Expression> list = new LinkedList<Expression>();
                               	       list.add(exp); RESULT = list; :}

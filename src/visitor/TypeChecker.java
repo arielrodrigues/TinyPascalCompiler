@@ -202,7 +202,9 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitArray(Array arrayType) {
-        arrayType.range = (TypeDenoter) arrayType.range.accept(this);
+        if (!(arrayType.range instanceof EnumeratedType))
+            arrayType.range = (TypeDenoter) arrayType.range.accept(this);
+
         if (!isOrdinal(arrayType.range))
             error("In " + arrayType.accept(prettyPrint) + ": "
                     + arrayType.range.accept(prettyPrint) + " is required to be ordinal");
@@ -309,8 +311,9 @@ public class TypeChecker implements PascalVisitor {
 
     @Override
     public Object VisitVariableDeclaration(VariableDeclaration varDec) {
+        TypeDenoter type = (TypeDenoter) varDec.ty.accept(this);
         try {
-            env.put(varDec.id, new Var((TypeDenoter) varDec.ty.accept(this)));
+            env.put(varDec.id, new Var(type));
         } catch (AlreadyBoundException e) {
             error(varDec.id + e.log);
         }
@@ -491,7 +494,10 @@ public class TypeChecker implements PascalVisitor {
 
             // check type of elements and indexes
             while (var instanceof IndexedVariable && bindingType instanceof Array) {
-                bindingRange = (TypeDenoter) ((Array) bindingType).range.accept(this);
+                if ( !(((Array) bindingType).range instanceof EnumeratedType) )
+                    bindingRange = (TypeDenoter) ((Array) bindingType).range.accept(this);
+                else
+                    bindingRange = ((Array) bindingType).range;
                 expRange = (TypeDenoter) ((IndexedVariable) var).index.accept(this);
                 if (bindingRange != expRange && expRange != null) {
                     error("In " + exp.accept(prettyPrint) + ": " +
