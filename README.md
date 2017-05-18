@@ -1,6 +1,6 @@
 # br.ufs.dcomp.tinypascalcompiler
 
-this version still with bugs in intermediate code generate (TreeTranslate.java) and TypeChecker (TypeChecker.java). Those will probably not be solved by me, as I believe that this project has already fulfilled my personal objectives.
+this version still with bugs in intermediate code generate (TreeTranslate.java). Those will probably not be solved by me, as I believe that this project has already fulfilled my personal objectives.
 
 # This version contains:
   
@@ -8,7 +8,7 @@ this version still with bugs in intermediate code generate (TreeTranslate.java) 
 * Syntactic Analysis w/ CUP
 * using Visitor Pattern:
 * Pretty Printer
-* Type Checker - Not bug-free
+* Type Checker
 * Intermediate Code Generator (Translate into TREEs) - Not bug-free
 
 This compiler was made using JFLEX for Lexical Analysis and CUP for Syntactic Analysis. Type Checker, Pretty Print and Intermediate Code Generator (Using TREE as intermediate language, as proposed by Appel and Palsberg in Modern Compiler Implementation in Java. 
