@@ -14,6 +14,6 @@ this version still with bugs in intermediate code generate (TreeTranslate.java).
 This compiler was made using JFLEX for Lexical Analysis and CUP for Syntactic Analysis. Type Checker, Pretty Print and Intermediate Code Generator (Using TREE as intermediate language, as proposed by Appel and Palsberg in Modern Compiler Implementation in Java. 
 
 
-# I am gratefull to Giovanny Lucero (UFS), compiler's class was extremely interesting and fun.
+I am gratefull to Giovanny Lucero (UFS), compiler's class was extremely interesting and fun.
 
 
